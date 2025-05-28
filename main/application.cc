@@ -10,6 +10,7 @@
 #include "iot/thing_manager.h"
 #include "assets/lang_config.h"
 #include "mcp_server.h"
+#include "qmi8658.h"
 
 #if CONFIG_USE_AUDIO_PROCESSOR
 #include "afe_audio_processor.h"
@@ -124,6 +125,7 @@ void Application::CheckNewVersion() {
         if (!ota_.HasActivationCode() && !ota_.HasActivationChallenge()) {
             xEventGroupSetBits(event_group_, CHECK_NEW_VERSION_DONE_EVENT);
             // Exit the loop if done checking new version
+            my_pet = new ElectronicPet();
             break;
         }
 
@@ -235,10 +237,18 @@ void Application::PlaySound(const std::string_view& sound) {
     }
 }
 
-void Application::ToggleChatState() {
+void Application::ToggleChatState(bool directed_speaking) {
     if (device_state_ == kDeviceStateActivating) {
         SetDeviceState(kDeviceStateIdle);
         return;
+    }
+
+    auto backlight = Board::GetInstance().GetBacklight();
+    if(backlight->brightness() == 0){
+        // ESP_LOGI(TAG, "Backlight is off, turning it on");
+        backlight->DisplayBrightnessReset();
+        if(!directed_speaking)
+            return;
     }
 
     if (!protocol_) {
@@ -637,6 +647,9 @@ void Application::OnClockTimer() {
             }
         }
     }
+    extern QMI8658* qmi8658_;
+    t_sQMI8658 data; // 返回没有在这里处理
+    qmi8658_->deal_qmi8658_data(&data);
 }
 
 // Add a async task to MainLoop
@@ -834,6 +847,7 @@ void Application::SetDeviceState(DeviceState state) {
 
     auto& board = Board::GetInstance();
     auto display = board.GetDisplay();
+    auto backlight = Board::GetInstance().GetBacklight();
     auto led = board.GetLed();
     led->OnStateChanged();
     switch (state) {
@@ -846,6 +860,7 @@ void Application::SetDeviceState(DeviceState state) {
 #if CONFIG_USE_WAKE_WORD_DETECT
             wake_word_detect_.StartDetection();
 #endif
+            backlight->DisplayBrightnessReset();
             break;
         case kDeviceStateConnecting:
             display->SetStatus(Lang::Strings::CONNECTING);
@@ -853,6 +868,7 @@ void Application::SetDeviceState(DeviceState state) {
             display->SetChatMessage("system", "");
             timestamp_queue_.clear();
             last_output_timestamp_ = 0;
+            backlight->DisplayBrightnessKeep();
             break;
         case kDeviceStateListening:
             display->SetStatus(Lang::Strings::LISTENING);
@@ -876,6 +892,7 @@ void Application::SetDeviceState(DeviceState state) {
 #endif
                 audio_processor_->Start();
             }
+            backlight->DisplayBrightnessKeep();
             break;
         case kDeviceStateSpeaking:
             display->SetStatus(Lang::Strings::SPEAKING);
@@ -887,6 +904,7 @@ void Application::SetDeviceState(DeviceState state) {
 #endif
             }
             ResetDecoder();
+            backlight->DisplayBrightnessKeep();
             break;
         default:
             // Do nothing
@@ -1001,4 +1019,33 @@ void Application::SetAecMode(AecMode mode) {
             protocol_->CloseAudioChannel();
         }
     });
+}
+
+void Application::SendMessage(std::string& message) {
+    ESP_LOGI(TAG, "Send message: %s", message.c_str());
+    message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+    message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+    if (device_state_ == kDeviceStateIdle) {
+        ToggleChatState(true);
+        Schedule([this, message]() {
+            if (protocol_) {
+                protocol_->SendWakeWordDetected(message); 
+            }
+        }); 
+    } else if (device_state_ == kDeviceStateSpeaking) {
+        Schedule([this, message]() {
+            AbortSpeaking(kAbortReasonNone);
+            SetListeningMode(kListeningModeManualStop);
+            if (protocol_) {
+                protocol_->SendWakeWordDetected(message); 
+            }
+        });
+    } else if (device_state_ == kDeviceStateListening) {   
+        Schedule([this, message]() {
+            if (protocol_) {
+                protocol_->SendWakeWordDetected(message); 
+            }
+        });
+    }
+
 }

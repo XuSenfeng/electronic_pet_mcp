@@ -43,7 +43,7 @@ void Backlight::RestoreBrightness() {
     SetBrightness(saved_brightness);
 }
 
-void Backlight::SetBrightness(uint8_t brightness, bool permanent) {
+void Backlight::SetBrightness(uint8_t brightness, bool permanent, bool lock_screen) {
     if (brightness > 100) {
         brightness = 100;
     }
@@ -55,6 +55,13 @@ void Backlight::SetBrightness(uint8_t brightness, bool permanent) {
     if (permanent) {
         Settings settings("display", true);
         settings.SetInt("brightness", brightness);
+    }
+
+    if(lock_screen){
+        last_light = brightness_;
+        ESP_LOGI(TAG, "last_light = %d", last_light);
+    }else{
+        last_light = brightness;
     }
 
     target_brightness_ = brightness;
@@ -119,3 +126,25 @@ void PwmBacklight::SetBrightnessImpl(uint8_t brightness) {
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
+void Backlight::DisplayBrightnessReset(void)
+{
+    if(brightness_time == -1)
+    {
+        // 亮屏
+        ESP_LOGI(TAG, "Turn on the backlight %d", last_light);
+        SetBrightness(last_light);
+    }
+    brightness_time = default_sleep_time;
+}
+
+void Backlight::DisplayBrightnessKeep(void)
+{
+    ESP_LOGI(TAG, "Keep the backlight on %d", last_light);
+    SetBrightness(last_light);
+    brightness_time = -1;
+}
+
+int Backlight::DisplayBrightnessGetDefalutTime(void)
+{
+    return default_sleep_time;
+}

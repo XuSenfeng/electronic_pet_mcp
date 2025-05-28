@@ -16,13 +16,15 @@
 #include <esp_lcd_touch_ft5x06.h>
 #include <esp_lvgl_port.h>
 #include <lvgl.h>
-
-
+#include "qmi8658.h"
+#include "esp_vfs_fat.h"
+#include "sdmmc_cmd.h"
+#include "driver/sdmmc_host.h"
 #define TAG "LichuangDevBoard"
 
 LV_FONT_DECLARE(font_puhui_20_4);
 LV_FONT_DECLARE(font_awesome_20_4);
-
+QMI8658* qmi8658_;
 class Pca9557 : public I2cDevice {
 public:
     Pca9557(i2c_master_bus_handle_t i2c_bus, uint8_t addr) : I2cDevice(i2c_bus, addr) {
@@ -95,6 +97,7 @@ private:
 
         // Initialize PCA9557
         pca9557_ = new Pca9557(i2c_bus_, 0x19);
+        qmi8658_ = new QMI8658(i2c_bus_, QMI8658_SENSOR_ADDR);
     }
 
     void InitializeSpi() {
@@ -174,8 +177,8 @@ private:
     {
         esp_lcd_touch_handle_t tp;
         esp_lcd_touch_config_t tp_cfg = {
-            .x_max = DISPLAY_WIDTH,
-            .y_max = DISPLAY_HEIGHT,
+            .x_max = DISPLAY_HEIGHT,
+            .y_max = DISPLAY_WIDTH,
             .rst_gpio_num = GPIO_NUM_NC, // Shared with LCD reset
             .int_gpio_num = GPIO_NUM_NC, 
             .levels = {
@@ -203,6 +206,41 @@ private:
         };
 
         lvgl_port_add_touch(&touch_cfg);
+    }
+
+    void SDCardInit(){
+        esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+            .format_if_mount_failed = true,   // 如果挂载不成功是否需要格式化SD卡
+            .max_files = 5, // 允许打开的最大文件数
+            .allocation_unit_size = 16 * 1024  // 分配单元大小
+        };
+        
+        sdmmc_card_t *card;
+        const char mount_point[] = MOUNT_POINT;
+        ESP_LOGI(TAG, "Initializing SD card");
+        ESP_LOGI(TAG, "Using SDMMC peripheral");
+    
+        sdmmc_host_t host = SDMMC_HOST_DEFAULT(); // SDMMC主机接口配置
+        sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT(); // SDMMC插槽配置
+        slot_config.width = 1;  // 设置为1线SD模式
+        slot_config.clk = BSP_SD_CLK; 
+        slot_config.cmd = BSP_SD_CMD;
+        slot_config.d0 = BSP_SD_D0;
+        slot_config.flags |= SDMMC_SLOT_FLAG_INTERNAL_PULLUP; // 打开内部上拉电阻
+    
+        ESP_LOGI(TAG, "Mounting filesystem");
+        esp_err_t ret = esp_vfs_fat_sdmmc_mount(mount_point, &host, &slot_config, &mount_config, &card); // 挂载SD卡
+    
+        if (ret != ESP_OK) {  // 如果没有挂载成功
+            if (ret == ESP_FAIL) { // 如果挂载失败
+                ESP_LOGE(TAG, "Failed to mount filesystem. ");
+            } else { // 如果是其它错误 打印错误名称
+                ESP_LOGE(TAG, "Failed to initialize the card (%s). ", esp_err_to_name(ret));
+            }
+            return;
+        }
+        ESP_LOGI(TAG, "Filesystem mounted"); // 提示挂载成功
+        sdmmc_card_print_info(stdout, card); // 终端打印SD卡的一些信息
     }
 
     void InitializeCamera() {
@@ -244,10 +282,12 @@ public:
     LichuangDevBoard() : boot_button_(BOOT_BUTTON_GPIO) {
         InitializeI2c();
         InitializeSpi();
+
         InitializeSt7789Display();
         InitializeTouch();
         InitializeButtons();
-        InitializeCamera();
+        SDCardInit();
+        // InitializeCamera();
 
 #if CONFIG_IOT_PROTOCOL_XIAOZHI
         auto& thing_manager = iot::ThingManager::GetInstance();
@@ -255,6 +295,7 @@ public:
         thing_manager.AddThing(iot::CreateThing("Screen"));
 #endif
         GetBacklight()->RestoreBrightness();
+
     }
 
     virtual AudioCodec* GetAudioCodec() override {
@@ -273,9 +314,9 @@ public:
         return &backlight;
     }
 
-    virtual Camera* GetCamera() override {
-        return camera_;
-    }
+    // virtual Camera* GetCamera() override {
+    //     return camera_;
+    // }
 };
 
 DECLARE_BOARD(LichuangDevBoard);

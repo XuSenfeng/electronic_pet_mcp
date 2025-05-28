@@ -1,3 +1,9 @@
+/*
+ * @Descripttion: 
+ * @Author: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
+ */
 #ifndef _BOARD_CONFIG_H_
 #define _BOARD_CONFIG_H_
 
@@ -58,5 +64,8 @@
 
 #define XCLK_FREQ_HZ 24000000
 
-
+#define BSP_SD_CLK          (GPIO_NUM_47)
+#define BSP_SD_CMD          (GPIO_NUM_48)
+#define BSP_SD_D0           (GPIO_NUM_21)
+#define MOUNT_POINT              "/sdcard"
 #endif // _BOARD_CONFIG_H_

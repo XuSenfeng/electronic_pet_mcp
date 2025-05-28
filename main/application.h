@@ -22,6 +22,8 @@
 #include "background_task.h"
 #include "audio_processor.h"
 
+#include "electronic_pet.h"
+
 #if CONFIG_USE_WAKE_WORD_DETECT
 #include "wake_word_detect.h"
 #endif
@@ -70,7 +72,7 @@ public:
     void Alert(const char* status, const char* message, const char* emotion = "", const std::string_view& sound = "");
     void DismissAlert();
     void AbortSpeaking(AbortReason reason);
-    void ToggleChatState();
+    void ToggleChatState(bool directed_speaking = false);
     void StartListening();
     void StopListening();
     void UpdateIotStates();
@@ -81,7 +83,10 @@ public:
     void SendMcpMessage(const std::string& payload);
     void SetAecMode(AecMode mode);
     AecMode GetAecMode() const { return aec_mode_; }
+    ElectronicPet* GetMyPet() { return my_pet; }
+    void SendMessage(std::string& message);
 
+    bool position_f = false, position_b = false, position_l = false, position_r = false;
 private:
     Application();
     ~Application();
@@ -113,7 +118,7 @@ private:
     std::list<AudioStreamPacket> audio_send_queue_;
     std::list<AudioStreamPacket> audio_decode_queue_;
     std::condition_variable audio_decode_cv_;
-
+    std::atomic<ElectronicPet *> my_pet;
     // 新增：用于维护音频包的timestamp队列
     std::list<uint32_t> timestamp_queue_;
     std::mutex timestamp_mutex_;

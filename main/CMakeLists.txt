@@ -8,6 +8,10 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "led/circular_strip.cc"
             "led/gpio_led.cc"
             "display/display.cc"
+            "display/lcd_display_catalogue.cc"
+            "display/lcd_display_item.cc"
+            "display/lcd_display_game.cc"
+            "display/lcd_display_state.cc"
             "display/lcd_display.cc"
             "display/oled_display.cc"
             "protocols/protocol.cc"
@@ -34,6 +38,17 @@ list(APPEND SOURCES ${IOT_SOURCES})
 file(GLOB BOARD_COMMON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/boards/common/*.cc)
 list(APPEND SOURCES ${BOARD_COMMON_SOURCES})
 list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boards/common)
+
+file(GLOB PET_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/electronic_pet/*.cc)
+list(APPEND SOURCES ${PET_SOURCES})
+list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/electronic_pet)
+
+file(GLOB PET_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/electronic_pet/things/*.cc)
+list(APPEND SOURCES ${PET_SOURCES})
+list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/electronic_pet/things)
+file(GLOB PET_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/electronic_pet/img/*.c)
+list(APPEND SOURCES ${PET_SOURCES})
+
 
 # 根据 BOARD_TYPE 配置添加对应的板级文件
 if(CONFIG_BOARD_TYPE_BREAD_COMPACT_WIFI)

@@ -1,3 +1,9 @@
+/*
+ * @Descripttion: 
+ * @Author: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
+ */
 #pragma once
 
 #include <cstdint>
@@ -13,8 +19,14 @@ public:
     ~Backlight();
 
     void RestoreBrightness();
-    void SetBrightness(uint8_t brightness, bool permanent = false);
+    void SetBrightness(uint8_t brightness, bool permanent = false, bool lock_screen = false);
     inline uint8_t brightness() const { return brightness_; }
+
+    void DisplayBrightnessReset(void);
+    int DisplayBrightnessGetDefalutTime(void);
+    void DisplayBrightnessKeep(void);
+    esp_timer_handle_t my_timer;
+    int brightness_time = -1;  // 初识亮屏时间
 
 protected:
     void OnTransitionTimer();
@@ -24,6 +36,9 @@ protected:
     uint8_t brightness_ = 0;
     uint8_t target_brightness_ = 0;
     uint8_t step_ = 1;
+
+    int last_light = 0;  // 记录上次亮度
+    int default_sleep_time = 30;    // 默认休眠时间
 };
 
 

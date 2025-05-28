@@ -248,3 +248,18 @@ void Display::SetTheme(const std::string& theme_name) {
     Settings settings("display", true);
     settings.SetString("theme", theme_name);
 }
+
+
+void Display::StateUI() {}
+void Display::SetupUI() {}
+void Display::CleanSetupUI(){}
+void Display::UpdateStateGui(){};
+void Display::ItemUI(){};
+void Display::UpdateItemUI(){};
+void Display::HelpUI(){};
+void Display::GameSelectUI(){};
+void Display::CreateStatusItem(lv_obj_t* parent, const char* name, int value_ptr, 
+    int min, int max, int y_pos, int num){};
+void Display::AiStoryUI(){}; 
+void Display::UpdateStoryHistory(const char* new_text){};
+void Display::UpdateGameStateGui(){};

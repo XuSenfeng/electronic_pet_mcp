@@ -5,7 +5,7 @@
 #include <esp_timer.h>
 #include <esp_log.h>
 #include <esp_pm.h>
-
+#include "electronic_pet.h"
 #include <string>
 
 struct DisplayFonts {
@@ -30,15 +30,37 @@ public:
     virtual std::string GetTheme() { return current_theme_name_; }
     virtual void UpdateStatusBar(bool update_all = false);
 
+    virtual void StateUI();
+    virtual void SetupUI();
+    virtual void ItemUI();
+    virtual void HelpUI();
+    virtual void GameSelectUI();
+    virtual void CleanSetupUI();
+    virtual void UpdateStateGui();
+    virtual void UpdateItemUI();
+    virtual void CreateStatusItem(lv_obj_t* parent, const char* name, int value_ptr, 
+        int min, int max, int y_pos, int num);
+    virtual void AiStoryUI(); 
+    virtual void UpdateStoryHistory(const char* new_text);
+    virtual void UpdateGameStateGui();
+
     inline int width() const { return width_; }
     inline int height() const { return height_; }
+
+    lv_display_t *display_ = nullptr;
+    lv_obj_t * screen_main_ = nullptr;
+    lv_obj_t * screen_state_ = nullptr;
+    lv_obj_t * screen_things_ = nullptr;
+    lv_obj_t * screen_description_ = nullptr;
+    lv_obj_t * screen_game_ = nullptr;
+    lv_obj_t * screen_now_ = nullptr;
+    lv_obj_t* history_cont = nullptr;
 
 protected:
     int width_ = 0;
     int height_ = 0;
     
     esp_pm_lock_handle_t pm_lock_ = nullptr;
-    lv_display_t *display_ = nullptr;
 
     lv_obj_t *emotion_label_ = nullptr;
     lv_obj_t *network_label_ = nullptr;
@@ -56,7 +78,9 @@ protected:
     std::string current_theme_name_;
 
     esp_timer_handle_t notification_timer_ = nullptr;
-
+    esp_timer_handle_t update_timer_ = nullptr;
+    // 状态显示对象数组
+    lv_obj_t* state_items[E_PET_STATE_NUMBER];
     friend class DisplayLockGuard;
     virtual bool Lock(int timeout_ms = 0) = 0;
     virtual void Unlock() = 0;
