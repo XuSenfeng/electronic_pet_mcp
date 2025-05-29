@@ -87,6 +87,7 @@ public:
     void SendMessage(std::string& message);
 
     bool position_f = false, position_b = false, position_l = false, position_r = false;
+    BackgroundTask* background_task_ = nullptr;
 private:
     Application();
     ~Application();
@@ -113,7 +114,7 @@ private:
 
     // Audio encode / decode
     TaskHandle_t audio_loop_task_handle_ = nullptr;
-    BackgroundTask* background_task_ = nullptr;
+    
     std::chrono::steady_clock::time_point last_output_time_;
     std::list<AudioStreamPacket> audio_send_queue_;
     std::list<AudioStreamPacket> audio_decode_queue_;

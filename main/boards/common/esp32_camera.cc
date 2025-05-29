@@ -8,9 +8,11 @@
 #include <esp_heap_caps.h>
 #include <img_converters.h>
 #include <cstring>
+#include "application.h"
 
 #define TAG "Esp32Camera"
-
+std::string Esp32Camera::explain_token_ = "";
+std::string Esp32Camera::explain_url_ = "";
 Esp32Camera::Esp32Camera(const camera_config_t& config) {
     // camera init
     esp_err_t err = esp_camera_init(&config); // 配置上面定义的参数
@@ -83,6 +85,11 @@ void Esp32Camera::SetExplainUrl(const std::string& url, const std::string& token
     explain_url_ = url;
     explain_token_ = token;
 }
+void Esp32Camera::SetExplainUrlStatic(const std::string& url, const std::string& token) {
+    explain_url_ = url;
+    explain_token_ = token;
+}
+
 
 bool Esp32Camera::Capture() {
     if (encoder_thread_.joinable()) {
@@ -113,17 +120,26 @@ bool Esp32Camera::Capture() {
         return true;
     }
     // 显示预览图片
-    auto display = Board::GetInstance().GetDisplay();
-    if (display != nullptr) {
-        auto src = (uint16_t*)fb_->buf;
-        auto dst = (uint16_t*)preview_image_.data;
-        size_t pixel_count = fb_->len / 2;
-        for (size_t i = 0; i < pixel_count; i++) {
-            // 交换每个16位字内的字节
-            dst[i] = __builtin_bswap16(src[i]);
-        }
-        display->SetPreviewImage(&preview_image_);
+    auto &app = Application::GetInstance();
+    if(app.background_task_ == nullptr) {
+        ESP_LOGE(TAG, "Background task is not initialized");
+        return true;
     }
+    // app.background_task_->Schedule([this](){
+    //     vTaskDelay(pdMS_TO_TICKS(1000)); // 等待摄像头稳定
+    //     auto display = Board::GetInstance().GetDisplay();
+    //     if (display != nullptr) {
+    //         auto src = (uint16_t*)fb_->buf;
+    //         auto dst = (uint16_t*)preview_image_.data;
+    //         size_t pixel_count = fb_->len / 2;
+    //         for (size_t i = 0; i < pixel_count; i++) {
+    //             // 交换每个16位字内的字节
+    //             dst[i] = __builtin_bswap16(src[i]);
+    //         }
+    //         ESP_LOGI(TAG, "Preview image captured show");
+    //         display->SetPreviewImage(&preview_image_);
+    //     }
+    // });
     return true;
 }
 bool Esp32Camera::SetHMirror(bool enabled) {

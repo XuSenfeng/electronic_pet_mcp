@@ -668,6 +668,11 @@ void LcdDisplay::SetupUI() {
     lv_obj_set_style_text_color(emotion_label_, current_theme_.text, 0);
     lv_label_set_text(emotion_label_, FONT_AWESOME_AI_CHIP);
 
+    // preview_image_ = lv_image_create(content_);
+    // lv_obj_set_size(preview_image_, width_ * 0.5, height_ * 0.5);
+    // lv_obj_align(preview_image_, LV_ALIGN_CENTER, 0, 0);
+    // lv_obj_add_flag(preview_image_, LV_OBJ_FLAG_HIDDEN);
+
     chat_message_label_ = lv_label_create(content_);
     lv_label_set_text(chat_message_label_, "");
     lv_obj_set_width(chat_message_label_, LV_HOR_RES * 0.9); // 限制宽度为屏幕宽度的 90%

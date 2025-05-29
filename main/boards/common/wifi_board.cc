@@ -278,10 +278,8 @@ std::string WifiBoard::GetDeviceStatusJson() {
     cJSON_AddNumberToObject(elec_pet_game, "Fame", pet->getGameState(E_PET_FAME_STATE_FAME));
 
     cJSON_AddBoolToObject(elec_pet, "isUpgrade", pet->isUpGraded() ? true : false);
-    
-    cJSON_AddItemToObject(elec_pet, "elec_pet", elec_pet_game);
-
-
+    cJSON_AddNumberToObject(elec_pet, "level", pet->getLevel());
+    cJSON_AddItemToObject(elec_pet, "elec_pet_game_data", elec_pet_game);
     cJSON_AddItemToObject(root, "elec_pet", elec_pet);
 
     auto json_str = cJSON_PrintUnformatted(root);

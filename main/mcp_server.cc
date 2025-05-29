@@ -12,6 +12,7 @@
 #include "application.h"
 #include "display.h"
 #include "board.h"
+#include "esp32_camera.h"
 
 #define TAG "MCP"
 
@@ -33,10 +34,11 @@ void McpServer::AddCommonTools() {
     auto& board = Board::GetInstance();
 
     AddTool("self.get_device_status",
-        "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, etc.\n"
+        "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, pet, etc.\n"
         "Use this tool for: \n"
         "1. Answering questions about current condition (e.g. what is the current volume of the audio speaker?)\n"
-        "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)",
+        "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)\n"
+        "3. As the first step to control the Pet, get the status of the pet. (e.g. The current satiety level of the pet, etc.)\n",
         PropertyList(),
         [&board](const PropertyList& properties) -> ReturnValue {
             return board.GetDeviceStatusJson();
@@ -80,27 +82,59 @@ void McpServer::AddCommonTools() {
             });
     }
 
-    auto camera = board.GetCamera();
-    if (camera) {
-        AddTool("self.camera.take_photo",
-            "Take a photo and explain it. Use this tool after the user asks you to see something.\n"
-            "Args:\n"
-            "  `question`: The question that you want to ask about the photo.\n"
-            "Return:\n"
-            "  A JSON object that provides the photo information.",
-            PropertyList({
-                Property("question", kPropertyTypeString)
-            }),
-            [camera](const PropertyList& properties) -> ReturnValue {
-                if (!camera->Capture()) {
-                    return "{\"success\": false, \"message\": \"Failed to capture photo\"}";
-                }
-                auto question = properties["question"].value<std::string>();
-                return camera->Explain(question);
-            });
-    }
+    AddTool("self.camera.take_photo",
+        "Take a photo and explain it. Use this tool after the user asks you to see something.\n"
+        "Args:\n"
+        "  `question`: The question that you want to ask about the photo.\n"
+        "Return:\n"
+        "  A JSON object that provides the photo information.",
+        PropertyList({
+            Property("question", kPropertyTypeString)
+        }),
+        [](const PropertyList& properties) -> ReturnValue {
 
-    
+            camera_config_t config = {};
+            config.ledc_channel = LEDC_CHANNEL_2;  // LEDC通道选择  用于生成XCLK时钟 但是S3不用
+            config.ledc_timer = LEDC_TIMER_2; // LEDC timer选择  用于生成XCLK时钟 但是S3不用
+            config.pin_d0 = CAMERA_PIN_D0;
+            config.pin_d1 = CAMERA_PIN_D1;
+            config.pin_d2 = CAMERA_PIN_D2;
+            config.pin_d3 = CAMERA_PIN_D3;
+            config.pin_d4 = CAMERA_PIN_D4;
+            config.pin_d5 = CAMERA_PIN_D5;
+            config.pin_d6 = CAMERA_PIN_D6;
+            config.pin_d7 = CAMERA_PIN_D7;
+            config.pin_xclk = CAMERA_PIN_XCLK;
+            config.pin_pclk = CAMERA_PIN_PCLK;
+            config.pin_vsync = CAMERA_PIN_VSYNC;
+            config.pin_href = CAMERA_PIN_HREF;
+            config.pin_sccb_sda = -1;   // 这里写-1 表示使用已经初始化的I2C接口
+            config.pin_sccb_scl = CAMERA_PIN_SIOC;
+            config.sccb_i2c_port = 1;
+            config.pin_pwdn = CAMERA_PIN_PWDN;
+            config.pin_reset = CAMERA_PIN_RESET;
+            config.xclk_freq_hz = XCLK_FREQ_HZ;
+            config.pixel_format = PIXFORMAT_RGB565;
+            config.frame_size = FRAMESIZE_VGA;
+            config.jpeg_quality = 12;
+            config.fb_count = 1;
+            config.fb_location = CAMERA_FB_IN_PSRAM;
+            config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+            Esp32Camera* camera_ = nullptr;
+            camera_ = new Esp32Camera(config);
+
+            if (!camera_->Capture()) {
+                return "{\"success\": false, \"message\": \"Failed to capture photo\"}";
+            }
+            auto question = properties["question"].value<std::string>();
+            std::string result = camera_->Explain(question);
+            // ESP_LOGI(TAG, "Camera explain result: %s", result.c_str());
+            delete  camera_;
+            return result;
+        });
+
+
+
 
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());
@@ -137,15 +171,16 @@ void McpServer::ParseCapabilities(const cJSON* capabilities) {
         auto url = cJSON_GetObjectItem(vision, "url");
         auto token = cJSON_GetObjectItem(vision, "token");
         if (cJSON_IsString(url)) {
-            auto camera = Board::GetInstance().GetCamera();
-            if (camera) {
-                std::string url_str = std::string(url->valuestring);
-                std::string token_str;
-                if (cJSON_IsString(token)) {
-                    token_str = std::string(token->valuestring);
-                }
-                camera->SetExplainUrl(url_str, token_str);
+            // auto camera = Board::GetInstance().GetCamera();
+            // if (camera) {
+            std::string url_str = std::string(url->valuestring);
+            std::string token_str;
+            if (cJSON_IsString(token)) {
+                token_str = std::string(token->valuestring);
             }
+            Esp32Camera::SetExplainUrlStatic(url_str, token_str);
+            ESP_LOGI(TAG, "Set camera explain URL: %s, token: %s", url_str.c_str(), token_str.c_str());
+            // }
         }
     }
 }
