@@ -270,21 +270,28 @@ std::string WifiBoard::GetDeviceStatusJson() {
     auto elec_pet = cJSON_CreateObject();
     ElectronicPet* pet = ElectronicPet::GetInstance();
     cJSON_AddStringToObject(elec_pet, "type", "elec pet");
-    auto elec_pet_game = cJSON_CreateObject();
-    cJSON_AddStringToObject(elec_pet_game, "type", "elec pet game data");
-    cJSON_AddNumberToObject(elec_pet_game, "HP", pet->getGameState(E_PET_GAME_STATE_HP));
-    cJSON_AddNumberToObject(elec_pet_game, "Energy", pet->getGameState(E_PET_GAME_STATE_ENERGY));
-    cJSON_AddNumberToObject(elec_pet_game, "Score", pet->getGameState(E_PET_GAME_STATE_SCORE));
-    cJSON_AddNumberToObject(elec_pet_game, "Fame", pet->getGameState(E_PET_FAME_STATE_FAME));
 
-    cJSON_AddBoolToObject(elec_pet, "isUpgrade", pet->isUpGraded() ? true : false);
-    cJSON_AddNumberToObject(elec_pet, "level", pet->getLevel());
-    cJSON_AddItemToObject(elec_pet, "elec_pet_game_data", elec_pet_game);
+    
+
+    cJSON_AddBoolToObject(elec_pet, "是否可以升级", pet->isUpGraded() ? true : false);
+    cJSON_AddNumberToObject(elec_pet, "等级", pet->getLevel());
+    cJSON_AddBoolToObject(elec_pet, "是否游戏", pet->isGame() ? true : false);
+    if(pet->isGame()){
+        auto elec_pet_game = cJSON_CreateObject();
+        cJSON_AddStringToObject(elec_pet_game, "type", "elec pet game data");
+        cJSON_AddNumberToObject(elec_pet_game, "HP", pet->getGameState(E_PET_GAME_STATE_HP));
+        cJSON_AddNumberToObject(elec_pet_game, "能量值", pet->getGameState(E_PET_GAME_STATE_ENERGY));
+        cJSON_AddNumberToObject(elec_pet_game, "分数", pet->getGameState(E_PET_GAME_STATE_SCORE));
+        cJSON_AddNumberToObject(elec_pet_game, "名声值", pet->getGameState(E_PET_FAME_STATE_FAME));
+        cJSON_AddItemToObject(elec_pet, "elec_pet_game_data", elec_pet_game);
+    }
+
     cJSON_AddItemToObject(root, "elec_pet", elec_pet);
 
     auto json_str = cJSON_PrintUnformatted(root);
     std::string json(json_str);
     cJSON_free(json_str);
     cJSON_Delete(root);
+    ESP_LOGI(TAG, "Device status JSON: %s", json.c_str());
     return json;
 }

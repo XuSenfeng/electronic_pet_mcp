@@ -459,7 +459,11 @@ void Application::Start() {
                 if (cJSON_IsString(text)) {
                     ESP_LOGI(TAG, "<< %s", text->valuestring);
                     Schedule([this, display, message = std::string(text->valuestring)]() {
+                        ElectronicPet* pet = ElectronicPet::GetInstance();
                         display->SetChatMessage("assistant", message.c_str());
+                        if(pet->isGame() == 1){
+                            display->UpdateStoryHistory(message.c_str());
+                        }
                     });
                 }
             }

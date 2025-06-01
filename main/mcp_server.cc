@@ -34,7 +34,8 @@ void McpServer::AddCommonTools() {
     auto& board = Board::GetInstance();
 
     AddTool("self.get_device_status",
-        "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, pet, etc.\n"
+        "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, pet's happyness, socer, game state etc.\n"
+        "When a user inquires about a specific status, you must use the tool to obtain the latest status.\n"
         "Use this tool for: \n"
         "1. Answering questions about current condition (e.g. what is the current volume of the audio speaker?)\n"
         "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)\n"
@@ -133,9 +134,124 @@ void McpServer::AddCommonTools() {
             return result;
         });
 
+    AddTool("self.pet.SetAction",
+        "Ask pet to do something, such as sleep, take a walk, study, work, etc., usually starting with \"you go\" Example: User: Can you go to sleep now? Set parameter to 2 for sleep\n"
+        "Args:\n"
+        "`ActionNum` : 0: Idle (doing nothing) 2: Sleeping 3: Going for a walk 4: Taking a bath 5: Working to earn money 6: Studying 7: Listening to music",
+        PropertyList({
+            Property("ActionNum", kPropertyTypeInteger, 0, E_PET_ACTION_NUMBER - 1)
+        }),
+        [display](const PropertyList& properties) -> ReturnValue {
+            int action = static_cast<uint8_t>(properties["ActionNum"].value<int>());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return false;
+            }
+            if (action >= E_PET_ACTION_NUMBER) {
+                ESP_LOGE(TAG, "Invalid action number: %d", action);
+                return false;
+            }
+            pet->SetAction(action);
+            ESP_LOGI(TAG, "Set action to %d", action);
+            return true;
+        });
 
+    AddTool("self.pet.SetGameHP",
+        "During the game mode, use this function for updating the health value display. This function must be called every time for updating, with the attribute being an integer from 0 to 100.\n"
+        "Every time change HP, you must use this tool to update the HP value.\n",
+        PropertyList({
+            Property("HP", kPropertyTypeInteger, 0, 100)
+        }),
+        [display](const PropertyList& properties) -> ReturnValue {
+            int hp = static_cast<uint8_t>(properties["HP"].value<int>());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            if(pet->isGame() == false) {
+                ESP_LOGE(TAG, "Not in game mode");
+                return "{\"success\": false, \"message\": \"Not in game mode\"}";
+            }
+            pet->setGameState(E_PET_GAME_STATE_HP, hp);
+            auto display = Board::GetInstance().GetDisplay();
+            display->UpdateGameStateGui();
+            return "{\"success\": true, \"message\": \"HP updated successfully\"}";
+        });
 
+    AddTool("self.pet.SetGameEnergy",
+        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 9999.\n"
+        "Every time change Energy, you must use this tool to update the Energy value.\n",
+        PropertyList({
+            Property("Energy", kPropertyTypeInteger, 0, 9999)
+        }),
+        [display](const PropertyList& properties) -> ReturnValue {
+            int energy = static_cast<uint8_t>(properties["Energy"].value<int>());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            if(pet->isGame() == false) {
+                ESP_LOGE(TAG, "Not in game mode");
+                return "{\"success\": false, \"message\": \"Not in game mode\"}";
+            }
+            pet->setGameState(E_PET_GAME_STATE_ENERGY, energy);
+            auto display = Board::GetInstance().GetDisplay();
+            display->UpdateGameStateGui();
+            return "{\"success\": true, \"message\": \"Energy updated successfully\"}";
+        });
 
+    AddTool("self.pet.SetGameScore",
+        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 100.\n"
+        "Every time change Score, you must use this tool to update the Score value.\n",
+        PropertyList({
+            Property("Score", kPropertyTypeInteger, 0, 100)
+        }),
+        [display](const PropertyList& properties) -> ReturnValue {
+            int score = static_cast<uint8_t>(properties["Score"].value<int>());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            if(pet->isGame() == false) {
+                ESP_LOGE(TAG, "Not in game mode");
+                return "{\"success\": false, \"message\": \"Not in game mode\"}";
+            }
+            pet->setGameState(E_PET_GAME_STATE_SCORE, score);
+            auto display = Board::GetInstance().GetDisplay();
+            display->UpdateGameStateGui();
+            return "{\"success\": true, \"message\": \"Score updated successfully\"}";
+        });
+
+    AddTool("self.pet.SetGameFame",
+        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 999.\n"
+        "Every time change Fame, you must use this tool to update the Fame value.\n",
+        PropertyList({
+            Property("Fame", kPropertyTypeInteger, 0, 999)
+        }),
+        [display](const PropertyList& properties) -> ReturnValue {
+            int fame = static_cast<uint8_t>(properties["Fame"].value<int>());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            if(pet->isGame() == false) {
+                ESP_LOGE(TAG, "Not in game mode");
+                return "{\"success\": false, \"message\": \"Not in game mode\"}";
+            }
+            pet->setGameState(E_PET_FAME_STATE_FAME, fame);
+            auto display = Board::GetInstance().GetDisplay();
+            display->UpdateGameStateGui();
+            return "{\"success\": true, \"message\": \"Fame updated successfully\"}";
+        });
+
+    
+
+        
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());
 }
