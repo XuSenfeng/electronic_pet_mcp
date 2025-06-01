@@ -92,6 +92,7 @@ public:
     void UpdateStoryHistory(const char* new_text) override;
     void UpdateGameStateGui() override;
     void StateItemCreate(lv_obj_t *parent, int i);
+    void UpdataUILevel(int level) override;
 };
 
 // RGB LCD显示器

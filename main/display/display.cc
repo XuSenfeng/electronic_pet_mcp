@@ -240,7 +240,16 @@ void Display::SetChatMessage(const char* role, const char* content) {
     if (chat_message_label_ == nullptr) {
         return;
     }
-    lv_label_set_text(chat_message_label_, content);
+    //避免出现空的消息框
+    if(strlen(content) == 0){
+        lv_obj_add_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+    lv_obj_clear_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);
+    // Create a message bubble
+    char temp_buf[256];
+    sprintf(temp_buf, "\n%s", content);
+    lv_label_set_text(chat_message_label_, temp_buf);
 }
 
 void Display::SetTheme(const std::string& theme_name) {
@@ -263,3 +272,4 @@ void Display::CreateStatusItem(lv_obj_t* parent, const char* name, int value_ptr
 void Display::AiStoryUI(){}; 
 void Display::UpdateStoryHistory(const char* new_text){};
 void Display::UpdateGameStateGui(){};
+void Display::UpdataUILevel(int level){};

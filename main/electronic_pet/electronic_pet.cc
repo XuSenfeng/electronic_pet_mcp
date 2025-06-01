@@ -128,15 +128,15 @@ void ElectronicPet::ReadCsvFood(int *i){
     while (fgets(line, sizeof(line), f)) {
         char name[30];
         char description[100];
-        int vigor_, satiety_, happiness_, money_, iq_;
-        int ret = sscanf(line, "%[^,],%d,%d,%d,%d,%d,%[^\n]", name, &vigor_, &satiety_, &happiness_, &money_, &iq_, description);
-        if (ret == 7) {
+        int vigor_, satiety_, happiness_, money_, iq_, level;
+        int ret = sscanf(line, "%[^,],%d,%d,%d,%d,%d,%d,%[^\n]", name, &vigor_, &satiety_, &happiness_, &money_, &iq_, &level, description);
+        if (ret == 8) {
  
             Settings settings("e_pet", true);
             int num = settings.GetInt("things_num_" + std::to_string(*i), 0);
 
             ESP_LOGI(TAG, "Parsed line: %s, thing %d %s: %s", line, *i, name, description);
-            ESP_LOGI(TAG, "Parsed data: num %d, name=%s, vigor=%d, satiety=%d, happiness=%d, money=%d, iq=%d, description=%s", num, name, vigor_, satiety_, happiness_, money_, iq_, description);
+            ESP_LOGI(TAG, "Parsed data: num %d, name=%s, vigor=%d, satiety=%d, happiness=%d, money=%d, iq=%d, level=%d, description=%s", num, name, vigor_, satiety_, happiness_, money_, iq_, level, description);
                 
             int state[E_PET_STATE_NUMBER] = {0};
             state[E_PET_STATE_SATITY] = satiety_;
@@ -144,7 +144,7 @@ void ElectronicPet::ReadCsvFood(int *i){
             state[E_PET_STATE_VIGIR] = vigor_;
             state[E_PET_STATE_HAPPINESS] = happiness_;
             state[E_PET_STATE_IQ] = iq_;
-            Food *food = new Food(name, {0}, description, state, num);
+            Food *food = new Food(name, {0}, description, state, num, level);
 
             things_.push_back(food);
             *i += 1;
@@ -164,11 +164,11 @@ void ElectronicPet::ReadCsvGames(){
         return;
     }
     char line[256];
-    
+    char *message = (char *)malloc(4096);
     while (fgets(line, sizeof(line), f)) {
         char name[30];
         char description[100];
-        char *message = (char *)malloc(2048);
+        
         int ret = sscanf(line, "%[^,],%[^,],%[^,]", name, description, message);
 
         if (ret == 3) {
@@ -183,6 +183,8 @@ void ElectronicPet::ReadCsvGames(){
             ESP_LOGW(TAG, "Failed to parse line: %s", line);
         }
     }
+    free(message);
+    fclose(f);
 }
 
 void ElectronicPet::ReadCsvThings(){
@@ -316,7 +318,15 @@ bool ElectronicPet::Upgrade(void){
         state[E_PET_STATE_HAPPINESS] = 30;
         state[E_PET_STATE_IQ] = 3;
         change_statue(state);
+        auto display = Board::GetInstance().GetDisplay();
+        if(display == nullptr) {
+            ESP_LOGE(TAG, "Display instance is null");
+            return false;
+        }
+        display->UpdataUILevel(level_);
         return true;
     }
+
+
     return false; // 升级失败
 }

@@ -5,6 +5,8 @@
 #include "board.h"
 #define TAG "LCDDisplay"
 /* 物品界面创建函数 */
+
+static lv_obj_t* list_item_;
 void LcdDisplay::ItemUI() {
     DisplayLockGuard lock(this);
     int num_of_things = ElectronicPet::GetInstance()->GetThingsNum();
@@ -30,21 +32,41 @@ void LcdDisplay::ItemUI() {
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, -2);
     
     // 物品列表容器
-    lv_obj_t* list = lv_obj_create(screen_things_);
-    lv_obj_set_size(list, LV_PCT(95), LV_PCT(85));
-    lv_obj_align(list, LV_ALIGN_BOTTOM_MID, 0, -10);
-    lv_obj_set_flex_flow(list, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(list, 10, 0);
-    lv_obj_set_style_pad_row(list, ITEM_SPACING, 0);
+    list_item_ = lv_obj_create(screen_things_);
+    lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
+    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(list_item_, 10, 0);
+    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING, 0);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
     ESP_LOGI(TAG, "商店 list: %d", num_of_things);
     // // 创建物品项
     for(int i=0; i<num_of_things; i++) {
-        CreateItem(list, i);
+        CreateItem(list_item_, i);
     }
 }
 
+
+void LcdDisplay::UpdataUILevel(int level){
+    int num_of_things = ElectronicPet::GetInstance()->GetThingsNum();
+    DisplayLockGuard lock(this);
+    lv_obj_del(list_item_); // 删除旧的物品列表容器
+    // 物品列表容器
+    list_item_ = lv_obj_create(screen_things_);
+    lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
+    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_all(list_item_, 10, 0);
+    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING, 0);
+    // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
+    
+    ESP_LOGI(TAG, "商店 list: %d", num_of_things);
+    // // 创建物品项
+    for(int i=0; i<num_of_things; i++) {
+        CreateItem(list_item_, i);
+    }
+}
 
 void use_btn_event_cb(lv_event_t* e) {
     // lv_obj_t* btn = (lv_obj_t*)lv_event_get_target(e);
@@ -186,6 +208,10 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
         ESP_LOGE(TAG, "GetThing returned null");
         return;
     }
+    else if(it->GetLevel() > pet->getLevel()){
+        return;
+    }
+    ESP_LOGI(TAG, "Creating item %d: %s %d %d", index, it->GetName(), it->GetLevel(), pet->getLevel());
     
     // 主容器（横向Flex布局）
     item_cont[index] = lv_obj_create(parent);

@@ -23,7 +23,7 @@ typedef enum{
 
 class BaseThing{
 public:
-    BaseThing(const char * name, lv_image_dsc_t thing_pic, const char *thing_description, thing_type_e thing_type, int num, int *state)
+    BaseThing(const char * name, lv_image_dsc_t thing_pic, const char *thing_description, thing_type_e thing_type, int num, int *state, int level)
         : thing_pic(thing_pic), thing_type(thing_type), num_(num){
             name_ = name;
             thing_description_ = thing_description;
@@ -32,6 +32,7 @@ public:
             happiness_ = state[E_PET_STATE_HAPPINESS]; // 快乐度
             money_ = state[E_PET_STATE_MONEY]; // 金钱
             iq_ = state[E_PET_STATE_IQ]; // 智商
+            level_ = level;
         };
 
     virtual ~BaseThing() = default;
@@ -51,6 +52,7 @@ public:
     void SetIq(int iq) { iq_ = iq; }
     const char *GetName() const { return name_.c_str(); }
     const char *GetDescription() const { return thing_description_.c_str(); }
+    int GetLevel(){return level_;};
     
 protected:
     std::mutex mutex_;
@@ -64,4 +66,5 @@ protected:
     int satiety_; // 饱食度
     int happiness_; // 快乐度
     int iq_; // 智商
+    int level_;
 };

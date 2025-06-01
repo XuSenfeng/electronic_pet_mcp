@@ -15,8 +15,8 @@
 class Food: public BaseThing {
 private:
 public:
-    Food(const char * name, lv_image_dsc_t thing_pic, const char *thing_description, int *state,int num = 1)
-        : BaseThing(name, thing_pic, thing_description, E_THING_TYPE_FOOD, num, state) {}
+    Food(const char * name, lv_image_dsc_t thing_pic, const char *thing_description, int *state,int num = 1, int level = 1)
+        : BaseThing(name, thing_pic, thing_description, E_THING_TYPE_FOOD, num, state, level) {}
     void Use() override;
 };
 

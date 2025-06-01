@@ -38,6 +38,7 @@ public:
     virtual void CleanSetupUI();
     virtual void UpdateStateGui();
     virtual void UpdateItemUI();
+    virtual void UpdataUILevel(int level);
     virtual void CreateStatusItem(lv_obj_t* parent, const char* name, int value_ptr, 
         int min, int max, int y_pos, int num);
     virtual void AiStoryUI(); 
