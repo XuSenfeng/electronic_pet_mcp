@@ -276,6 +276,13 @@ std::string WifiBoard::GetDeviceStatusJson() {
     cJSON_AddBoolToObject(elec_pet, "是否可以升级", pet->isUpGraded() ? true : false);
     cJSON_AddNumberToObject(elec_pet, "等级", pet->getLevel());
     cJSON_AddBoolToObject(elec_pet, "是否游戏", pet->isGame() ? true : false);
+    cJSON_AddNumberToObject(elec_pet, "经验值", pet->getExperience());
+    cJSON_AddNumberToObject(elec_pet, "饱食度", pet->GetState(E_PET_STATE_SATITY));
+    cJSON_AddNumberToObject(elec_pet, "快乐度", pet->GetState(E_PET_STATE_HAPPINESS));
+    cJSON_AddNumberToObject(elec_pet, "精力", pet->GetState(E_PET_STATE_VIGIR));
+    cJSON_AddNumberToObject(elec_pet, "智商", pet->GetState(E_PET_STATE_IQ));
+    cJSON_AddNumberToObject(elec_pet, "金钱", pet->GetState(E_PET_STATE_MONEY));
+    cJSON_AddStringToObject(elec_pet, "当前行动", pet->GetActionName());
     if(pet->isGame()){
         auto elec_pet_game = cJSON_CreateObject();
         cJSON_AddStringToObject(elec_pet_game, "type", "elec pet game data");
@@ -287,6 +294,7 @@ std::string WifiBoard::GetDeviceStatusJson() {
     }
 
     cJSON_AddItemToObject(root, "elec_pet", elec_pet);
+
 
     auto json_str = cJSON_PrintUnformatted(root);
     std::string json(json_str);

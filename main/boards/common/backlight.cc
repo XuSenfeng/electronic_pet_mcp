@@ -3,9 +3,57 @@
 
 #include <esp_log.h>
 #include <driver/ledc.h>
-
+#include "lvgl.h"
+#include "board.h"
+#include "display.h"
 #define TAG "Backlight"
+void DisplayBrightnessTask(void *arg){
+    auto backlight = Board::GetInstance().GetBacklight();
+    if (!backlight) {
+        ESP_LOGE(TAG, "Can't find brightness instance");
+        return;
+    }
+    // ESP_LOGI(TAG, "DisplayBrightnessTask %d", backlight->brightness_time);
 
+    if (backlight->brightness_time == -1)
+    {
+        // 不需要变化状态
+        return;
+    }
+    else if(backlight->brightness_time == 0)
+    {
+        // 时间到关灯
+        ESP_LOGI(TAG, "Turn off the backlight");
+        backlight->SetBrightness(0, true, true);
+        // extern lv_obj_t * screen_main_;
+        // extern lv_obj_t * screen_state_;
+        // extern lv_obj_t * screen_things_;
+        // extern lv_obj_t * screen_description_;
+        // extern lv_obj_t * screen_now_;
+        auto display = Board::GetInstance().GetDisplay();
+        DisplayLockGuard lock(display);
+        if(display->screen_now_ == display->screen_state_) {
+            lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+            display->screen_now_ = display->screen_main_;
+            lv_obj_del(display->screen_state_);
+            display->screen_state_ = nullptr;
+        }
+        if(display->screen_now_ == display->screen_description_){
+            lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+            display->screen_now_ = display->screen_main_;
+            lv_obj_del(display->screen_description_);
+            display->screen_description_ = nullptr;
+        }
+        if (display->screen_now_ == display->screen_things_) {
+            lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+            display->screen_now_ = display->screen_main_;
+        }
+    }
+    backlight->brightness_time--;
+}
 
 Backlight::Backlight() {
     // 创建背光渐变定时器
@@ -20,12 +68,25 @@ Backlight::Backlight() {
         .skip_unhandled_events = true,
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &transition_timer_));
+
+    // 定义一个自动息屏定时器结构体
+    esp_timer_create_args_t timer_args_bl = {	
+        .callback = &DisplayBrightnessTask,	//设置回调函数
+        .arg = this,	// 设置回调函数参数
+        // 可以添加其他参数
+    };
+    esp_timer_create(&timer_args_bl, &my_timer);	//将创建的定时器句柄存储到 my_timer 中。
+    esp_timer_start_periodic(my_timer, 1000000);	//启动定时器，周期为 1s
 }
 
 Backlight::~Backlight() {
     if (transition_timer_ != nullptr) {
         esp_timer_stop(transition_timer_);
         esp_timer_delete(transition_timer_);
+    }
+    if (my_timer != nullptr) {
+        esp_timer_stop(my_timer);
+        esp_timer_delete(my_timer);
     }
 }
 

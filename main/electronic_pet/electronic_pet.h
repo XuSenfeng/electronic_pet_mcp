@@ -81,11 +81,11 @@ public:
     std::string GetStateDescriptor();
 
     inline bool isUpGraded(){return experience_ >= level_ * level_;}
-
+    std::string ReadUpgradeTaskCsv(int level);
     
     static ElectronicPet* GetInstance();
 
     void change_statue(int *change_state);
-    void UpgradeTask(void);
-    void Upgrade(void);
+    std::string GetUpdateTask(void);
+    bool Upgrade(void);
 };

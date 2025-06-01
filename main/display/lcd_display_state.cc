@@ -125,7 +125,7 @@ void LcdDisplay::UpdateStateGui() {
     // 更新进度条
     bar = (lv_obj_t*)lv_obj_get_child(item, 2);
     lv_bar_set_range(bar, 0, level * level);
-    lv_bar_set_value(bar, experience > level * level ? experience : level * level, LV_ANIM_ON);
+    lv_bar_set_value(bar, experience > level * level ? level * level : experience, LV_ANIM_ON);
     
     // 动态颜色（示例：根据数值改变进度条颜色）
     color = lv_color_hex(0x0099ff);

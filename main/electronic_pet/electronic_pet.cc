@@ -192,7 +192,42 @@ void ElectronicPet::ReadCsvThings(){
     int i = 0;
     ReadCsvFood(&i);
     ReadCsvGames();
-}   
+}
+
+//electronic_pet_upgrade_task.csv
+std::string ElectronicPet::ReadUpgradeTaskCsv(int level){
+    const char *file_hello = "/sdcard/electronic_pet_upgrade_task.csv";
+    ESP_LOGI(TAG, "Reading file: %s", file_hello);
+    // 打开文件
+    FILE *f = fopen(file_hello, "r");  // 以只读方式打开文件
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return "";
+    }
+    char line[256];
+    // 读取第level行
+    int current_level = 0;
+    std::string description_str;
+    while (fgets(line, sizeof(line), f)) {
+        current_level++;
+        if (current_level == level) {
+            int temp;
+            char description[256];
+            int ret = sscanf(line, "%d,%[^\n]", &temp, description);
+            description_str = description;
+            if (ret == 2) {
+                ESP_LOGI(TAG, "Parsed line: %s", line);
+                ESP_LOGI(TAG, "Parsed data: level=%d, description=%s", temp, description_str.c_str());
+                // 成功解析，返回描述字符串
+            } else {
+                ESP_LOGW(TAG, "Failed to parse line: %s", line);
+            }
+            break;
+        }
+    }
+    fclose(f);
+    return description_str;
+}
 
 
 void ElectronicPet::StateEventDeal(){
@@ -242,17 +277,26 @@ void ElectronicPet::StateEventDeal(){
     }
 }
 
-void ElectronicPet::UpgradeTask(void){
+std::string ElectronicPet::GetUpdateTask(void){
     ESP_LOGI(TAG, "Upgrade task");
     // 升级
     if(isUpGraded()){
-        std::string message = "成功触发升级任务,请你给出一个随机的脑机急转弯或者简单的常识问题,如果用户回答正确,调用升级函数,错误的话,不调用,并且给出提示";
-        auto &app = Application::GetInstance();
-        app.SendMessage(message);
+        // 获取升级任务描述
+        std::string description = ReadUpgradeTaskCsv(level_);
+        if(description.empty()){
+            description = "暂时没有升级任务描述, 你可以随机给出一个问题考考用户";
+            return description;
+        }
+        return description;
     }
+    ESP_LOGI(TAG, "No upgrade task available");
+    // 没有升级任务
+    std::string description = "当前的状态不可以升级";
+    return description;
 }
-
-void ElectronicPet::Upgrade(void){
+/// @brief 升级函数
+/// @details 升级函数会检查是否可以升级，如果可以升级，则升级等级，并更新经验值
+bool ElectronicPet::Upgrade(void){
     ESP_LOGI(TAG, "Upgrade task");
     // 升级
     if(isUpGraded()){
@@ -272,5 +316,7 @@ void ElectronicPet::Upgrade(void){
         state[E_PET_STATE_HAPPINESS] = 30;
         state[E_PET_STATE_IQ] = 3;
         change_statue(state);
+        return true;
     }
+    return false; // 升级失败
 }

@@ -36,6 +36,7 @@ void McpServer::AddCommonTools() {
     AddTool("self.get_device_status",
         "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, pet's happyness, socer, game state etc.\n"
         "When a user inquires about a specific status, you must use the tool to obtain the latest status.\n"
+        "You can also use this tool get weather pet can upgrade or get what it is doing.\n"
         "Use this tool for: \n"
         "1. Answering questions about current condition (e.g. what is the current volume of the audio speaker?)\n"
         "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)\n"
@@ -135,9 +136,10 @@ void McpServer::AddCommonTools() {
         });
 
     AddTool("self.pet.SetAction",
-        "Ask pet to do something, such as sleep, take a walk, study, work, etc., usually starting with \"you go\" Example: User: Can you go to sleep now? Set parameter to 2 for sleep\n"
+        "让喵喵去做一些事情, 比如睡觉, 散步, 学习, 工作之类的, 通常为*你去*开头\n示例```用户:你现在去睡觉\n设置参数为2睡觉```"
+        "设置状态的时候必须使用这个函数刷新喵喵的状态, 这个函数会更新喵喵的状态, 并且会在屏幕上显示喵喵正在做什么.\n"
         "Args:\n"
-        "`ActionNum` : 0: Idle (doing nothing) 2: Sleeping 3: Going for a walk 4: Taking a bath 5: Working to earn money 6: Studying 7: Listening to music",
+        "`ActionNum` : 0:空闲, 什么都不做, 2:睡大觉喽, 3:出来散步, 4:洗个澡, 5:工作赚钱, 6:学习一会, 7:听音乐",
         PropertyList({
             Property("ActionNum", kPropertyTypeInteger, 0, E_PET_ACTION_NUMBER - 1)
         }),
@@ -249,9 +251,42 @@ void McpServer::AddCommonTools() {
             return "{\"success\": true, \"message\": \"Fame updated successfully\"}";
         });
 
-    
+    AddTool("self.pet.GetUpdateTask",
+        "Upgrade task, call this function to trigger the upgrade event when an upgrade is currently available.\n"
+        "This function will return a string that describes the upgrade task, such as \"You need to answer 3 questions correctly to upgrade\".\n",
+        PropertyList(),
+        [display](const PropertyList& properties) -> ReturnValue {
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            std::string task = pet->GetUpdateTask();
+            return "{\"success\": true, \"task\": \"" + task + "\"}";
+        });
 
-        
+    AddTool("self.pet.GetUpdateTask",
+        "Upgrade task, call this function to trigger the upgrade event when an upgrade is currently available.\n"
+        "This function will return a string that describes the upgrade task, such as \"You need to answer 3 questions correctly to upgrade\".\n",
+        PropertyList(),
+        [display](const PropertyList& properties) -> ReturnValue {
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            std::string task = pet->GetUpdateTask();
+            return "{\"success\": true, \"task\": \"" + task + "\"}";
+        });
+
+    AddTool("self.pet.Upgrade",
+        "After the user completes the upgrade task, call this function to trigger the upgrade event.\n"
+        "This function will return the describes of the upgrade result\n",
+        PropertyList(),
+        [display](const PropertyList& properties) -> ReturnValue {
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            if(pet->Upgrade()){
+                return "{\"success\": true, \"message\": \"Upgrade success\"}";
+            } else {
+                return "{\"success\": false, \"message\": \"Upgrade failed\"}";
+            }
+        });
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());
 }
