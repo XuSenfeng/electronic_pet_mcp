@@ -153,9 +153,9 @@ public:
 #define DARK_LOW_BATTERY_COLOR      lv_color_hex(0xFF0000)     // Red for dark mode
 
 // Color definitions for light theme
-#define LIGHT_BACKGROUND_COLOR       lv_color_white()           // White background
+#define LIGHT_BACKGROUND_COLOR       lv_color_hex(0xEAB4C3)           // White background
 #define LIGHT_TEXT_COLOR             lv_color_black()           // Black text
-#define LIGHT_CHAT_BACKGROUND_COLOR  lv_color_hex(0xE0E0E0)     // Light gray background
+#define LIGHT_CHAT_BACKGROUND_COLOR  lv_color_hex(0xF3DFE6)     // Light gray background
 #define LIGHT_USER_BUBBLE_COLOR      lv_color_hex(0x95EC69)     // WeChat green
 #define LIGHT_ASSISTANT_BUBBLE_COLOR lv_color_white()           // White
 #define LIGHT_SYSTEM_BUBBLE_COLOR    lv_color_hex(0xE0E0E0)     // Light gray

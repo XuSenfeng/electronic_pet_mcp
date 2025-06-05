@@ -183,10 +183,10 @@ void McpServer::AddCommonTools() {
         });
 
     AddTool("self.pet.SetGameEnergy",
-        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 9999.\n"
+        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 100.\n"
         "Every time change Energy, you must use this tool to update the Energy value.\n",
         PropertyList({
-            Property("Energy", kPropertyTypeInteger, 0, 9999)
+            Property("Energy", kPropertyTypeInteger, 0, 100)
         }),
         [display](const PropertyList& properties) -> ReturnValue {
             int energy = static_cast<uint8_t>(properties["Energy"].value<int>());
@@ -206,10 +206,10 @@ void McpServer::AddCommonTools() {
         });
 
     AddTool("self.pet.SetGameScore",
-        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 100.\n"
+        "During the game mode, use this function for updating the energy value display. This function must be called every time for updating, with the attribute being an integer from 0 to 9999.\n"
         "Every time change Score, you must use this tool to update the Score value.\n",
         PropertyList({
-            Property("Score", kPropertyTypeInteger, 0, 100)
+            Property("Score", kPropertyTypeInteger, 0, 9999)
         }),
         [display](const PropertyList& properties) -> ReturnValue {
             int score = static_cast<uint8_t>(properties["Score"].value<int>());

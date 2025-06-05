@@ -22,17 +22,18 @@ void LcdDisplay::StateUI(){
     lv_obj_set_style_pad_all(main_cont, 20, 0);
     lv_obj_set_style_pad_row(main_cont, ITEM_SPACING, 0);
     lv_obj_remove_style(main_cont, NULL, LV_PART_SCROLLBAR);
+    lv_obj_set_style_bg_opa(main_cont, LV_OPA_70, LV_PART_MAIN);
 
     // 设置状态栏
     lv_obj_t * action_bar_ = lv_obj_create(main_cont);
     lv_obj_set_size(action_bar_, LV_PCT(100), 40);
-    lv_obj_set_style_radius(action_bar_, 0, 0);
+    lv_obj_set_style_radius(action_bar_, 5, 0);
     lv_obj_set_style_bg_color(action_bar_, lv_color_hex(0xE0E0E0), 0);
     lv_obj_set_style_text_color(action_bar_, lv_color_hex(0x666666), 0);
     lv_obj_set_style_text_font(action_bar_, fonts_.text_font, 0);
     lv_obj_set_style_pad_all(action_bar_, 0, 0);
     lv_obj_set_style_pad_column(action_bar_, 0, 0);
-    
+
     action_label_ = lv_label_create(action_bar_);
     lv_label_set_text(action_label_, "");
     lv_obj_set_style_text_align(action_label_, LV_TEXT_ALIGN_CENTER, 0);

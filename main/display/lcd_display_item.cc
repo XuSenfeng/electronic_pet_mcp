@@ -22,14 +22,15 @@ void LcdDisplay::ItemUI() {
     // 创建物品界面
     screen_things_ = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen_things_, LV_HOR_RES, LV_VER_RES);
-    lv_obj_set_style_bg_color(screen_things_, lv_color_hex(0xFFF0F5), 0);
+    lv_obj_set_style_bg_color(screen_things_, current_theme_.background, 0);
     lv_obj_add_flag(screen_things_, LV_OBJ_FLAG_HIDDEN);
     
     // 标题栏
     lv_obj_t* title = lv_label_create(screen_things_);
     lv_obj_set_style_text_font(title, fonts_.text_font, 0);
     lv_label_set_text(title, "宠物商店");
-    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, -2);
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, -4);
+    lv_obj_set_style_text_color(title, lv_color_hex(0xFF88A4), 0);
     
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
@@ -38,6 +39,7 @@ void LcdDisplay::ItemUI() {
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(list_item_, 10, 0);
     lv_obj_set_style_pad_row(list_item_, ITEM_SPACING, 0);
+    lv_obj_set_style_bg_opa(list_item_, LV_OPA_70, LV_PART_MAIN);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
     ESP_LOGI(TAG, "商店 list: %d", num_of_things);

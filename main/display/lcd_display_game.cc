@@ -131,7 +131,7 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_align(history_cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_clear_flag(history_cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_remove_style(history_cont, NULL, LV_PART_SCROLLBAR);
-    lv_obj_set_style_bg_color(history_cont, lv_color_hex(0x3A384F), 0);
+    lv_obj_set_style_bg_color(history_cont, current_theme_.background, 0);
     lv_obj_set_style_bg_opa(history_cont, 255, 0);
 
     // 历史记录文本框
@@ -139,8 +139,8 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_set_size(history_ta, LV_HOR_RES - 130 - 30, (LV_VER_RES  - 42));
     lv_textarea_set_placeholder_text(history_ta, "故事即将开始...");
     lv_obj_set_style_text_font(history_ta, fonts_.text_font, 0);
-    lv_obj_set_style_text_color(history_ta, lv_color_hex(0xE0E0FF), 0);
-    lv_obj_set_style_bg_color(history_ta, lv_color_hex(0x3A384F), 0);
+    lv_obj_set_style_text_color(history_ta, lv_color_hex(0x86B7FF), 0);
+    lv_obj_set_style_bg_color(history_ta, lv_color_hex(0xFFF5F5), 0);
     lv_obj_set_scrollbar_mode(history_ta, LV_SCROLLBAR_MODE_AUTO);
     lv_obj_align(history_ta, LV_ALIGN_LEFT_MID, 0, 12);
 
@@ -148,7 +148,7 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_t* status_cont = lv_obj_create(history_cont);
     lv_obj_set_size(status_cont, 130, (LV_VER_RES  - 42));
     lv_obj_align(status_cont, LV_ALIGN_RIGHT_MID, 0, 12);
-    lv_obj_set_style_bg_color(status_cont, lv_color_hex(0x3A384F), 0);
+    lv_obj_set_style_bg_color(status_cont, lv_color_hex(0xFFF5F5), 0);
     lv_obj_set_style_pad_all(status_cont, 20, 0);
     lv_obj_set_style_text_font(status_cont, fonts_.text_font, 0);
     lv_obj_remove_style(status_cont, NULL, LV_PART_SCROLLBAR);
@@ -164,7 +164,7 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_t* back_button = lv_btn_create(history_cont);
     lv_obj_set_size(back_button, 40, 25);
     lv_obj_set_style_radius(back_button, 12, 0);
-    lv_obj_set_style_bg_color(back_button, lv_color_hex(0x3A384F), 0);
+    lv_obj_set_style_bg_color(back_button, lv_color_hex(0xFFF5F5), 0);
     lv_obj_align(back_button, LV_ALIGN_TOP_RIGHT, 5, -10);
     lv_obj_t * back_label = lv_label_create(back_button);
     lv_label_set_text(back_label, LV_SYMBOL_RIGHT);
@@ -177,7 +177,7 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_t* help_button = lv_btn_create(history_cont);
     lv_obj_set_size(help_button, 40, 25);
     lv_obj_set_style_radius(help_button, 12, 0);
-    lv_obj_set_style_bg_color(help_button, lv_color_hex(0x3A384F), 0);
+    lv_obj_set_style_bg_color(help_button, lv_color_hex(0xFFF5F5), 0);
     lv_obj_align(help_button, LV_ALIGN_TOP_LEFT, -5, -10);
     lv_obj_t * help_label = lv_label_create(help_button);
     lv_label_set_text(help_label, LV_SYMBOL_FILE);
@@ -218,7 +218,7 @@ void LcdDisplay::CreateStatusItem(lv_obj_t* parent, const char* name, int value_
     // 名称标签
     status_items[num].lbl_name = lv_label_create(cont);
     lv_label_set_text_fmt(status_items[num].lbl_name, "%s %d", name, value_ptr);
-    lv_obj_set_style_text_color(status_items[num].lbl_name, lv_color_hex(0xE0E0FF), 0);
+    lv_obj_set_style_text_color(status_items[num].lbl_name, lv_color_hex(0x86B7FF), 0);
     lv_obj_align(status_items[num].lbl_name, LV_ALIGN_LEFT_MID, 0, -3);
 
 
@@ -228,8 +228,8 @@ void LcdDisplay::CreateStatusItem(lv_obj_t* parent, const char* name, int value_
     lv_bar_set_value(status_items[num].bar, value_ptr, LV_ANIM_OFF);
     lv_obj_set_size(status_items[num].bar, 100, 5);
     lv_obj_align(status_items[num].bar, LV_ALIGN_BOTTOM_MID, 0, 10);
-    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xFF0000), LV_PART_MAIN);
-    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xFF6B6B), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xF2F2F2), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xEAB3C2), LV_PART_INDICATOR);
 }
 
 void LcdDisplay::UpdateGameStateGui() {
