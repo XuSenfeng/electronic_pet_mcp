@@ -16,6 +16,7 @@
 
 ElectronicPet::ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet constructor");
+    client_ = new PMQTT_Clinet();
     Settings settings("e_pet", true);
     state_[E_PET_STATE_SATITY].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_SATITY), 100);
     state_[E_PET_STATE_HAPPINESS].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_HAPPINESS), 100);
@@ -35,6 +36,8 @@ ElectronicPet::ElectronicPet(){
     printf("state_0 %s: %d, state_1 %s: %d, state_2 %s: %d\n", GetStateName(0), GetState(0), GetStateName(1), GetState(1), GetStateName(2), GetState(2));
     action_ = (electronic_pet_action_e)settings.GetInt("action", E_PET_ACTION_IDLE);
     ReadCsvThings();
+    client_->PUublish_Message("log", "ElectronicPet initialized");
+    
 }
 
 ElectronicPet::~ElectronicPet(){

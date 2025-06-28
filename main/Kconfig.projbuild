@@ -306,4 +306,17 @@ menu "XvSenfeng Electronic Pet"
     config PET_GAME_TEXT_LENG
         int "宠物游戏文本长度,数字越大越长"
         default 300
+
+    config PET_MQTT_SERVER
+        string "宠物MQTT服务器地址"
+        default "mqtt.tenclass.net"
+        help
+            该服务器用于连接宠物设备的 MQTT 服务
+    
+    config  PET_MQTT_TOPIC
+        string "宠物MQTT主题"
+        default "xiaozhi/pet"
+        help
+            该主题用于接收宠物的状态信息和发送控制指令
+        
 endmenu

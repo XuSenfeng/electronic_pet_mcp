@@ -11,7 +11,7 @@
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #pragma once
-
+#include "electronic_mqtt.h"
 #include <atomic>
 #include <string>
 #include "electronic_food.h"
@@ -45,6 +45,8 @@ private:
     int is_game_ = 0;
     int level_ = 0; // 等级
     int experience_ = 0; // 经验值
+
+    PMQTT_Clinet *client_; // MQTT客户端
 
 public:
     std::vector<GameInfo> games_;
