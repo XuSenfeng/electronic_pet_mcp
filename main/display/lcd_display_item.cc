@@ -210,9 +210,6 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
         ESP_LOGE(TAG, "GetThing returned null");
         return;
     }
-    else if(it->GetLevel() > pet->getLevel()){
-        return;
-    }
     ESP_LOGI(TAG, "Creating item %d: %s %d %d", index, it->GetName(), it->GetLevel(), pet->getLevel());
     
     // 主容器（横向Flex布局）
@@ -310,6 +307,11 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_add_event_cb(use_btn, use_btn_event_cb, LV_EVENT_CLICKED, (void*)index);
     lv_obj_add_event_cb(buy_btn, buy_btn_event_cb, LV_EVENT_CLICKED, (void*)index);
     lv_obj_add_event_cb(sell_btn, sell_btn_event_cb, LV_EVENT_CLICKED, (void*)index);
+
+    if(it->GetLevel() > pet->getLevel()){
+        lv_obj_add_flag(item_cont[index], LV_OBJ_FLAG_HIDDEN); // 如果物品等级高于当前等级，则隐藏
+        return;
+    }
 }
 
 void LcdDisplay::UpdateThingsCount(int index) {
@@ -321,8 +323,13 @@ void LcdDisplay::UpdateThingsCount(int index) {
         ESP_LOGE(TAG, "ElectronicPet instance is null");
         return;
     }
+    if(pet->GetThing(index)->GetLevel() > pet->getLevel()) {
+        ESP_LOGI(TAG, "Item %d is below current level, skipping update", index);
+        return; // 如果物品等级低于当前等级，则不更新
+    }
     lv_label_set_text_fmt(name_label, "%s ×%d", 
         pet->GetThing(index)->GetName(), pet->GetThing(index)->GetNum());
+    lv_obj_clear_flag(cont, LV_OBJ_FLAG_HIDDEN); // 确保容器可见
 }
 
 void LcdDisplay::UpdateItemUI(){
@@ -333,6 +340,7 @@ void LcdDisplay::UpdateItemUI(){
         return;
     }
     int num_of_things = pet->GetThingsNum();
+    ESP_LOGI(TAG, "UpdateItemUI: %d things", num_of_things);
     for(int i = 0; i < num_of_things; i++) {
         UpdateThingsCount(i);
     }
