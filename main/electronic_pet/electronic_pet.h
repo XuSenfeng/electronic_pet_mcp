@@ -57,6 +57,8 @@ public:
     ElectronicPet();
     ~ElectronicPet();
 
+    PMQTT_Clinet *GetClient() { return client_; }
+
 
     int GetAction() const { return action_; }
     void SetAction(int action);

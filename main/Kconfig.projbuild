@@ -315,7 +315,13 @@ menu "XvSenfeng Electronic Pet"
     
     config  PET_MQTT_TOPIC
         string "宠物MQTT主题"
-        default "xiaozhi/pet"
+        default "远程的主题"
+        help
+            该主题用于接收宠物的状态信息和发送控制指令
+
+    config  PET_MQTT_LOCAL_TOPIC
+        string "宠物MQTT主题"
+        default "本地的主题"
         help
             该主题用于接收宠物的状态信息和发送控制指令
         

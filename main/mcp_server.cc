@@ -287,6 +287,31 @@ void McpServer::AddCommonTools() {
                 return "{\"success\": false, \"message\": \"Upgrade failed\"}";
             }
         });
+
+    // 发送消息给远程的用户
+    /*
+    {
+        "type": 1,
+        "msg": "远端消息"
+    }
+    */
+    AddTool("self.pet.SendMessage",
+        "Send a message to the remote user, this function will send a message to the remote user, and the remote user will receive the message and display it on the screen.\n",
+        PropertyList({
+            Property("Message", kPropertyTypeString)
+        }),
+        [](const PropertyList& properties) -> ReturnValue {
+            std::string message = properties["Message"].value<std::string>();
+            auto root = cJSON_CreateObject();
+            cJSON_AddNumberToObject(root, "type", 1);
+            cJSON_AddStringToObject(root, "msg", message.c_str());
+            std::string json_str = cJSON_PrintUnformatted(root);
+            cJSON_Delete(root);
+            ESP_LOGI(TAG, "Send message: %s", json_str.c_str());
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            pet->GetClient()->PUublish_Message("message", json_str);
+            return "{\"success\": true, \"message\": \"Message sent\"}"; 
+        });
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());
 }

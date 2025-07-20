@@ -14,7 +14,7 @@ class PMQTT_Clinet{
 public:
     PMQTT_Clinet();
     ~PMQTT_Clinet();
-
+    bool Message_Deal(cJSON* root, const std::string& payload);
     bool PUublish_Message(std::string type, std::string payload);
 private:
     Mqtt* mqtt_;
