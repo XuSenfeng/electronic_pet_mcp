@@ -40,6 +40,35 @@ Ota::Ota() {
 Ota::~Ota() {
 }
 
+bool Ota::HasNewVersion(){
+    // 从http://192.168.2.70:8000/usr/upgrade/ 获取json数据
+    // 解析json数据，获取firmware_version_
+    // 比较firmware_version_和current_version_
+    // 如果firmware_version_大于current_version_，则返回true
+    // 否则返回false
+    // 如果获取失败，则返回false
+    // std::string url = "http://192.168.2.70:8000/usr/upgrade/";
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/wechatapp/version/";
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "Failed to open HTTP connection");
+        return false;
+    }
+    std::string data = http->ReadAll();
+    http->Close();
+    cJSON *root = cJSON_Parse(data.c_str());
+    if (root == NULL) {
+        ESP_LOGE(TAG, "Failed to parse JSON response");
+        return false;
+    }
+    cJSON *firmware = cJSON_GetObjectItem(root, "version");
+    if (cJSON_IsString(firmware)) {
+        firmware_version_ = firmware->valuestring;
+    }
+    cJSON_Delete(root);
+    return IsNewVersionAvailable(current_version_, firmware_version_);
+}
+
 std::string Ota::GetCheckVersionUrl() {
     Settings settings("wifi", false);
     std::string url = settings.GetString("ota_url");
@@ -255,98 +284,12 @@ void Ota::Upgrade(const std::string& firmware_url) {
     }
 
     ESP_LOGI(TAG, "Writing to partition %s at offset 0x%lx", update_partition->label, update_partition->address);
-    bool image_header_checked = false;
-    std::string image_header;
 
-    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
-    if (!http->Open("GET", firmware_url)) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection");
-        return;
-    }
-
-    size_t content_length = http->GetBodyLength();
-    if (content_length == 0) {
-        ESP_LOGE(TAG, "Failed to get content length");
-        return;
-    }
-
-    char buffer[512];
-    size_t total_read = 0, recent_read = 0;
-    auto last_calc_time = esp_timer_get_time();
-    while (true) {
-        int ret = http->Read(buffer, sizeof(buffer));
-        if (ret < 0) {
-            ESP_LOGE(TAG, "Failed to read HTTP data: %s", esp_err_to_name(ret));
-            return;
-        }
-
-        // Calculate speed and progress every second
-        recent_read += ret;
-        total_read += ret;
-        if (esp_timer_get_time() - last_calc_time >= 1000000 || ret == 0) {
-            size_t progress = total_read * 100 / content_length;
-            ESP_LOGI(TAG, "Progress: %u%% (%u/%u), Speed: %uB/s", progress, total_read, content_length, recent_read);
-            if (upgrade_callback_) {
-                upgrade_callback_(progress, recent_read);
-            }
-            last_calc_time = esp_timer_get_time();
-            recent_read = 0;
-        }
-
-        if (ret == 0) {
-            break;
-        }
-
-        if (!image_header_checked) {
-            image_header.append(buffer, ret);
-            if (image_header.size() >= sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t)) {
-                esp_app_desc_t new_app_info;
-                memcpy(&new_app_info, image_header.data() + sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t), sizeof(esp_app_desc_t));
-                ESP_LOGI(TAG, "New firmware version: %s", new_app_info.version);
-
-                auto current_version = esp_app_get_description()->version;
-                if (memcmp(new_app_info.version, current_version, sizeof(new_app_info.version)) == 0) {
-                    ESP_LOGE(TAG, "Firmware version is the same, skipping upgrade");
-                    return;
-                }
-
-                if (esp_ota_begin(update_partition, OTA_WITH_SEQUENTIAL_WRITES, &update_handle)) {
-                    esp_ota_abort(update_handle);
-                    ESP_LOGE(TAG, "Failed to begin OTA");
-                    return;
-                }
-
-                image_header_checked = true;
-                std::string().swap(image_header);
-            }
-        }
-        auto err = esp_ota_write(update_handle, buffer, ret);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to write OTA data: %s", esp_err_to_name(err));
-            esp_ota_abort(update_handle);
-            return;
-        }
-    }
-    http->Close();
-
-    esp_err_t err = esp_ota_end(update_handle);
-    if (err != ESP_OK) {
-        if (err == ESP_ERR_OTA_VALIDATE_FAILED) {
-            ESP_LOGE(TAG, "Image validation failed, image is corrupted");
-        } else {
-            ESP_LOGE(TAG, "Failed to end OTA: %s", esp_err_to_name(err));
-        }
-        return;
-    }
-
-    err = esp_ota_set_boot_partition(update_partition);
+    esp_err_t err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to set boot partition: %s", esp_err_to_name(err));
         return;
     }
-
-    ESP_LOGI(TAG, "Firmware upgrade successful, rebooting in 3 seconds...");
-    vTaskDelay(pdMS_TO_TICKS(3000));
     esp_restart();
 }
 

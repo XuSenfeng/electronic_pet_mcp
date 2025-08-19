@@ -1,3 +1,9 @@
+/*
+ * @Descripttion: 
+ * @Author: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
+ */
 #ifndef _OTA_H
 #define _OTA_H
 
@@ -15,7 +21,7 @@ public:
     bool CheckVersion();
     esp_err_t Activate();
     bool HasActivationChallenge() { return has_activation_challenge_; }
-    bool HasNewVersion() { return has_new_version_; }
+    bool HasNewVersion();
     bool HasMqttConfig() { return has_mqtt_config_; }
     bool HasWebsocketConfig() { return has_websocket_config_; }
     bool HasActivationCode() { return has_activation_code_; }
