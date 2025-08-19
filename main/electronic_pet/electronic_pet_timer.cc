@@ -250,7 +250,7 @@ void calculate_next_trigger(
 /// @param csv_info 获取的数据
 /// @param delta_sec 返回参数, 第一个触发时间
 /// @param interval_sec 返回参数, 周期时间
-void ElectronicPetTimer::deal_one_csv_message(csv_info_t *csv_info, long *delta_sec, long *interval_sec){
+void ElectronicPetTimer::deal_one_csv_message(timer_info_t *csv_info, long *delta_sec, long *interval_sec){
     calculate_next_trigger(
         csv_info->tm_sec, csv_info->tm_min, csv_info->tm_hour,
         csv_info->re_mday, csv_info->re_mon, csv_info->re_year,
@@ -259,6 +259,35 @@ void ElectronicPetTimer::deal_one_csv_message(csv_info_t *csv_info, long *delta_
             *delta_sec *= (rand() % (csv_info->random_h - csv_info->random_l + 1)) + csv_info->random_l;
         }
     
+}
+
+bool ElectronicPetTimer::deal_timer_info(timer_info_t *timer_info){
+    long delta_sec = 0;
+    long interval_sec = 0;
+    deal_one_csv_message(timer_info, &delta_sec, &interval_sec);
+    char *message = (char*)malloc(strlen(timer_info->message) + 1);
+    if (message == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for message");
+        return false;;
+    }
+    strcpy(message, timer_info->message);
+    if(timer_info->function_id == 0){
+        // 设置定时器事件
+        timer_add_timer_event_repeat(
+            time(nullptr) + delta_sec, E_PET_TIMER_MESSAGE, 
+            NULL, 
+            (void*)message, interval_sec);
+    }else{
+        // 设置定时器事件
+        ESP_LOGI(TAG, "Function ID: %d", timer_info->function_id);
+        timer_add_timer_event_repeat(
+            time(nullptr) + delta_sec, E_PET_TIMER_FUNCTION, 
+            (callback_f)callback_catalogue[timer_info->function_id - 1].callback, 
+            (void*)callback_catalogue[timer_info->function_id - 1].arg, interval_sec);
+    }
+    ESP_LOGI(TAG, "Timer event added: %s, delta_sec: %ld, interval_sec: %ld", 
+             timer_info->message, delta_sec, interval_sec);
+    return true;
 }
 
 
@@ -274,7 +303,7 @@ void ElectronicPetTimer::timer_read_csv_timer(){
     }
     char line[256];
     while (fgets(line, sizeof(line), f)) {
-        csv_info_t csv_info;
+        timer_info_t csv_info;
 
         int ret = sscanf(line, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%[^\n]", 
             &csv_info.tm_sec, &csv_info.tm_min, &csv_info.tm_hour, 
@@ -282,33 +311,7 @@ void ElectronicPetTimer::timer_read_csv_timer(){
             &csv_info.re_wday, &csv_info.random_l, &csv_info.random_h,
             &csv_info.function_id, csv_info.message);
         if (ret == 11) {
-            long delta_sec = 0;
-            long interval_sec = 0;
-            deal_one_csv_message(&csv_info, &delta_sec, &interval_sec);
-            char *message = (char*)malloc(strlen(csv_info.message) + 1);
-            if (message == NULL) {
-                ESP_LOGE(TAG, "Failed to allocate memory for message");
-                continue;
-            }
-            strcpy(message, csv_info.message);
-            if(csv_info.function_id == 0){
-                // 设置定时器事件
-                timer_add_timer_event_repeat(
-                    time(nullptr) + delta_sec, E_PET_TIMER_MESSAGE, 
-                    NULL, 
-                    (void*)message, interval_sec);
-            }else{
-                // 设置定时器事件
-                ESP_LOGI(TAG, "Function ID: %d", csv_info.function_id);
-                timer_add_timer_event_repeat(
-                    time(nullptr) + delta_sec, E_PET_TIMER_FUNCTION, 
-                    (callback_f)callback_catalogue[csv_info.function_id - 1].callback, 
-                    (void*)callback_catalogue[csv_info.function_id - 1].arg, interval_sec);
-            }
-            // timer_add_timer_event_repeat(
-            //     time(nullptr) + delta_sec, E_PET_TIMER_MESSAGE, 
-            //     NULL, 
-            //     (void*)message, interval_sec);
+            deal_timer_info(&csv_info);
         } else {
             ESP_LOGE(TAG, "Failed to parse line: %s", line);
         }

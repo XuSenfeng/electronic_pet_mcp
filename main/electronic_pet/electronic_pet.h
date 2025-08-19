@@ -82,6 +82,7 @@ public:
     void StateEventDeal();
     int getLevel() { return level_; }
     int getExperience() { return experience_; }
+    bool CreatOneThing(char *name, char *description, int vigor_, int satiety_, int happiness_, int money_, int iq_, int level, int *i);
     std::string GetStateDescriptor();
 
     inline bool isUpGraded(){return experience_ >= level_ * level_;}

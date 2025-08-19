@@ -117,6 +117,21 @@ void ElectronicPet::ReturnLastAction(){
     ESP_LOGI(TAG, "Return last action: %d", action_);
 }
 
+bool ElectronicPet::CreatOneThing(char *name, char *description, int vigor_, int satiety_, int happiness_, int money_, int iq_, int level, int *i){
+    Settings settings("e_pet", true);
+    int num = settings.GetInt("things_num_" + std::to_string(*i), 0);
+    int state[E_PET_STATE_NUMBER] = {0};
+    state[E_PET_STATE_SATITY] = satiety_;
+    state[E_PET_STATE_MONEY] = money_;
+    state[E_PET_STATE_VIGIR] = vigor_;
+    state[E_PET_STATE_HAPPINESS] = happiness_;
+    state[E_PET_STATE_IQ] = iq_;
+    Food *food = new Food(name, {0}, description, state, num, level);
+    things_.push_back(food);
+    *i += 1;
+    return true;
+}
+
 void ElectronicPet::ReadCsvFood(int *i){
     const char *file_hello = "/sdcard/electronic_pet_food.csv";
     ESP_LOGI(TAG, "Reading file: %s", file_hello);
@@ -127,30 +142,17 @@ void ElectronicPet::ReadCsvFood(int *i){
         return;
     }
     char line[256];
-    
+    char name[30];
+    char description[100];
+    int vigor_, satiety_, happiness_, money_, iq_, level;
     while (fgets(line, sizeof(line), f)) {
-        char name[30];
-        char description[100];
-        int vigor_, satiety_, happiness_, money_, iq_, level;
+
         int ret = sscanf(line, "%[^,],%d,%d,%d,%d,%d,%d,%[^\n]", name, &vigor_, &satiety_, &happiness_, &money_, &iq_, &level, description);
         if (ret == 8) {
- 
-            Settings settings("e_pet", true);
-            int num = settings.GetInt("things_num_" + std::to_string(*i), 0);
+            ESP_LOGI(TAG, "Parsed data: name=%s, vigor=%d, satiety=%d, happiness=%d, money=%d, iq=%d, level=%d, description=%s", 
+                     name, vigor_, satiety_, happiness_, money_, iq_, level, description);
+            CreatOneThing(name, description, vigor_, satiety_, happiness_, money_, iq_, level, i);
 
-            ESP_LOGI(TAG, "Parsed line: %s, thing %d %s: %s", line, *i, name, description);
-            ESP_LOGI(TAG, "Parsed data: num %d, name=%s, vigor=%d, satiety=%d, happiness=%d, money=%d, iq=%d, level=%d, description=%s", num, name, vigor_, satiety_, happiness_, money_, iq_, level, description);
-                
-            int state[E_PET_STATE_NUMBER] = {0};
-            state[E_PET_STATE_SATITY] = satiety_;
-            state[E_PET_STATE_MONEY] = money_;
-            state[E_PET_STATE_VIGIR] = vigor_;
-            state[E_PET_STATE_HAPPINESS] = happiness_;
-            state[E_PET_STATE_IQ] = iq_;
-            Food *food = new Food(name, {0}, description, state, num, level);
-
-            things_.push_back(food);
-            *i += 1;
         } else {
             ESP_LOGW(TAG, "Failed to parse line: %s", line);
         }

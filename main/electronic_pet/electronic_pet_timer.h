@@ -44,7 +44,7 @@ typedef struct{
     int random_h;
     int function_id;
     char message[100];
-}csv_info_t;
+}timer_info_t;
 
 
 
@@ -63,8 +63,9 @@ public:
     void timer_add_timer_event_relative(int seconds, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat);
     void timer_add_timer_event_absolute(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat);
     void timer_add_timer_event_repeat(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, int repeat_time);
-    void deal_one_csv_message(csv_info_t *csv_info, long *delta_sec, long *interval_sec);
+    void deal_one_csv_message(timer_info_t *csv_info, long *delta_sec, long *interval_sec);
     void timer_event_process();
+    bool deal_timer_info(timer_info_t *timer_info);
 };
 
 
