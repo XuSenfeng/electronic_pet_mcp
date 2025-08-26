@@ -97,6 +97,9 @@ private:
 
         // Initialize PCA9557
         pca9557_ = new Pca9557(i2c_bus_, 0x19);
+        
+    }
+    void init_qmi8658(){
         qmi8658_ = new QMI8658(i2c_bus_, QMI8658_SENSOR_ADDR);
     }
 

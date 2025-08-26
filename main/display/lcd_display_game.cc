@@ -36,6 +36,10 @@ void game_button_cb(lv_event_t * e) {
 void LcdDisplay::GameSelectUI() {
     DisplayLockGuard lock(this);
     ElectronicPet * pet = ElectronicPet::GetInstance();
+    if(pet == nullptr) {
+        ESP_LOGE(TAG, "ElectronicPet instance is null");
+        return;
+    }
     int current_game = pet->GetCurrentGame();
     LV_IMAGE_DECLARE(game_sample);
     // 创建主屏幕

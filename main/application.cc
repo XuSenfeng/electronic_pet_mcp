@@ -689,6 +689,7 @@ void Application::OnClockTimer() {
             }
         }
     }
+    board.init_qmi8658();
     extern QMI8658* qmi8658_;
     t_sQMI8658 data; // 返回没有在这里处理
     qmi8658_->deal_qmi8658_data(&data);

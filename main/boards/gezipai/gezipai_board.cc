@@ -124,6 +124,10 @@ private:
         }
     }
 
+    void init_qmi8658(){
+        qmi8658_ = new QMI8658(display_i2c_bus_, QMI8658_SENSOR_ADDR);
+    }
+
     void InitializeSpi()
     {
         spi_bus_config_t buscfg = {};

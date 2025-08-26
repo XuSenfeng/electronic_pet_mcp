@@ -182,6 +182,10 @@ void WifiBoard::ResetWifiConfiguration() {
     esp_restart();
 }
 
+void WifiBoard::init_qmi8658(){
+    
+}
+
 std::string WifiBoard::GetDeviceStatusJson() {
     /*
      * 返回设备状态JSON
