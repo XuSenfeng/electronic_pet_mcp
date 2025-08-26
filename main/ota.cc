@@ -58,7 +58,7 @@ bool Ota::HasNewVersion(){
     http->Close();
     cJSON *root = cJSON_Parse(data.c_str());
     if (root == NULL) {
-        ESP_LOGE(TAG, "Failed to parse JSON response");
+        ESP_LOGE(TAG, "Failed to parse JSON response %s", data.c_str());
         return false;
     }
     cJSON *firmware = cJSON_GetObjectItem(root, "version");
@@ -276,7 +276,6 @@ void Ota::MarkCurrentVersionValid() {
 
 void Ota::Upgrade(const std::string& firmware_url) {
     ESP_LOGI(TAG, "Upgrading firmware from %s", firmware_url.c_str());
-    esp_ota_handle_t update_handle = 0;
     auto update_partition = esp_ota_get_next_update_partition(NULL);
     if (update_partition == NULL) {
         ESP_LOGE(TAG, "Failed to get update partition");

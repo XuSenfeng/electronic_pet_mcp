@@ -45,14 +45,17 @@ private:
     int is_game_ = 0;
     int level_ = 0; // 等级
     int experience_ = 0; // 经验值
+    
 
     PMQTT_Clinet *client_; // MQTT客户端
+    bool use_web_server_ = false;
+    std::string boardID;
 
 public:
     std::vector<GameInfo> games_;
     static int state_time_change_[E_PET_ACTION_NUMBER][E_PET_STATE_NUMBER]; // 不同状态下边宠物的状态变化
     static std::string action_name_[E_PET_ACTION_NUMBER]; // 不同状态下边宠物的状态变化
-    ElectronicPetTimer timer;
+    ElectronicPetTimer *timer;
     static ElectronicPet* MyPet;
     ElectronicPet();
     ~ElectronicPet();
@@ -93,4 +96,10 @@ public:
     void change_statue(int *change_state);
     std::string GetUpdateTask(void);
     bool Upgrade(void);
+
+
+    std::string GetBoardID(void);
+    void ReadWebThings(void);
+    void ReadWebFood(int *thing_num);
+
 };

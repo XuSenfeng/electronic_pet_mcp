@@ -12,6 +12,8 @@
 #include "electronic_food.h"
 #include "board.h"
 #include "display/display.h"
+#include <esp_mac.h>
+// #include <base64.h>
 #define TAG "ElectronicPet"
 
 ElectronicPet::ElectronicPet(){
@@ -35,13 +37,192 @@ ElectronicPet::ElectronicPet(){
 
     printf("state_0 %s: %d, state_1 %s: %d, state_2 %s: %d\n", GetStateName(0), GetState(0), GetStateName(1), GetState(1), GetStateName(2), GetState(2));
     action_ = (electronic_pet_action_e)settings.GetInt("action", E_PET_ACTION_IDLE);
-    ReadCsvThings();
-    client_->PUublish_Message("log", "ElectronicPet initialized");
+
+    boardID = GetBoardID();
+    ESP_LOGI(TAG, "boardID: %s", boardID.c_str());
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/pets/pet/?boardID=" + boardID;
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "Failed to open HTTP connection for version check");
+    }
+    std::string data = http->ReadAll();
     
+    cJSON *root = cJSON_Parse(data.c_str());
+    if (root == NULL) {
+        ESP_LOGE(TAG, "Failed to parse JSON response: %s", data.c_str());
+        return;
+    }
+    cJSON *code = cJSON_GetObjectItem(root, "code");
+    if (cJSON_IsNumber(code)) {
+        if( code->valueint ==200) {
+            use_web_server_ = true;
+            ESP_LOGI(TAG, "Web server is enabled");
+        }
+    }
+    cJSON_Delete(root);
+    http->Close();
+    if(use_web_server_){
+        ESP_LOGI(TAG, "Using web server for things");
+        ReadWebThings();
+    } else {
+        ReadCsvThings();
+    }
+    
+    client_->PUublish_Message("log", "ElectronicPet initialized");
+
+    timer = new ElectronicPetTimer();
+
 }
 
 ElectronicPet::~ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet destructor");
+}
+
+void ElectronicPet::ReadCsvThings(){
+    //---------------------
+    // food
+    //---------------------
+    int i = 0;
+    ReadCsvFood(&i);
+    ReadCsvGames();
+}
+
+
+void ElectronicPet::ReadWebThings(void){
+    int thing_num = 0;
+    ReadWebFood(&thing_num);
+    ReadCsvGames();
+}
+
+
+/**
+ * @brief 解码Unicode转义序列
+ * @param input 包含Unicode转义序列的字符串
+ * @return 解码后的字符串
+ */
+std::string DecodeUnicode(const std::string& input) {
+    std::string result;
+    result.reserve(input.length());
+    
+    for (size_t i = 0; i < input.length(); ++i) {
+        if (input[i] == '\\' && i + 1 < input.length() && input[i + 1] == 'u' && i + 5 < input.length()) {
+            // 找到 \uXXXX 格式
+            std::string hex_str = input.substr(i + 2, 4);
+            unsigned int unicode_val;
+            
+            // 将十六进制字符串转换为整数
+            if (sscanf(hex_str.c_str(), "%x", &unicode_val) == 1) {
+                // 对于UTF-8编码，需要将Unicode码点转换为UTF-8字节序列
+                if (unicode_val <= 0x7F) {
+                    // 单字节UTF-8
+                    result += static_cast<char>(unicode_val);
+                } else if (unicode_val <= 0x7FF) {
+                    // 双字节UTF-8
+                    result += static_cast<char>(0xC0 | (unicode_val >> 6));
+                    result += static_cast<char>(0x80 | (unicode_val & 0x3F));
+                } else if (unicode_val <= 0xFFFF) {
+                    // 三字节UTF-8
+                    result += static_cast<char>(0xE0 | (unicode_val >> 12));
+                    result += static_cast<char>(0x80 | ((unicode_val >> 6) & 0x3F));
+                    result += static_cast<char>(0x80 | (unicode_val & 0x3F));
+                }
+                i += 5; // 跳过已处理的 \uXXXX
+            } else {
+                // 解析失败，保留原始字符
+                result += input[i];
+            }
+        } else {
+            result += input[i];
+        }
+    }
+    
+    return result;
+}
+
+void ElectronicPet::ReadWebFood(int *thing_num){
+    // 使用GET请求获取商店列表信息
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/shops/shoplists/?boardID=" + boardID;
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "无法打开HTTP连接获取商店列表");
+        return;
+    }
+    // 使用cJSON解析返回的物品列表
+    std::string data = http->ReadAll();
+    ESP_LOGI(TAG, "商店列表返回数据: %s", data.c_str());
+    cJSON *root = cJSON_Parse(data.c_str());
+    if (root == NULL) {
+        ESP_LOGE(TAG, "解析商店列表JSON失败: %s", data.c_str());
+        http->Close();
+        return;
+    }
+    if (!cJSON_IsArray(root)) {
+        ESP_LOGE(TAG, "商店列表JSON不是数组格式");
+        cJSON_Delete(root);
+        http->Close();
+        return;
+    }
+    int item_count = cJSON_GetArraySize(root);
+    for (int i = 0; i < item_count; ++i) {
+        cJSON *item = cJSON_GetArrayItem(root, i);
+        if (!cJSON_IsObject(item)) continue;
+        cJSON *id = cJSON_GetObjectItem(item, "id");
+        cJSON *name = cJSON_GetObjectItem(item, "name");
+        cJSON *money = cJSON_GetObjectItem(item, "money");
+        cJSON *description = cJSON_GetObjectItem(item, "description");
+        cJSON *num = cJSON_GetObjectItem(item, "num");
+        cJSON *vigor = cJSON_GetObjectItem(item, "vigor");
+        cJSON *satiety = cJSON_GetObjectItem(item, "satiety");
+        cJSON *happiness = cJSON_GetObjectItem(item, "happiness");
+        cJSON *iq = cJSON_GetObjectItem(item, "iq");
+        cJSON *level = cJSON_GetObjectItem(item, "level");
+        
+        // 解码Unicode转义序列
+        std::string decoded_name = "";
+        std::string decoded_description = "";
+        
+        if (name && name->valuestring) {
+            decoded_name = DecodeUnicode(name->valuestring);
+        }
+        if (description && description->valuestring) {
+            decoded_description = DecodeUnicode(description->valuestring);
+        }
+        
+        // 这里可以根据需要将物品添加到things_等容器中
+        ESP_LOGI(TAG, "物品: id=%d, name=%s, money=%d, description=%s, num=%d, vigor=%d, satiety=%d, happiness=%d, iq=%d, level=%d",
+            id ? id->valueint : -1,
+            decoded_name.c_str(),
+            money ? money->valueint : 0,
+            decoded_description.c_str(),
+            num ? num->valueint : 0,
+            vigor ? vigor->valueint : 0,
+            satiety ? satiety->valueint : 0,
+            happiness ? happiness->valueint : 0,
+            iq ? iq->valueint : 0,
+            level ? level->valueint : 0
+        );
+        
+        CreatOneThing((char*)decoded_name.c_str(), (char*)decoded_description.c_str(), 
+            vigor ? vigor->valueint : 0, 
+            satiety ? satiety->valueint : 0, 
+            happiness ? happiness->valueint : 0, 
+            money ? money->valueint : 0, 
+            iq ? iq->valueint : 0, 
+            level ? level->valueint : 0, 
+            thing_num);
+    }
+    cJSON_Delete(root);
+    http->Close();
+}
+
+
+std::string ElectronicPet::GetBoardID(void){
+    char mac[6];
+    esp_read_mac((uint8_t*)mac, ESP_MAC_WIFI_STA);
+    char mac_str[13];
+    snprintf(mac_str, sizeof(mac_str), "%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    return std::string(mac_str);
+    
 }
 
 
@@ -159,6 +340,8 @@ void ElectronicPet::ReadCsvFood(int *i){
     }
 }
 
+
+
 void ElectronicPet::ReadCsvGames(){
     const char *file_hello = "/sdcard/electronic_pet_games.csv";
     ESP_LOGI(TAG, "Reading file: %s", file_hello);
@@ -192,14 +375,6 @@ void ElectronicPet::ReadCsvGames(){
     fclose(f);
 }
 
-void ElectronicPet::ReadCsvThings(){
-    //---------------------
-    // food
-    //---------------------
-    int i = 0;
-    ReadCsvFood(&i);
-    ReadCsvGames();
-}
 
 //electronic_pet_upgrade_task.csv
 std::string ElectronicPet::ReadUpgradeTaskCsv(int level){
