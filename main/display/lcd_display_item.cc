@@ -12,10 +12,10 @@ void LcdDisplay::ItemUI() {
     int num_of_things = ElectronicPet::GetInstance()->GetThingsNum();
     if(num_of_things == 0) {
         ESP_LOGE(TAG, "No things available");
-        return;
+        // return;
     }
     item_cont = (lv_obj_t**)malloc(num_of_things * sizeof(lv_obj_t*));
-    if(item_cont == NULL) {
+    if(item_cont == NULL && num_of_things != 0) {
         ESP_LOGE(TAG, "Failed to allocate memory for item containers");
         return;
     }
@@ -29,15 +29,28 @@ void LcdDisplay::ItemUI() {
     lv_obj_t* title = lv_label_create(screen_things_);
     lv_obj_set_style_text_font(title, fonts_.text_font, 0);
     lv_label_set_text(title, "宠物商店");
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整标题位置，确保完全可见
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 5);
+#else
+    // 320x240 屏幕：保持原有位置
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, TITLE_OFFSET_SMALL);
+#endif
     lv_obj_set_style_text_color(title, lv_color_hex(0xFF88A4), 0);
     
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：减少边框，最大化内容区域
+    lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
+    lv_obj_set_style_pad_all(list_item_, 6, 0);
+#else
+    // 320x240 屏幕：保持原有设置
     lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
+    lv_obj_set_style_pad_all(list_item_, 10, 0);
+#endif
     lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, LIST_OFFSET_SMALL);
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(list_item_, 10, 0);
     lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
     lv_obj_set_style_bg_opa(list_item_, LV_OPA_70, LV_PART_MAIN);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
@@ -56,10 +69,17 @@ void LcdDisplay::UpdataUILevel(int level){
     lv_obj_del(list_item_); // 删除旧的物品列表容器
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：减少边框，最大化内容区域
+    lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
+    lv_obj_set_style_pad_all(list_item_, 6, 0);
+#else
+    // 320x240 屏幕：保持原有设置
     lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
+    lv_obj_set_style_pad_all(list_item_, 10, 0);
+#endif
     lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, LIST_OFFSET_SMALL);
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(list_item_, 10, 0);
     lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
@@ -216,20 +236,14 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     item_cont[index] = lv_obj_create(parent);
     lv_obj_set_size(item_cont[index], LV_PCT(100), LV_SIZE_CONTENT); // 高度自适应
     lv_obj_set_flex_flow(item_cont[index], LV_FLEX_FLOW_ROW);       // 横向排列
-    lv_obj_set_style_pad_all(item_cont[index], 10, 0);              // 统一内边距
+    lv_obj_set_style_pad_all(item_cont[index], ITEM_PADDING_SMALL, 0);              // 统一内边距
     lv_obj_set_style_radius(item_cont[index], 15, 0);
     lv_obj_set_style_bg_color(item_cont[index], lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_shadow_width(item_cont[index], 10, 0);
 
     // 左侧信息容器（纵向Flex）
     lv_obj_t* info_cont = lv_obj_create(item_cont[index]);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
-    // 240x280 屏幕：调整信息容器宽度比例
-    lv_obj_set_size(info_cont, LV_PCT(75), LV_SIZE_CONTENT);
-#else
-    // 320x240 屏幕：保持原有比例
-    lv_obj_set_size(info_cont, LV_PCT(70), LV_SIZE_CONTENT);
-#endif
+    lv_obj_set_size(info_cont, INFO_CONTAINER_WIDTH_SMALL, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(info_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(info_cont, 5, 0); // 行间距
     lv_obj_set_style_bg_opa(info_cont, LV_OPA_TRANSP, 0);
@@ -275,13 +289,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
 
     // 右侧按钮容器（纵向Flex）
     lv_obj_t* btn_cont = lv_obj_create(item_cont[index]);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
-    // 240x280 屏幕：调整按钮容器宽度比例
-    lv_obj_set_size(btn_cont, LV_PCT(25), LV_SIZE_CONTENT);
-#else
-    // 320x240 屏幕：保持原有比例
-    lv_obj_set_size(btn_cont, LV_PCT(30), LV_SIZE_CONTENT);
-#endif
+    lv_obj_set_size(btn_cont, BUTTON_CONTAINER_WIDTH_SMALL, LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(btn_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(btn_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_row(btn_cont, 10, 0); // 按钮间距
@@ -292,7 +300,14 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_bg_color(buy_btn, lv_color_hex(0x98FB98), 0);
     lv_obj_set_style_radius(buy_btn, 20, 0);
     lv_obj_t* buy_label = lv_label_create(buy_btn);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：使用较小的字体，确保按钮文字完整显示
     lv_obj_set_style_text_font(buy_label, fonts_.text_font, 0);
+    // lv_obj_set_style_text_font_size(buy_label, 12, 0); // 设置较小的字体大小
+#else
+    // 320x240 屏幕：保持原有字体
+    lv_obj_set_style_text_font(buy_label, fonts_.text_font, 0);
+#endif
     lv_label_set_text(buy_label, "买入");
     lv_obj_align(buy_label, LV_ALIGN_CENTER, 0, 0);
 
@@ -302,7 +317,14 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_bg_color(sell_btn, lv_color_hex(0xFFB6C1), 0);
     lv_obj_set_style_radius(sell_btn, 20, 0);
     lv_obj_t* sell_label = lv_label_create(sell_btn);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：使用较小的字体
     lv_obj_set_style_text_font(sell_label, fonts_.text_font, 0);
+    // lv_obj_set_style_text_font_size(sell_label, 12, 0);
+#else
+    // 320x240 屏幕：保持原有字体
+    lv_obj_set_style_text_font(sell_label, fonts_.text_font, 0);
+#endif
     lv_label_set_text(sell_label, "售出");
     lv_obj_align(sell_label, LV_ALIGN_CENTER, 0, 0);
 
@@ -312,7 +334,14 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_bg_color(use_btn, lv_color_hex(0xdbeafe), 0);
     lv_obj_set_style_radius(use_btn, 20, 0);
     lv_obj_t* use_label = lv_label_create(use_btn);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：使用较小的字体
     lv_obj_set_style_text_font(use_label, fonts_.text_font, 0);
+    // lv_obj_set_style_text_font_size(use_label, 12, 0);
+#else
+    // 320x240 屏幕：保持原有字体
+    lv_obj_set_style_text_font(use_label, fonts_.text_font, 0);
+#endif
     lv_label_set_text(use_label, "使用");
     lv_obj_align(use_label, LV_ALIGN_CENTER, 0, 0);
 

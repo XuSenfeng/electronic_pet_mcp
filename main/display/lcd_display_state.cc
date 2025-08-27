@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "lcd_display.h"
@@ -19,7 +19,13 @@ void LcdDisplay::StateUI(){
     lv_obj_t* main_cont = lv_obj_create(screen_state_);
     lv_obj_set_size(main_cont, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(main_cont, LV_FLEX_FLOW_COLUMN);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：进一步减少边框，最大化内容区域
+    lv_obj_set_style_pad_all(main_cont, CONTAINER_PADDING_SMALL, 0);
+#else
+    // 320x240 屏幕：保持原有内边距
     lv_obj_set_style_pad_all(main_cont, 20, 0);
+#endif
     lv_obj_set_style_pad_row(main_cont, ITEM_SPACING_SMALL, 0);
     lv_obj_remove_style(main_cont, NULL, LV_PART_SCROLLBAR);
     lv_obj_set_style_bg_opa(main_cont, LV_OPA_70, LV_PART_MAIN);
@@ -56,7 +62,13 @@ void LcdDisplay::StateUI(){
 void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     // 状态项容器
     lv_obj_t* item = lv_obj_create(parent);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：使用较小的状态项高度
+    lv_obj_set_size(item, LV_PCT(100), ITEM_HEIGHT_SMALL);
+#else
+    // 320x240 屏幕：使用原有状态项高度
     lv_obj_set_size(item, LV_PCT(100), ITEM_HEIGHT);
+#endif
     lv_obj_set_style_radius(item, 15, 0);
     lv_obj_set_style_bg_color(item, lv_color_hex(0xFFF3F9), 0);
     lv_obj_set_style_shadow_width(item, 15, 0);
@@ -69,14 +81,26 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     lv_obj_t* icon = lv_label_create(item);
     // lv_label_set_text(icon, get_state_icon(i)); // 需要实现图标获取函数
     lv_obj_set_style_text_color(icon, lv_color_hex(0xFF88A4), 0);
-    // lv_obj_set_style_text_font(icon, ICON_FONT, 0);
+    // lv_obj_set_text_font(icon, ICON_FONT, 0);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整图标位置
+    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 12, 0);
+#else
+    // 320x240 屏幕：保持原有图标位置
     lv_obj_align(icon, LV_ALIGN_LEFT_MID, 15, 0);
+#endif
 
     // 状态名称和数值
     lv_obj_t* name = lv_label_create(item);
     // lv_label_set_text_fmt(name, "%s: %d%%", pet->GetStateName(i), pet->GetState(i));
     lv_obj_set_style_text_font(name, fonts_.text_font, 0);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整文字位置
+    lv_obj_align(name, LV_ALIGN_LEFT_MID, 30 + 20, -10);
+#else
+    // 320x240 屏幕：保持原有文字位置
     lv_obj_align(name, LV_ALIGN_LEFT_MID, 32 + 25, -10);
+#endif
 
     // 进度条
     lv_obj_t* bar = lv_bar_create(item);
@@ -85,8 +109,15 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     else
         lv_bar_set_range(bar, 0, 5000);
     // lv_bar_set_value(bar, pet->GetState(i), LV_ANIM_ON);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：使用较小的进度条宽度
+    lv_obj_set_size(bar, PROGRESS_WIDTH_SMALL, 15);
+    lv_obj_align(bar, LV_ALIGN_LEFT_MID, 30 + 20, 15);
+#else
+    // 320x240 屏幕：使用原有进度条宽度
     lv_obj_set_size(bar, PROGRESS_WIDTH, 15);
     lv_obj_align(bar, LV_ALIGN_LEFT_MID, 32 + 25, 15);
+#endif
     lv_obj_set_style_radius(bar, 8, LV_PART_MAIN);
     lv_obj_set_style_bg_color(bar, lv_color_hex(0xFFE4EB), LV_PART_MAIN);
     lv_obj_set_style_bg_color(bar, lv_color_hex(0x00facc), LV_PART_INDICATOR);

@@ -54,7 +54,13 @@ void LcdDisplay::GameSelectUI() {
     lv_obj_t* name_label = lv_label_create(screen_game_);
     lv_obj_set_style_text_font(name_label, fonts_.text_font, 0);
     lv_label_set_text(name_label, pet->games_[current_game].name.c_str());
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：减少顶部边距
+    lv_obj_align(name_label, LV_ALIGN_TOP_MID, 0, 5);
+#else
+    // 320x240 屏幕：保持原有位置
     lv_obj_align(name_label, LV_ALIGN_TOP_MID, 0, 0);
+#endif
 
     /* 主游戏按钮 */
     main_btn = lv_button_create(screen_game_);

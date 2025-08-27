@@ -30,18 +30,19 @@ void LcdDisplay::HelpUI() {
     
     // 滚动容器
     lv_obj_t* scroll_cont = lv_obj_create(screen_description_);
-    lv_obj_set_size(scroll_cont, LV_PCT(100), LV_PCT(85));
-    lv_obj_align(scroll_cont, LV_ALIGN_BOTTOM_MID, 0, 0);
-    lv_obj_set_flex_flow(scroll_cont, LV_FLEX_FLOW_COLUMN);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
-    // 240x280 屏幕：调整内边距和间距
-    lv_obj_set_style_pad_all(scroll_cont, 12, 0);
-    lv_obj_set_style_pad_row(scroll_cont, 16, 0);
+    // 240x280 屏幕：减少边框，最大化内容区域
+    lv_obj_set_size(scroll_cont, LV_PCT(100), LV_PCT(88));
+    lv_obj_set_style_pad_all(scroll_cont, 8, 0);
+    lv_obj_set_style_pad_row(scroll_cont, 12, 0);
 #else
     // 320x240 屏幕：保持原有设置
+    lv_obj_set_size(scroll_cont, LV_PCT(100), LV_PCT(85));
     lv_obj_set_style_pad_all(scroll_cont, 15, 0);
     lv_obj_set_style_pad_row(scroll_cont, 20, 0);
 #endif
+    lv_obj_align(scroll_cont, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_set_flex_flow(scroll_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_remove_style(scroll_cont, NULL, LV_PART_SCROLLBAR);
 
     // 创建说明卡片
@@ -101,11 +102,13 @@ void LcdDisplay::CreateCard(lv_obj_t* parent, int index, const char* icon,
 // 卡片容器
 cards[index].card = lv_obj_create(parent);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
-    // 240x280 屏幕：调整卡片宽度
-    lv_obj_set_size(cards[index].card, (LV_HOR_RES - 40), LV_SIZE_CONTENT);
+    // 240x280 屏幕：减少边框，最大化内容区域
+    lv_obj_set_size(cards[index].card, (LV_HOR_RES - 20), LV_SIZE_CONTENT);
+    lv_obj_set_style_pad_all(cards[index].card, 8, 0);
 #else
-    // 320x240 屏幕：保持原有宽度
+    // 320x240 屏幕：保持原有设置
     lv_obj_set_size(cards[index].card, (LV_HOR_RES - 60), LV_SIZE_CONTENT);
+    lv_obj_set_style_pad_all(cards[index].card, 12, 0);
 #endif
 lv_obj_set_style_radius(cards[index].card, 15, 0);
 lv_obj_set_style_bg_color(cards[index].card, lv_color_hex(0xFFFFFF), 0);

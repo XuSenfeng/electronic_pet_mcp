@@ -84,8 +84,6 @@ void SimuOnPressUp() {
         return;
     }
     ESP_LOGI(TAG, "PressUp");
-    auto& app = Application::GetInstance();
-    app.ToggleChatState();
     // if (app.GetDeviceState() == kDeviceStateSpeaking) {
     //     app.AbortSpeaking(kAbortReasonNone);
     // }

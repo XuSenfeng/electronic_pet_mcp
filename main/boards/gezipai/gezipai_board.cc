@@ -31,8 +31,8 @@
 #define BATTERY_ADC_ATTEN ADC_ATTEN_DB_12
 #define BATTERY_READ_INTERVAL_MS (10 * 1000) // 10 秒
 
-LV_FONT_DECLARE(font_puhui_20_4);
-LV_FONT_DECLARE(font_awesome_20_4);
+LV_FONT_DECLARE(font_puhui_14_1);
+LV_FONT_DECLARE(font_awesome_14_1);
 QMI8658* qmi8658_;
 class GezipaiBoard : public WifiBoard
 {
@@ -228,8 +228,8 @@ private:
                             DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, 
                             DISPLAY_SWAP_XY,
                             {
-                                .text_font = &font_puhui_20_4,
-                                .icon_font = &font_awesome_20_4,
+                                .text_font = &font_puhui_14_1,
+                                .icon_font = &font_awesome_14_1,
                                 .emoji_font = font_emoji_64_init(),
                             });
 

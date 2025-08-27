@@ -32,12 +32,20 @@ struct ThemeColors {
     // 240x280 屏幕的布局参数
     #define ITEM_SPACING_SMALL     12
     #define ITEM_HEIGHT_SMALL      70
-    #define ITEM_WIDTH_SMALL       (LV_HOR_RES - 2*15)
+    #define ITEM_WIDTH_SMALL       (LV_HOR_RES - 2*10)
     #define ICON_SIZE_SMALL        40
     #define PROGRESS_WIDTH_SMALL   120
     #define BUTTON_HEIGHT_SMALL    35
     #define TITLE_OFFSET_SMALL     -2
     #define LIST_OFFSET_SMALL      -8
+    // 针对窄屏幕优化的布局比例
+    #define INFO_CONTAINER_WIDTH_SMALL   LV_PCT(65)  // 信息容器宽度
+    #define BUTTON_CONTAINER_WIDTH_SMALL LV_PCT(35)  // 按钮容器宽度
+    #define ITEM_PADDING_SMALL           6           // 物品项内边距
+    // 边框优化常量
+    #define CONTAINER_PADDING_SMALL     10           // 主容器内边距
+    #define CARD_PADDING_SMALL          8            // 卡片内边距
+    #define SCROLL_PADDING_SMALL        8            // 滚动容器内边距
 #else
     // 320x240 屏幕的布局参数（保持原有）
     #define ITEM_SPACING_SMALL     ITEM_SPACING
@@ -48,6 +56,10 @@ struct ThemeColors {
     #define BUTTON_HEIGHT_SMALL    40
     #define TITLE_OFFSET_SMALL     -4
     #define LIST_OFFSET_SMALL      -10
+    // 原有布局比例
+    #define INFO_CONTAINER_WIDTH_SMALL   LV_PCT(70)
+    #define BUTTON_CONTAINER_WIDTH_SMALL LV_PCT(30)
+    #define ITEM_PADDING_SMALL           10
 #endif
 
 // 说明卡片结构体
