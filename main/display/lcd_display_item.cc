@@ -29,16 +29,16 @@ void LcdDisplay::ItemUI() {
     lv_obj_t* title = lv_label_create(screen_things_);
     lv_obj_set_style_text_font(title, fonts_.text_font, 0);
     lv_label_set_text(title, "宠物商店");
-    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, -4);
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, TITLE_OFFSET_SMALL);
     lv_obj_set_style_text_color(title, lv_color_hex(0xFF88A4), 0);
     
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
     lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
-    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, LIST_OFFSET_SMALL);
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(list_item_, 10, 0);
-    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING, 0);
+    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
     lv_obj_set_style_bg_opa(list_item_, LV_OPA_70, LV_PART_MAIN);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
@@ -57,10 +57,10 @@ void LcdDisplay::UpdataUILevel(int level){
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
     lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
-    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, LIST_OFFSET_SMALL);
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(list_item_, 10, 0);
-    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING, 0);
+    lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
     ESP_LOGI(TAG, "商店 list: %d", num_of_things);
@@ -223,7 +223,13 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
 
     // 左侧信息容器（纵向Flex）
     lv_obj_t* info_cont = lv_obj_create(item_cont[index]);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整信息容器宽度比例
+    lv_obj_set_size(info_cont, LV_PCT(75), LV_SIZE_CONTENT);
+#else
+    // 320x240 屏幕：保持原有比例
     lv_obj_set_size(info_cont, LV_PCT(70), LV_SIZE_CONTENT);
+#endif
     lv_obj_set_flex_flow(info_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(info_cont, 5, 0); // 行间距
     lv_obj_set_style_bg_opa(info_cont, LV_OPA_TRANSP, 0);
@@ -269,14 +275,20 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
 
     // 右侧按钮容器（纵向Flex）
     lv_obj_t* btn_cont = lv_obj_create(item_cont[index]);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整按钮容器宽度比例
+    lv_obj_set_size(btn_cont, LV_PCT(25), LV_SIZE_CONTENT);
+#else
+    // 320x240 屏幕：保持原有比例
     lv_obj_set_size(btn_cont, LV_PCT(30), LV_SIZE_CONTENT);
+#endif
     lv_obj_set_flex_flow(btn_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(btn_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_row(btn_cont, 10, 0); // 按钮间距
 
     // 购买按钮
     lv_obj_t* buy_btn = lv_btn_create(btn_cont);
-    lv_obj_set_size(buy_btn, LV_PCT(100), 40); // 宽度充满容器
+    lv_obj_set_size(buy_btn, LV_PCT(100), BUTTON_HEIGHT_SMALL); // 使用动态按钮高度
     lv_obj_set_style_bg_color(buy_btn, lv_color_hex(0x98FB98), 0);
     lv_obj_set_style_radius(buy_btn, 20, 0);
     lv_obj_t* buy_label = lv_label_create(buy_btn);
@@ -286,7 +298,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
 
     // 出售按钮
     lv_obj_t* sell_btn = lv_btn_create(btn_cont);
-    lv_obj_set_size(sell_btn, LV_PCT(100), 40);
+    lv_obj_set_size(sell_btn, LV_PCT(100), BUTTON_HEIGHT_SMALL);
     lv_obj_set_style_bg_color(sell_btn, lv_color_hex(0xFFB6C1), 0);
     lv_obj_set_style_radius(sell_btn, 20, 0);
     lv_obj_t* sell_label = lv_label_create(sell_btn);
@@ -296,7 +308,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
 
     // 使用按钮
     lv_obj_t* use_btn = lv_btn_create(btn_cont);
-    lv_obj_set_size(use_btn, LV_PCT(100), 40);
+    lv_obj_set_size(use_btn, LV_PCT(100), BUTTON_HEIGHT_SMALL);
     lv_obj_set_style_bg_color(use_btn, lv_color_hex(0xdbeafe), 0);
     lv_obj_set_style_radius(use_btn, 20, 0);
     lv_obj_t* use_label = lv_label_create(use_btn);

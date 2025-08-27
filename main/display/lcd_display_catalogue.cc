@@ -33,8 +33,15 @@ void LcdDisplay::HelpUI() {
     lv_obj_set_size(scroll_cont, LV_PCT(100), LV_PCT(85));
     lv_obj_align(scroll_cont, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_set_flex_flow(scroll_cont, LV_FLEX_FLOW_COLUMN);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整内边距和间距
+    lv_obj_set_style_pad_all(scroll_cont, 12, 0);
+    lv_obj_set_style_pad_row(scroll_cont, 16, 0);
+#else
+    // 320x240 屏幕：保持原有设置
     lv_obj_set_style_pad_all(scroll_cont, 15, 0);
     lv_obj_set_style_pad_row(scroll_cont, 20, 0);
+#endif
     lv_obj_remove_style(scroll_cont, NULL, LV_PART_SCROLLBAR);
 
     // 创建说明卡片
@@ -93,7 +100,13 @@ void LcdDisplay::CreateCard(lv_obj_t* parent, int index, const char* icon,
 {
 // 卡片容器
 cards[index].card = lv_obj_create(parent);
-lv_obj_set_size(cards[index].card, (LV_HOR_RES - 60), LV_SIZE_CONTENT);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整卡片宽度
+    lv_obj_set_size(cards[index].card, (LV_HOR_RES - 40), LV_SIZE_CONTENT);
+#else
+    // 320x240 屏幕：保持原有宽度
+    lv_obj_set_size(cards[index].card, (LV_HOR_RES - 60), LV_SIZE_CONTENT);
+#endif
 lv_obj_set_style_radius(cards[index].card, 15, 0);
 lv_obj_set_style_bg_color(cards[index].card, lv_color_hex(0xFFFFFF), 0);
 lv_obj_set_style_shadow_width(cards[index].card, 15, 0);
@@ -101,7 +114,13 @@ lv_obj_set_flex_flow(cards[index].card, LV_FLEX_FLOW_ROW);
 
 // 图标区域
 lv_obj_t* icon_cont = lv_obj_create(cards[index].card);
-lv_obj_set_size(icon_cont, 35, 35);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整图标尺寸
+    lv_obj_set_size(icon_cont, 30, 30);
+#else
+    // 320x240 屏幕：保持原有尺寸
+    lv_obj_set_size(icon_cont, 35, 35);
+#endif
 lv_obj_set_style_bg_opa(icon_cont, LV_OPA_TRANSP, 0);
 lv_obj_remove_style(icon_cont, NULL, LV_PART_SCROLLBAR);
 
@@ -113,7 +132,13 @@ lv_obj_center(cards[index].icon);
 
 // 内容区域
 lv_obj_t* text_cont = lv_obj_create(cards[index].card);
-lv_obj_set_size(text_cont, LV_PCT(80), LV_SIZE_CONTENT);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整内容区域宽度
+    lv_obj_set_size(text_cont, LV_PCT(85), LV_SIZE_CONTENT);
+#else
+    // 320x240 屏幕：保持原有宽度
+    lv_obj_set_size(text_cont, LV_PCT(80), LV_SIZE_CONTENT);
+#endif
 lv_obj_set_flex_flow(text_cont, LV_FLEX_FLOW_COLUMN);
 lv_obj_set_style_pad_all(text_cont, 10, 0);
 
@@ -124,8 +149,15 @@ lv_obj_set_style_text_font(cards[index].title, fonts_.text_font, 0);
 
 // 分隔线
 lv_obj_t* line = lv_line_create(text_cont);
-static lv_point_precise_t points[] = {{0,0}, {160,0}};
-lv_line_set_points(line, points, 2);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整分隔线长度
+    static lv_point_precise_t points_small[] = {{0,0}, {120,0}};
+    lv_line_set_points(line, points_small, 2);
+#else
+    // 320x240 屏幕：保持原有长度
+    static lv_point_precise_t points[] = {{0,0}, {160,0}};
+    lv_line_set_points(line, points, 2);
+#endif
 lv_obj_set_style_line_width(line, 2, 0);
 lv_obj_set_style_line_color(line, lv_color_hex(0xFFE4EB), 0);
 
@@ -133,7 +165,13 @@ lv_obj_set_style_line_color(line, lv_color_hex(0xFFE4EB), 0);
 cards[index].content = lv_label_create(text_cont);
 lv_label_set_text(cards[index].content, content);
 lv_obj_set_style_text_color(cards[index].content, lv_color_hex(0x666666), 0);
-lv_obj_set_width(cards[index].content, LV_PCT(80));
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整内容宽度
+    lv_obj_set_width(cards[index].content, LV_PCT(85));
+#else
+    // 320x240 屏幕：保持原有宽度
+    lv_obj_set_width(cards[index].content, LV_PCT(80));
+#endif
 lv_label_set_long_mode(cards[index].content, LV_LABEL_LONG_WRAP);
 lv_obj_set_style_text_font(cards[index].content, fonts_.text_font, 0);
 }

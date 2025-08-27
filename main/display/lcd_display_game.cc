@@ -58,7 +58,13 @@ void LcdDisplay::GameSelectUI() {
 
     /* 主游戏按钮 */
     main_btn = lv_button_create(screen_game_);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整按钮尺寸
+    lv_obj_set_size(main_btn, 80, 80);
+#else
+    // 320x240 屏幕：保持原有尺寸
     lv_obj_set_size(main_btn, 90, 90);
+#endif
     lv_obj_set_style_radius(main_btn, 15, 0);
     lv_obj_set_style_bg_color(main_btn, lv_color_hex(0xFFF3F9), 0);
     lv_obj_set_style_shadow_width(main_btn, 20, 0);
@@ -75,7 +81,13 @@ void LcdDisplay::GameSelectUI() {
 
     /* 游戏描述区域 */
     desc_label = lv_label_create(screen_game_);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整描述区域尺寸
+    lv_obj_set_size(desc_label, LV_PCT(85), 70);
+#else
+    // 320x240 屏幕：保持原有尺寸
     lv_obj_set_size(desc_label, LV_PCT(90), 80);
+#endif
     lv_label_set_text(desc_label, pet->games_[current_game].desc.c_str());
     lv_obj_set_style_text_font(desc_label, fonts_.text_font, 0);
     lv_obj_set_style_text_color(desc_label, lv_color_hex(0x666666), 0);

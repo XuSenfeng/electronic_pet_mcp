@@ -20,13 +20,19 @@ void LcdDisplay::StateUI(){
     lv_obj_set_size(main_cont, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(main_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(main_cont, 20, 0);
-    lv_obj_set_style_pad_row(main_cont, ITEM_SPACING, 0);
+    lv_obj_set_style_pad_row(main_cont, ITEM_SPACING_SMALL, 0);
     lv_obj_remove_style(main_cont, NULL, LV_PART_SCROLLBAR);
     lv_obj_set_style_bg_opa(main_cont, LV_OPA_70, LV_PART_MAIN);
 
     // 设置状态栏
     lv_obj_t * action_bar_ = lv_obj_create(main_cont);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕：调整状态栏高度
+    lv_obj_set_size(action_bar_, LV_PCT(100), 35);
+#else
+    // 320x240 屏幕：保持原有高度
     lv_obj_set_size(action_bar_, LV_PCT(100), 40);
+#endif
     lv_obj_set_style_radius(action_bar_, 5, 0);
     lv_obj_set_style_bg_color(action_bar_, lv_color_hex(0xE0E0E0), 0);
     lv_obj_set_style_text_color(action_bar_, lv_color_hex(0x666666), 0);

@@ -26,6 +26,30 @@ struct ThemeColors {
 #define ITEM_WIDTH          (LV_HOR_RES - 2*20)
 #define ICON_SIZE           48
 #define PROGRESS_WIDTH      150
+
+// 屏幕尺寸相关的布局常量
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    // 240x280 屏幕的布局参数
+    #define ITEM_SPACING_SMALL     12
+    #define ITEM_HEIGHT_SMALL      70
+    #define ITEM_WIDTH_SMALL       (LV_HOR_RES - 2*15)
+    #define ICON_SIZE_SMALL        40
+    #define PROGRESS_WIDTH_SMALL   120
+    #define BUTTON_HEIGHT_SMALL    35
+    #define TITLE_OFFSET_SMALL     -2
+    #define LIST_OFFSET_SMALL      -8
+#else
+    // 320x240 屏幕的布局参数（保持原有）
+    #define ITEM_SPACING_SMALL     ITEM_SPACING
+    #define ITEM_HEIGHT_SMALL      ITEM_HEIGHT
+    #define ITEM_WIDTH_SMALL       ITEM_WIDTH
+    #define ICON_SIZE_SMALL        ICON_SIZE
+    #define PROGRESS_WIDTH_SMALL   PROGRESS_WIDTH
+    #define BUTTON_HEIGHT_SMALL    40
+    #define TITLE_OFFSET_SMALL     -4
+    #define LIST_OFFSET_SMALL      -10
+#endif
+
 // 说明卡片结构体
 typedef struct {
     lv_obj_t* card;
