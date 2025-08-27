@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet_timer.h"
@@ -76,7 +76,7 @@ std::string ElectronicPet::action_name_[E_PET_ACTION_NUMBER] = {
     "听歌"
 };
 
-ElectronicPetTimer::ElectronicPetTimer() {
+ElectronicPetTimer::ElectronicPetTimer(bool from_web, const char* boardID) : from_web_(from_web), boardID(boardID) {
 
     // clock_ticks_ = 0;
     Settings settings("e_pet", true);
@@ -94,8 +94,14 @@ ElectronicPetTimer::ElectronicPetTimer() {
     };
     esp_timer_create(&clock_timer_args, &electromic_prt_timer_);
     esp_timer_start_periodic(electromic_prt_timer_, 1000000); // 1 second
-    timer_read_csv_timer();
+    if(from_web_){
+        timer_read_web_timer();
+    }else{
+        timer_read_csv_timer();
+    }
 }
+
+
 
 // 计算最大公约数
 long gcd(long a, long b) {
@@ -316,6 +322,76 @@ void ElectronicPetTimer::timer_read_csv_timer(){
             ESP_LOGE(TAG, "Failed to parse line: %s", line);
         }
     }
+}
+
+void ElectronicPetTimer::timer_read_web_timer(){
+    // 读取web定时器
+    // 读取web定时器
+        // 使用GET请求获取游戏列表信息
+        auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+        std::string url = CONFIG_SERVER_BASE_SERVER_URL "/pets/schedule/?boardID=" + boardID;
+        if (!http->Open("GET", url)) {
+            ESP_LOGE(TAG, "无法打开HTTP连接获取游戏列表");
+            return;
+        }
+        // 使用cJSON解析返回的物品列表
+        std::string data = http->ReadAll();
+        ESP_LOGI(TAG, "定时器列表返回数据: %s", data.c_str());
+        cJSON *root = cJSON_Parse(data.c_str());
+        if (root == NULL) {
+            ESP_LOGE(TAG, "解析定时器列表JSON失败: %s", data.c_str());
+            http->Close();
+            return;
+        }
+        cJSON *prompts_data = cJSON_GetObjectItem(root, "data");
+        if (!cJSON_IsArray(prompts_data)) {
+            ESP_LOGE(TAG, "定时器列表JSON不是数组格式");
+            cJSON_Delete(root);
+            http->Close();
+            return;
+        }
+        int item_count = cJSON_GetArraySize(prompts_data);
+        ESP_LOGI(TAG, "Found %d timers in JSON", item_count);
+        for (int i = 0; i < item_count; i++) {
+        // 解析每一项日程数据，并转为timer_info_t结构体，调用deal_timer_info
+        cJSON *item = cJSON_GetArrayItem(prompts_data, i);
+        if (!cJSON_IsObject(item)) continue;
+        timer_info_t csv_info;
+        memset(&csv_info, 0, sizeof(timer_info_t));
+        cJSON *tm_sec = cJSON_GetObjectItem(item, "tm_sec");
+        cJSON *tm_min = cJSON_GetObjectItem(item, "tm_min");
+        cJSON *tm_hour = cJSON_GetObjectItem(item, "tm_hour");
+        cJSON *re_mday = cJSON_GetObjectItem(item, "re_mday");
+        cJSON *re_mon = cJSON_GetObjectItem(item, "re_mon");
+        cJSON *re_year = cJSON_GetObjectItem(item, "re_year");
+        cJSON *re_wday = cJSON_GetObjectItem(item, "re_wday");
+        cJSON *random_l = cJSON_GetObjectItem(item, "random_l");
+        cJSON *random_h = cJSON_GetObjectItem(item, "random_h");
+        cJSON *function_id = cJSON_GetObjectItem(item, "function_id");
+        cJSON *message = cJSON_GetObjectItem(item, "message");
+
+        if (tm_sec && cJSON_IsNumber(tm_sec)) csv_info.tm_sec = tm_sec->valueint;
+        if (tm_min && cJSON_IsNumber(tm_min)) csv_info.tm_min = tm_min->valueint;
+        if (tm_hour && cJSON_IsNumber(tm_hour)) csv_info.tm_hour = tm_hour->valueint;
+        if (re_mday && cJSON_IsNumber(re_mday)) csv_info.re_mday = re_mday->valueint;
+        if (re_mon && cJSON_IsNumber(re_mon)) csv_info.re_mon = re_mon->valueint;
+        if (re_year && cJSON_IsNumber(re_year)) csv_info.re_year = re_year->valueint;
+        if (re_wday && cJSON_IsNumber(re_wday)) csv_info.re_wday = re_wday->valueint;
+        if (random_l && cJSON_IsNumber(random_l)) csv_info.random_l = random_l->valueint;
+        if (random_h && cJSON_IsNumber(random_h)) csv_info.random_h = random_h->valueint;
+        if (function_id && cJSON_IsNumber(function_id)) csv_info.function_id = function_id->valueint;
+        if (message && cJSON_IsString(message)) {
+            strncpy(csv_info.message, message->valuestring, sizeof(csv_info.message) - 1);
+            csv_info.message[sizeof(csv_info.message) - 1] = '\0';
+        } else {
+            csv_info.message[0] = '\0';
+        }
+        deal_timer_info(&csv_info);
+        }
+        
+        // 清理资源
+        cJSON_Delete(root);
+        http->Close();
 }
 
 ElectronicPetTimer::~ElectronicPetTimer() {

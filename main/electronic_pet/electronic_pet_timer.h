@@ -1,15 +1,16 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #pragma once
 
 #include "time.h"
 #include <esp_timer.h>
-#include <atomic>
+#include <string>
 #include <vector>
+#include <mutex>
 #include "electronic_config.h"
 typedef enum {
     E_PET_TIMER_MESSAGE = 0, // 消息
@@ -54,8 +55,10 @@ private:
     std::mutex mutex_;
     esp_timer_handle_t electromic_prt_timer_ = nullptr;
     std::vector<e_pet_timer_event_t> e_pet_timer_events; // 处理事件列表
+    bool from_web_ = false;
+    std::string boardID;
 public:
-    ElectronicPetTimer();
+    ElectronicPetTimer(bool from_web = false, const char* boardID = "");
     ~ElectronicPetTimer();
     void timer_read_csv_timer();
     void OnClockTimer();
@@ -66,6 +69,7 @@ public:
     void deal_one_csv_message(timer_info_t *csv_info, long *delta_sec, long *interval_sec);
     void timer_event_process();
     bool deal_timer_info(timer_info_t *timer_info);
+    void timer_read_web_timer();
 };
 
 

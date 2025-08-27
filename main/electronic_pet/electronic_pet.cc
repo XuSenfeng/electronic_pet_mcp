@@ -70,7 +70,7 @@ ElectronicPet::ElectronicPet(){
     
     client_->PUublish_Message("log", "ElectronicPet initialized");
 
-    timer = new ElectronicPetTimer();
+    timer = new ElectronicPetTimer(use_web_server_, boardID.c_str());
 
 }
 
