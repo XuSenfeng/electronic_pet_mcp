@@ -75,6 +75,10 @@ void SimuOnPressDown() {
     }
 
     ESP_LOGI(TAG, "PressDown");
+    auto backlight = Board::GetInstance().GetBacklight();
+    if (!backlight->bright_keep) {
+        backlight->DisplayBrightnessReset();
+    }
 
     lcd_touch_status = TOUCH_PRESSED;
 }
@@ -118,6 +122,7 @@ void lvgl_touch_cb(lv_indev_t *indev_drv, lv_indev_data_t *data)
         data->point.y = touchpad_y[0];
         data->state = LV_INDEV_STATE_PRESSED;
         SimuOnPressDown();
+        ESP_LOGI(TAG, "Touch at (%d, %d)", (int)data->point.x, (int)data->point.y);
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
         SimuOnPressUp();

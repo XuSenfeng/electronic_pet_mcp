@@ -1,3 +1,4 @@
+#include "electronic_pet.h"
 #include "wifi_board.h"
 #include "es8311_audio_codec.h"
 #include "display/lcd_display.h"
@@ -39,6 +40,8 @@ class GezipaiBoard : public WifiBoard
 private:
     i2c_master_bus_handle_t display_i2c_bus_;
     Button boot_button_;
+    Button button_key1_;
+    Button button_key2_;
     SpiLcdDisplayEx* display_;
     i2c_master_bus_handle_t codec_i2c_bus_;
     adc_oneshot_unit_handle_t adc1_handle_;
@@ -144,16 +147,22 @@ private:
 
     void InitializeButtons()
     {
-        boot_button_.OnClick([this]()
+        button_key1_.OnClick([this]()
                              {
             auto& app = Application::GetInstance();
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
             } });
-        boot_button_.OnPressDown([this]()
-                                 { Application::GetInstance().StartListening(); });
-        boot_button_.OnPressUp([this]()
-                               { Application::GetInstance().StopListening(); });
+
+        boot_button_.OnClick([this]()
+        {
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if(pet->isGame()) {
+                void game_back_button_cb(lv_event_t * e);
+                game_back_button_cb(0);
+                ESP_LOGI(TAG, "游戏返回");
+            }
+        });
 
     }
 
@@ -375,6 +384,8 @@ private:
 
 public:
     GezipaiBoard() : boot_button_(BOOT_BUTTON_GPIO),
+                     button_key1_(BUTTON_KEY1_GPIO),
+                     button_key2_(BUTTON_KEY2_GPIO),
                      last_battery_voltage_(0), last_battery_percentage_(-1)
     {
         ESP_LOGI(TAG, "Initializing Gezipai Board");

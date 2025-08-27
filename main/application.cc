@@ -896,6 +896,7 @@ void Application::SetDeviceState(DeviceState state) {
     auto display = board.GetDisplay();
     auto backlight = Board::GetInstance().GetBacklight();
     auto led = board.GetLed();
+    ElectronicPet* pet = ElectronicPet::GetInstance();
     led->OnStateChanged();
     switch (state) {
         case kDeviceStateUnknown:
@@ -907,7 +908,10 @@ void Application::SetDeviceState(DeviceState state) {
 #if CONFIG_USE_WAKE_WORD_DETECT
             wake_word_detect_.StartDetection();
 #endif
-            backlight->DisplayBrightnessReset();
+            if(!pet->isGame()){
+                backlight->DisplayBrightnessReset();
+            }
+            
             break;
         case kDeviceStateConnecting:
             display->SetStatus(Lang::Strings::CONNECTING);

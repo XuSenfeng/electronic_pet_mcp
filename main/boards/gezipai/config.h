@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 
@@ -25,9 +25,10 @@
 #define AUDIO_CODEC_ES8311_ADDR ES8311_CODEC_DEFAULT_ADDR
 
 #define BUILTIN_LED_GPIO GPIO_NUM_17
-#define BOOT_BUTTON_GPIO GPIO_NUM_1
-#define VOLUME_UP_BUTTON_GPIO GPIO_NUM_18
-#define VOLUME_DOWN_BUTTON_GPIO GPIO_NUM_2
+#define BOOT_BUTTON_GPIO GPIO_NUM_0
+#define BUTTON_KEY1_GPIO GPIO_NUM_1
+#define BUTTON_KEY2_GPIO GPIO_NUM_2
+
 #define CHARGING_GPIO GPIO_NUM_41
 #define DONE_GPIO GPIO_NUM_42
 

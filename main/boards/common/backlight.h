@@ -27,6 +27,7 @@ public:
     void DisplayBrightnessKeep(void);
     esp_timer_handle_t my_timer;
     int brightness_time = -1;  // 初识亮屏时间
+    bool bright_keep = false; // 亮屏保持
 
 protected:
     void OnTransitionTimer();

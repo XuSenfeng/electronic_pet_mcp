@@ -187,7 +187,7 @@ void PwmBacklight::SetBrightnessImpl(uint8_t brightness) {
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
-void Backlight::DisplayBrightnessReset(void)
+void Backlight::DisplayBrightnessReset()
 {
     if(brightness_time == -1)
     {
@@ -196,6 +196,7 @@ void Backlight::DisplayBrightnessReset(void)
         SetBrightness(last_light);
     }
     brightness_time = default_sleep_time;
+    bright_keep = false;
 }
 
 void Backlight::DisplayBrightnessKeep(void)
@@ -203,6 +204,7 @@ void Backlight::DisplayBrightnessKeep(void)
     ESP_LOGI(TAG, "Keep the backlight on %d", last_light);
     SetBrightness(last_light);
     brightness_time = -1;
+    bright_keep = true;
 }
 
 int Backlight::DisplayBrightnessGetDefalutTime(void)

@@ -101,5 +101,6 @@ public:
     std::string GetBoardID(void);
     void ReadWebThings(void);
     void ReadWebFood(int *thing_num);
+    void ReadWebGames(void);
 
 };

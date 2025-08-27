@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet.h"
@@ -91,7 +91,7 @@ void ElectronicPet::ReadCsvThings(){
 void ElectronicPet::ReadWebThings(void){
     int thing_num = 0;
     ReadWebFood(&thing_num);
-    ReadCsvGames();
+    ReadWebGames();
 }
 
 
@@ -373,6 +373,68 @@ void ElectronicPet::ReadCsvGames(){
     }
     free(message);
     fclose(f);
+}
+
+void ElectronicPet::ReadWebGames(void){
+    // 使用GET请求获取游戏列表信息
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/pets/prompts/?boardID=" + boardID;
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "无法打开HTTP连接获取游戏列表");
+        return;
+    }
+    // 使用cJSON解析返回的物品列表
+    std::string data = http->ReadAll();
+    ESP_LOGI(TAG, "游戏列表返回数据: %s", data.c_str());
+    cJSON *root = cJSON_Parse(data.c_str());
+    if (root == NULL) {
+        ESP_LOGE(TAG, "解析游戏列表JSON失败: %s", data.c_str());
+        http->Close();
+        return;
+    }
+    cJSON *prompts_data = cJSON_GetObjectItem(root, "data");
+    if (!cJSON_IsArray(prompts_data)) {
+        ESP_LOGE(TAG, "游戏列表JSON不是数组格式");
+        cJSON_Delete(root);
+        http->Close();
+        return;
+    }
+    int item_count = cJSON_GetArraySize(prompts_data);
+    ESP_LOGI(TAG, "Found %d games in JSON", item_count);
+    for (int i = 0; i < item_count; i++) {
+        cJSON *item = cJSON_GetArrayItem(prompts_data, i);
+        if (!cJSON_IsObject(item)) continue;
+        cJSON *title = cJSON_GetObjectItem(item, "title");
+        cJSON *description = cJSON_GetObjectItem(item, "description");
+        cJSON *prompt = cJSON_GetObjectItem(item, "prompt");
+        // 解码Unicode转义序列
+        std::string decoded_title = "";
+        std::string decoded_prompt = "";
+        std::string decoded_description = "";
+        if (description && description->valuestring) {
+            decoded_description = DecodeUnicode(description->valuestring);
+        }
+        if (title && title->valuestring) {
+            decoded_title = DecodeUnicode(title->valuestring);
+        }
+        if (prompt && prompt->valuestring) {
+            decoded_prompt = DecodeUnicode(prompt->valuestring);
+        }
+        GameInfo game;
+        game.name = decoded_title;
+        game.desc = decoded_description;
+        game.message = decoded_prompt;
+        games_.push_back(game);
+        ESP_LOGI(TAG, "游戏: title=%s, description=%s, prompt=%s",
+            decoded_title.c_str(),
+            decoded_description.c_str(),
+            decoded_prompt.c_str()
+        );
+    }
+    
+    // 清理资源
+    cJSON_Delete(root);
+    http->Close();
 }
 
 
