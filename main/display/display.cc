@@ -247,9 +247,11 @@ void Display::SetChatMessage(const char* role, const char* content) {
     }
     lv_obj_clear_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);
     // Create a message bubble
-    char temp_buf[256];
+    char *temp_buf;
+    temp_buf = (char*)malloc(strlen(content) + 4); // 额外的4个字节用于换行符和终止符
     sprintf(temp_buf, "\n%s", content);
     lv_label_set_text(chat_message_label_, temp_buf);
+    free(temp_buf);
 }
 
 void Display::SetTheme(const std::string& theme_name) {

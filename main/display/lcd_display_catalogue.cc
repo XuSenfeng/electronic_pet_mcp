@@ -16,6 +16,7 @@
 
 
 void LcdDisplay::HelpUI() {
+    DisplayLockGuard lock(this);
     screen_description_ = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen_description_, LV_HOR_RES, LV_VER_RES);
     lv_obj_set_style_bg_color(screen_description_, lv_color_hex(0xFFF5F5), 0);

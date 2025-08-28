@@ -113,6 +113,7 @@ bool MqttProtocol::SendText(const std::string& text) {
     if (publish_topic_.empty()) {
         return false;
     }
+    
     if (!mqtt_->Publish(publish_topic_, text)) {
         ESP_LOGE(TAG, "Failed to publish message: %s", text.c_str());
         SetError(Lang::Strings::SERVER_ERROR);

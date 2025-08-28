@@ -510,7 +510,9 @@ void Application::Start() {
             if (cJSON_IsString(text)) {
                 ESP_LOGI(TAG, ">> %s", text->valuestring);
                 Schedule([this, display, message = std::string(text->valuestring)]() {
+                    ESP_LOGI(TAG, "Set user message: %s", message.c_str());
                     display->SetChatMessage("user", message.c_str());
+                    ESP_LOGI(TAG, "User message set");
                 });
             }
         } else if (strcmp(type->valuestring, "llm") == 0) {
@@ -956,6 +958,7 @@ void Application::SetDeviceState(DeviceState state) {
             }
             ResetDecoder();
             backlight->DisplayBrightnessKeep();
+            // ESP_LOGI(TAG, "SetDeviceState: kDeviceStateSpeaking, pet->isGame()=%d", pet->isGame());
             break;
         default:
             // Do nothing
