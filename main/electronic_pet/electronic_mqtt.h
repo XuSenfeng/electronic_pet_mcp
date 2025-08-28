@@ -14,8 +14,9 @@ class PMQTT_Clinet{
 public:
     PMQTT_Clinet(std::string boardID = "");
     ~PMQTT_Clinet();
-    bool Message_Deal(cJSON* root, const std::string& payload);
-    bool PUublish_Message(std::string type, std::string payload);
+    bool Message_Deal_Phone(cJSON* root, const std::string& payload);
+    bool Message_Deal_Follow(cJSON* root, const std::string& payload);
+    bool Publish_Message(std::string type, std::string payload);
 private:
     Mqtt* mqtt_;
     std::string client_id_;

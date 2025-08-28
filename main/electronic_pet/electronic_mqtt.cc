@@ -56,7 +56,9 @@ PMQTT_Clinet::PMQTT_Clinet(std::string boardID) : mqtt_(nullptr) {
         ESP_LOGI(TAG, "Device type value: %d", type_value);
         // 根据设备类型创建 Thing
         if(type_value == 1){
-            Message_Deal(root, payload);
+            Message_Deal_Phone(root, payload);
+        }else if(type_value == 2){
+            Message_Deal_Follow(root, payload);
         }
         
         cJSON_Delete(root);
@@ -75,8 +77,58 @@ PMQTT_Clinet::PMQTT_Clinet(std::string boardID) : mqtt_(nullptr) {
     mqtt_->Subscribe(real_address_str, 2);
 
 }
+
+bool PMQTT_Clinet::Message_Deal_Follow(cJSON* root, const std::string& payload) {
+    /*
+    {
+        "type": 2,
+        "msg": "远端消息"
+        "from": "远端设备ID"
+    }
+    */
+    cJSON *msg = cJSON_GetObjectItem(root, "msg");
+    if (msg == nullptr || !cJSON_IsString(msg)) {
+        ESP_LOGE(TAG, "Message is not specified or invalid");
+        return false;
+    }
+    std::string message_str = msg->valuestring;
+    cJSON *from = cJSON_GetObjectItem(root, "from");
+    if (from == nullptr || !cJSON_IsString(from)) {
+        ESP_LOGE(TAG, "From is not specified or invalid");
+        return false;
+    }
+    std::string from_str = from->valuestring;
+    ESP_LOGI(TAG, "Received message from: %s, message: %s", from_str.c_str(), message_str.c_str());
+    // 获取当前宠物
+    ElectronicPet* pet = ElectronicPet::GetInstance();
+    if (pet == nullptr) {
+        ESP_LOGE(TAG, "ElectronicPet instance is null");
+        return false;
+    }
+    // 获取当前宠物的关注列表
+    auto focus_list = pet->GetFocusList();
+    // 如果关注列表中存在该设备ID，获取名字
+    std::string name;
+    for (const auto& focus : focus_list) {
+        if (focus.boardID == from_str) {
+            name = focus.name;
+            break;
+        }
+    }
+    if(name.empty()){
+        name = from_str;
+    }
+    
+    // 发送提示信息
+    auto& app = Application::GetInstance();
+    // 让小智直接使用复读模式
+    message_str = "你现在是一个复读机器,需要转达用户消息,请直接念出来冒号之后的所有句子,不要增加任何的信息以及回复!!!消息如下:我获取到" + name + "的消息," +  message_str;
+    app.SendMessage(message_str);
+    return true;
+}
+
 // 处理远程的对话消息, 实现播报通知
-bool PMQTT_Clinet::Message_Deal(cJSON* root, const std::string& payload) {
+bool PMQTT_Clinet::Message_Deal_Phone(cJSON* root, const std::string& payload) {
     /*
     {
         "type": 1,
@@ -100,7 +152,7 @@ bool PMQTT_Clinet::Message_Deal(cJSON* root, const std::string& payload) {
 
 
 
-bool PMQTT_Clinet::PUublish_Message(std::string type, std::string payload) {
+bool PMQTT_Clinet::Publish_Message(std::string type, std::string payload) {
     if (mqtt_ == nullptr || !mqtt_->IsConnected()) {
         ESP_LOGE(TAG, "MQTT client is not connected");
         return false;

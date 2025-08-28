@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet.h"
@@ -70,7 +70,7 @@ ElectronicPet::ElectronicPet(){
     
     
     client_ = new PMQTT_Clinet(boardID);
-    client_->PUublish_Message("log", "ElectronicPet initialized");
+    client_->Publish_Message("log", "ElectronicPet initialized");
     timer = new ElectronicPetTimer(use_web_server_, boardID.c_str());
 
 }
@@ -87,12 +87,24 @@ void ElectronicPet::ReadCsvThings(){
     ReadCsvFood(&i);
     ReadCsvGames();
 }
-
-
+std::string ElectronicPet::GetFocusListJson(void){
+    std::string result = "{\"success\": true, \"data\": [";
+    bool first = true;
+    for(int i = 0; i < focus_list_.size(); i++){
+        if(focus_list_[i].mutual_focus){
+            if(!first) result += ",";
+            result += "{\"name\": \"" + focus_list_[i].name + "\", \"boardID\": \"" + focus_list_[i].boardID + "\", \"mutual_focus\": true}";
+            first = false;
+        }
+    }
+    result += "]}";
+    return result;
+}
 void ElectronicPet::ReadWebThings(void){
     int thing_num = 0;
     ReadWebFood(&thing_num);
     ReadWebGames();
+    ReadWebFocus();
 }
 
 
@@ -211,6 +223,64 @@ void ElectronicPet::ReadWebFood(int *thing_num){
             iq ? iq->valueint : 0, 
             level ? level->valueint : 0, 
             thing_num);
+    }
+    cJSON_Delete(root);
+    http->Close();
+}
+
+void ElectronicPet::ReadWebFocus(void){
+    focus_list_.clear();
+    // 使用GET请求获取关注列表信息
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/pets/focus/?boardID=" + boardID;
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "无法打开HTTP连接获取关注列表");
+        return;
+    }
+    // 使用cJSON解析返回的物品列表
+    std::string json_str = http->ReadAll();
+    // ESP_LOGI(TAG, "关注列表返回数据: %s", data.c_str());
+    cJSON *root = cJSON_Parse(json_str.c_str());
+    if (root == NULL) {
+        ESP_LOGE(TAG, "解析关注列表JSON失败: %s", json_str.c_str());
+        http->Close();
+        return;
+    }
+    cJSON *data = cJSON_GetObjectItem(root, "data");
+    if (!cJSON_IsArray(data)) {
+        ESP_LOGE(TAG, "关注列表JSON不是数组格式");
+        cJSON_Delete(data);
+        http->Close();
+        return;
+    }
+    int item_count = cJSON_GetArraySize(data);
+    for (int i = 0; i < item_count; ++i) {
+        cJSON *item = cJSON_GetArrayItem(data, i);
+        if (!cJSON_IsObject(item)) continue;
+        cJSON *name = cJSON_GetObjectItem(item, "name");
+        cJSON *boardID_item = cJSON_GetObjectItem(item, "id");
+        cJSON *mutual_focus = cJSON_GetObjectItem(item, "is_mutual");
+        
+        FocueInfo info;
+        if (name && name->valuestring) {
+            info.name = DecodeUnicode(name->valuestring);
+        }
+        if (boardID_item && boardID_item->valuestring) {
+            info.boardID = boardID_item->valuestring;
+        }
+        if (mutual_focus && cJSON_IsBool(mutual_focus)) {
+            info.mutual_focus = cJSON_IsTrue(mutual_focus);
+        } else {
+            info.mutual_focus = false;
+        }
+        
+        focus_list_.push_back(info);
+        
+        ESP_LOGI(TAG, "关注: name=%s, boardID=%s, mutual_focus=%d",
+            info.name.c_str(),
+            info.boardID.c_str(),
+            info.mutual_focus
+        );
     }
     cJSON_Delete(root);
     http->Close();

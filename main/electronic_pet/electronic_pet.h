@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 /*
@@ -109,5 +109,7 @@ public:
     void ReadWebThings(void);
     void ReadWebFood(int *thing_num);
     void ReadWebGames(void);
-
+    void ReadWebFocus(void);
+    std::string GetFocusListJson(void);
+    std::vector<FocueInfo> GetFocusList(void){return focus_list_;};
 };

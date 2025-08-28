@@ -46,6 +46,61 @@ void McpServer::AddCommonTools() {
             return board.GetDeviceStatusJson();
         });
 
+    AddTool("self.pet.get_follow_list",
+        "返回宠物的关注列表。使用此工具可以获取当前宠物关注的所有对象（如其他宠物、用户等）的详细信息。",
+        PropertyList(),
+        [&board](const PropertyList& properties) -> ReturnValue {
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            return pet->GetFocusListJson();
+        });
+
+    AddTool("self.pet.SendMessageToFollow",
+        "使用关注列表中的名字向指定对象发送消息。参数包括目标名字（name）和消息内容（message）。\n"
+        "如果关注列表中存在该名字，则向其发送消息，否则返回失败。",
+        PropertyList({
+            Property("name", kPropertyTypeString),
+            Property("message", kPropertyTypeString)
+        }),
+        [](const PropertyList& properties) -> ReturnValue {
+            std::string target_name = properties["name"].value<std::string>();
+            std::string message = properties["message"].value<std::string>();
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet == nullptr) {
+                ESP_LOGE(TAG, "ElectronicPet instance is null");
+                return "{\"success\": false, \"message\": \"Pet is death\"}";
+            }
+            // 查找关注列表
+            std::string target_boardID;
+            bool found = false;
+            auto focus_list = pet->GetFocusList();
+            // 查找目标并发送
+            for (const auto& focus : focus_list) {
+                if (focus.name == target_name) {
+                    target_boardID = focus.boardID;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return "{\"success\": false, \"message\": \"未找到该关注对象\"}";
+            }
+            // 构造消息JSON
+            auto root = cJSON_CreateObject();
+            cJSON_AddNumberToObject(root, "type", 2); // 2表示关注对象消息
+            cJSON_AddStringToObject(root, "msg", message.c_str());
+            cJSON_AddStringToObject(root, "from", pet->GetBoardID().c_str());
+            std::string json_str = cJSON_PrintUnformatted(root);
+            cJSON_Delete(root);
+            ESP_LOGI(TAG, "Send message to follow: %s", json_str.c_str());
+            pet->GetClient()->Publish_Message(target_boardID, json_str);
+            return "{\"success\": true, \"message\": \"消息已发送\"}";
+        });
+
+
     AddTool("self.audio_speaker.set_volume", 
         "Set the volume of the audio speaker. If the current volume is unknown, you must call `self.get_device_status` tool first and then call this tool.",
         PropertyList({
@@ -83,7 +138,7 @@ void McpServer::AddCommonTools() {
                 return true;
             });
     }
-
+#ifndef CONFIG_BOARD_TYPE_GEZIPAI
     AddTool("self.camera.take_photo",
         "Take a photo and explain it. Use this tool after the user asks you to see something.\n"
         "Args:\n"
@@ -134,6 +189,7 @@ void McpServer::AddCommonTools() {
             delete  camera_;
             return result;
         });
+#endif
 
     AddTool("self.pet.SetAction",
         "让喵喵去做一些事情, 比如睡觉, 散步, 学习, 工作之类的, 通常为*你去*开头\n示例```用户:你现在去睡觉\n设置参数为2睡觉```"
@@ -309,7 +365,7 @@ void McpServer::AddCommonTools() {
             cJSON_Delete(root);
             ESP_LOGI(TAG, "Send message: %s", json_str.c_str());
             ElectronicPet* pet = ElectronicPet::GetInstance();
-            pet->GetClient()->PUublish_Message("message", json_str);
+            pet->GetClient()->Publish_Message("message", json_str);
             return "{\"success\": true, \"message\": \"Message sent\"}"; 
         });
     // Restore the original tools list to the end of the tools list
