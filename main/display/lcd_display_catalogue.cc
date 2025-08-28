@@ -47,6 +47,13 @@ void LcdDisplay::HelpUI() {
     lv_obj_remove_style(scroll_cont, NULL, LV_PART_SCROLLBAR);
 
     // 创建说明卡片
+    std::string boardID = "boardID:" + ElectronicPet::GetInstance()->GetBoardID();
+
+    CreateCard(scroll_cont, 0, LV_SYMBOL_PLAY, boardID.c_str(),
+        "板子ID个人身份标识,请勿随意分享,否则可能导致隐私泄露\n"
+        "用于绑定手机App与板子进行通信\n"
+        "也用于和其他的宠物进行交互\n"
+        );
     CreateCard(scroll_cont, 0, LV_SYMBOL_HOME, "欢迎来到宠物世界", 
         "这里住着可爱的电子伙伴\n"
         "通过互动培养你们的感情\n"
@@ -174,7 +181,7 @@ lv_obj_set_style_text_color(cards[index].content, lv_color_hex(0x666666), 0);
     lv_obj_set_width(cards[index].content, LV_PCT(85));
 #else
     // 320x240 屏幕：保持原有宽度
-    lv_obj_set_width(cards[index].content, LV_PCT(80));
+    lv_obj_set_width(cards[index].content, LV_PCT(90));
 #endif
 lv_label_set_long_mode(cards[index].content, LV_LABEL_LONG_WRAP);
 lv_obj_set_style_text_font(cards[index].content, fonts_.text_font, 0);

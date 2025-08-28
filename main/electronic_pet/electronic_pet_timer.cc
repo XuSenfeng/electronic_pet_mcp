@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet_timer.h"
@@ -408,6 +408,9 @@ void ElectronicPetTimer::OnClockTimer() {
     timer_event_process();
 
     ElectronicPet* pet = ElectronicPet::GetInstance();
+    if(pet == nullptr || pet->isGame()){
+        return;
+    }
     if(clock_ticks_ % (1000 / CONFIG_FREQUENCE_OF_PET) == 0){
         ESP_LOGI(TAG, "Clock ticks: %d", clock_ticks_);
         // 更新一下状态

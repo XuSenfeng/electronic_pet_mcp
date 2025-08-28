@@ -83,7 +83,7 @@ protected:
     lv_obj_t* action_label_ = nullptr;
     lv_obj_t* main_btn;
     lv_obj_t* desc_label;
-    HelpCard cards[7]; // 根据实际版块数量调整
+    HelpCard cards[8]; // 根据实际版块数量调整
 
     
     DisplayFonts fonts_;
