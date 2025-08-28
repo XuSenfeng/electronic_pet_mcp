@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Please set LastEditors
+ * @LastEditors: Xvsenfeng helloworldjiao@163.com
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet.h"
@@ -18,7 +18,7 @@
 
 ElectronicPet::ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet constructor");
-    client_ = new PMQTT_Clinet();
+    
     Settings settings("e_pet", true);
     state_[E_PET_STATE_SATITY].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_SATITY), 100);
     state_[E_PET_STATE_HAPPINESS].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_HAPPINESS), 100);
@@ -68,8 +68,9 @@ ElectronicPet::ElectronicPet(){
         ReadCsvThings();
     }
     
+    
+    client_ = new PMQTT_Clinet(boardID);
     client_->PUublish_Message("log", "ElectronicPet initialized");
-
     timer = new ElectronicPetTimer(use_web_server_, boardID.c_str());
 
 }
@@ -149,7 +150,7 @@ void ElectronicPet::ReadWebFood(int *thing_num){
     }
     // 使用cJSON解析返回的物品列表
     std::string data = http->ReadAll();
-    ESP_LOGI(TAG, "商店列表返回数据: %s", data.c_str());
+    // ESP_LOGI(TAG, "商店列表返回数据: %s", data.c_str());
     cJSON *root = cJSON_Parse(data.c_str());
     if (root == NULL) {
         ESP_LOGE(TAG, "解析商店列表JSON失败: %s", data.c_str());
@@ -385,7 +386,7 @@ void ElectronicPet::ReadWebGames(void){
     }
     // 使用cJSON解析返回的物品列表
     std::string data = http->ReadAll();
-    ESP_LOGI(TAG, "游戏列表返回数据: %s", data.c_str());
+    // ESP_LOGI(TAG, "游戏列表返回数据: %s", data.c_str());
     cJSON *root = cJSON_Parse(data.c_str());
     if (root == NULL) {
         ESP_LOGE(TAG, "解析游戏列表JSON失败: %s", data.c_str());

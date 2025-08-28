@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #pragma once
@@ -12,7 +12,7 @@
 
 class PMQTT_Clinet{
 public:
-    PMQTT_Clinet();
+    PMQTT_Clinet(std::string boardID = "");
     ~PMQTT_Clinet();
     bool Message_Deal(cJSON* root, const std::string& payload);
     bool PUublish_Message(std::string type, std::string payload);
@@ -21,3 +21,5 @@ private:
     std::string client_id_;
     std::string publish_topic_;
 };
+
+#define TOPIC_MESSAGE "electronic/boards/"

@@ -21,7 +21,7 @@
 
 */
 
-PMQTT_Clinet::PMQTT_Clinet() : mqtt_(nullptr) {
+PMQTT_Clinet::PMQTT_Clinet(std::string boardID) : mqtt_(nullptr) {
     Settings settings("mqtt", false);
     client_id_ = settings.GetString("client_id");
     if (mqtt_ != nullptr) {
@@ -58,8 +58,6 @@ PMQTT_Clinet::PMQTT_Clinet() : mqtt_(nullptr) {
         if(type_value == 1){
             Message_Deal(root, payload);
         }
-
-
         
         cJSON_Delete(root);
     });
@@ -69,10 +67,10 @@ PMQTT_Clinet::PMQTT_Clinet() : mqtt_(nullptr) {
         return ;
     }
     // 发布的地址 /qin/
-    publish_topic_ = CONFIG_PET_MQTT_TOPIC;
+    publish_topic_ = TOPIC_MESSAGE;
     // 测试的订阅 jiao/+
-    std::string real_address_str(CONFIG_PET_MQTT_LOCAL_TOPIC);
-    real_address_str += "/+";
+    std::string real_address_str(TOPIC_MESSAGE);
+    real_address_str += boardID;
     // 开始订阅
     mqtt_->Subscribe(real_address_str, 2);
 
@@ -95,7 +93,7 @@ bool PMQTT_Clinet::Message_Deal(cJSON* root, const std::string& payload) {
     // 发送提示信息
     auto& app = Application::GetInstance();
     // 让小智直接使用复读模式
-    message_str = "你现在是一个复读机器,请直接念出来冒号之后的句子,不要增加任何的信息: 获取到消息通知," +  message_str;
+    message_str = "你现在是一个复读机器,请直接念出来冒号之后的所有句子,不要增加任何的信息, 消息如下:我获取到手机消息," +  message_str;
     app.SendMessage(message_str);
     return true;
 }
@@ -107,7 +105,7 @@ bool PMQTT_Clinet::PUublish_Message(std::string type, std::string payload) {
         ESP_LOGE(TAG, "MQTT client is not connected");
         return false;
     }
-    std::string topic = publish_topic_ + "/" + type;
+    std::string topic = publish_topic_  + type;
     ESP_LOGI(TAG, "Publishing message to topic %s: %s", topic.c_str(), payload.c_str());
     return mqtt_->Publish(topic, payload, 2);
 }

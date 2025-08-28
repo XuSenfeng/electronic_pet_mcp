@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Please set LastEditors
+ * @LastEditors: Xvsenfeng helloworldjiao@163.com
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "electronic_pet_timer.h"
@@ -336,7 +336,7 @@ void ElectronicPetTimer::timer_read_web_timer(){
         }
         // 使用cJSON解析返回的物品列表
         std::string data = http->ReadAll();
-        ESP_LOGI(TAG, "定时器列表返回数据: %s", data.c_str());
+        // ESP_LOGI(TAG, "定时器列表返回数据: %s", data.c_str());
         cJSON *root = cJSON_Parse(data.c_str());
         if (root == NULL) {
             ESP_LOGE(TAG, "解析定时器列表JSON失败: %s", data.c_str());

@@ -31,6 +31,12 @@ typedef struct {
     std::string message;
 } GameInfo;
 
+typedef struct {
+    std::string name;
+    std::string boardID;
+    bool mutual_focus;
+} FocueInfo;
+
 class ElectronicPet {
 private:
     std::mutex mutex_;
@@ -38,6 +44,7 @@ private:
     int game_state_[E_PET_GAME_STATE_NUMBER]; // 游戏状态
     
     std::vector<BaseThing *> things_; // 物品列表
+    std::vector<FocueInfo> focus_list_; // 关注列表
     electronic_pet_action_e action_; // 当前行动
     electronic_pet_action_e action_last_; // 上次行动
 
