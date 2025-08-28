@@ -18,7 +18,11 @@
 
 ElectronicPet::ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet constructor");
-    
+    message_send_event_ = xEventGroupCreate();
+    if(message_send_event_ == nullptr){
+        ESP_LOGE(TAG, "Failed to create message_send_event");
+    }
+
     Settings settings("e_pet", true);
     state_[E_PET_STATE_SATITY].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_SATITY), 100);
     state_[E_PET_STATE_HAPPINESS].value = settings.GetInt("state_" + std::to_string(E_PET_STATE_HAPPINESS), 100);

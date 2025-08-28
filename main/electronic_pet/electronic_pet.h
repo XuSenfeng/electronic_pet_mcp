@@ -37,6 +37,8 @@ typedef struct {
     bool mutual_focus;
 } FocueInfo;
 
+#define MESSAGE_SEND_EVENT (1 << 0)
+
 class ElectronicPet {
 private:
     std::mutex mutex_;
@@ -59,6 +61,7 @@ private:
     std::string boardID;
 
 public:
+    EventGroupHandle_t message_send_event_ = nullptr;
     std::vector<GameInfo> games_;
     static int state_time_change_[E_PET_ACTION_NUMBER][E_PET_STATE_NUMBER]; // 不同状态下边宠物的状态变化
     static std::string action_name_[E_PET_ACTION_NUMBER]; // 不同状态下边宠物的状态变化

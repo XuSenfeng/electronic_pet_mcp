@@ -1,7 +1,7 @@
 /*
 * @Descripttion: 
 * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
 * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
 */
 #include "electronic_mqtt.h"
@@ -59,8 +59,13 @@ PMQTT_Clinet::PMQTT_Clinet(std::string boardID) : mqtt_(nullptr) {
             Message_Deal_Phone(root, payload);
         }else if(type_value == 2){
             Message_Deal_Follow(root, payload);
+        }else if(type_value == 3){
+            // 释放消息发送事件
+            ElectronicPet* pet = ElectronicPet::GetInstance();
+            if (pet != nullptr && pet->message_send_event_ != nullptr) {
+                xEventGroupSetBits(pet->message_send_event_, MESSAGE_SEND_EVENT);
+            }
         }
-        
         cJSON_Delete(root);
     });
 
@@ -124,6 +129,14 @@ bool PMQTT_Clinet::Message_Deal_Follow(cJSON* root, const std::string& payload) 
     // 让小智直接使用复读模式
     message_str = "你现在是一个复读机器,需要转达用户消息,请直接念出来冒号之后的所有句子,不要增加任何的信息以及回复!!!消息如下:我获取到" + name + "的消息," +  message_str;
     app.SendMessage(message_str);
+    // 发送消息给远程的用户
+    /*
+    {
+        "type": 1,
+        "msg": "远端消息"
+    }
+    */
+    Publish_Message(from_str, "{\"type\": 3}");
     return true;
 }
 
