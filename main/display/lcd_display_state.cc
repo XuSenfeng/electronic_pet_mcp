@@ -12,7 +12,7 @@ void LcdDisplay::StateUI(){
     DisplayLockGuard lock(this);
     screen_state_ = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen_state_, LV_HOR_RES, LV_VER_RES);
-    lv_obj_set_style_bg_color(screen_state_, LIGHT_BACKGROUND_COLOR, 0);
+    lv_obj_set_style_bg_color(screen_state_, CUTE_WHITE, 0);
     lv_obj_clear_flag(screen_state_, LV_OBJ_FLAG_SCROLLABLE);
 
     // 创建主容器（垂直布局）
@@ -30,21 +30,24 @@ void LcdDisplay::StateUI(){
     lv_obj_remove_style(main_cont, NULL, LV_PART_SCROLLBAR);
     lv_obj_set_style_bg_opa(main_cont, LV_OPA_70, LV_PART_MAIN);
 
-    // 设置状态栏
+    // 设置可爱风格状态栏
     lv_obj_t * action_bar_ = lv_obj_create(main_cont);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：调整状态栏高度
-    lv_obj_set_size(action_bar_, LV_PCT(100), 35);
+    lv_obj_set_size(action_bar_, LV_PCT(100), 40);
 #else
     // 320x240 屏幕：保持原有高度
-    lv_obj_set_size(action_bar_, LV_PCT(100), 40);
+    lv_obj_set_size(action_bar_, LV_PCT(100), 45);
 #endif
-    lv_obj_set_style_radius(action_bar_, 5, 0);
-    lv_obj_set_style_bg_color(action_bar_, lv_color_hex(0xE0E0E0), 0);
-    lv_obj_set_style_text_color(action_bar_, lv_color_hex(0x666666), 0);
+    lv_obj_set_style_radius(action_bar_, 20, 0);
+    lv_obj_set_style_bg_color(action_bar_, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_text_color(action_bar_, CUTE_PINK_DARK, 0);
     lv_obj_set_style_text_font(action_bar_, fonts_.text_font, 0);
-    lv_obj_set_style_pad_all(action_bar_, 0, 0);
+    lv_obj_set_style_pad_all(action_bar_, 8, 0);
     lv_obj_set_style_pad_column(action_bar_, 0, 0);
+    lv_obj_set_style_shadow_width(action_bar_, 10, 0);
+    lv_obj_set_style_shadow_color(action_bar_, CUTE_PINK_PRIMARY, 0);
+    lv_obj_set_style_shadow_opa(action_bar_, 80, 0);
 
     action_label_ = lv_label_create(action_bar_);
     lv_label_set_text(action_label_, "");
@@ -60,7 +63,7 @@ void LcdDisplay::StateUI(){
 }
 
 void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
-    // 状态项容器
+    // 可爱风格状态项容器
     lv_obj_t* item = lv_obj_create(parent);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：使用较小的状态项高度
@@ -69,40 +72,45 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     // 320x240 屏幕：使用原有状态项高度
     lv_obj_set_size(item, LV_PCT(100), ITEM_HEIGHT);
 #endif
-    lv_obj_set_style_radius(item, 15, 0);
-    lv_obj_set_style_bg_color(item, lv_color_hex(0xFFF3F9), 0);
+    lv_obj_set_style_radius(item, 25, 0);
+    lv_obj_set_style_bg_color(item, CUTE_WHITE, 0);
     lv_obj_set_style_shadow_width(item, 15, 0);
-    lv_obj_set_style_shadow_color(item, lv_color_hex(0xCCCCCC), 0);
+    lv_obj_set_style_shadow_color(item, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_shadow_opa(item, 100, 0);
+    lv_obj_set_style_border_width(item, 2, 0);
+    lv_obj_set_style_border_color(item, CUTE_PINK_LIGHT, 0);
     lv_obj_remove_style(item, NULL, LV_PART_SCROLLBAR);
     lv_obj_clear_flag(item, LV_OBJ_FLAG_SCROLLABLE);
 
     
-    // 图标部分
+    // 可爱风格图标部分
     lv_obj_t* icon = lv_label_create(item);
     // lv_label_set_text(icon, get_state_icon(i)); // 需要实现图标获取函数
-    lv_obj_set_style_text_color(icon, lv_color_hex(0xFF88A4), 0);
+    lv_obj_set_style_text_color(icon, CUTE_PINK_PRIMARY, 0);
+    // 增大图标大小 - 使用字体大小设置
     // lv_obj_set_text_font(icon, ICON_FONT, 0);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：调整图标位置
-    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 12, 0);
+    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 15, 0);
 #else
     // 320x240 屏幕：保持原有图标位置
-    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 15, 0);
+    lv_obj_align(icon, LV_ALIGN_LEFT_MID, 20, 0);
 #endif
 
-    // 状态名称和数值
+    // 可爱风格状态名称和数值
     lv_obj_t* name = lv_label_create(item);
     // lv_label_set_text_fmt(name, "%s: %d%%", pet->GetStateName(i), pet->GetState(i));
     lv_obj_set_style_text_font(name, fonts_.text_font, 0);
+    lv_obj_set_style_text_color(name, CUTE_PINK_DARK, 0);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：调整文字位置
-    lv_obj_align(name, LV_ALIGN_LEFT_MID, 30 + 20, -10);
+    lv_obj_align(name, LV_ALIGN_LEFT_MID, 50, -12);
 #else
     // 320x240 屏幕：保持原有文字位置
-    lv_obj_align(name, LV_ALIGN_LEFT_MID, 32 + 25, -10);
+    lv_obj_align(name, LV_ALIGN_LEFT_MID, 55, -15);
 #endif
 
-    // 进度条
+    // 可爱风格进度条
     lv_obj_t* bar = lv_bar_create(item);
     if(i < E_PET_STATE_DIVIDING_LINE + 2)
         lv_bar_set_range(bar, 0, 100);
@@ -111,16 +119,20 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     // lv_bar_set_value(bar, pet->GetState(i), LV_ANIM_ON);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：使用较小的进度条宽度
-    lv_obj_set_size(bar, PROGRESS_WIDTH_SMALL, 15);
-    lv_obj_align(bar, LV_ALIGN_LEFT_MID, 30 + 20, 15);
+    lv_obj_set_size(bar, PROGRESS_WIDTH_SMALL, 18);
+    lv_obj_align(bar, LV_ALIGN_LEFT_MID, 50, 15);
 #else
     // 320x240 屏幕：使用原有进度条宽度
-    lv_obj_set_size(bar, PROGRESS_WIDTH, 15);
-    lv_obj_align(bar, LV_ALIGN_LEFT_MID, 32 + 25, 15);
+    lv_obj_set_size(bar, PROGRESS_WIDTH, 20);
+    lv_obj_align(bar, LV_ALIGN_LEFT_MID, 55, 18);
 #endif
-    lv_obj_set_style_radius(bar, 8, LV_PART_MAIN);
-    lv_obj_set_style_bg_color(bar, lv_color_hex(0xFFE4EB), LV_PART_MAIN);
-    lv_obj_set_style_bg_color(bar, lv_color_hex(0x00facc), LV_PART_INDICATOR);
+    lv_obj_set_style_radius(bar, 12, LV_PART_MAIN);
+    lv_obj_set_style_radius(bar, 12, LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(bar, CUTE_GRAY, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(bar, CUTE_PINK_PRIMARY, LV_PART_INDICATOR);
+    lv_obj_set_style_shadow_width(bar, 5, LV_PART_INDICATOR);
+    lv_obj_set_style_shadow_color(bar, CUTE_PINK_DARK, LV_PART_INDICATOR);
+    lv_obj_set_style_shadow_opa(bar, 120, LV_PART_INDICATOR);
     
     state_items[i] = item; // 保存对象指针方便后续更新
 }
@@ -152,7 +164,7 @@ void LcdDisplay::UpdateStateGui() {
     lv_bar_set_value(bar, level, LV_ANIM_ON);
     
     // 动态颜色（示例：根据数值改变进度条颜色）
-    lv_color_t color = lv_color_hex(0x0099ff);
+    lv_color_t color = CUTE_PINK_PRIMARY;
     lv_obj_set_style_bg_color(bar, color, LV_PART_INDICATOR);
 
     item = state_items[1];
@@ -166,7 +178,7 @@ void LcdDisplay::UpdateStateGui() {
     lv_bar_set_value(bar, experience > level * level ? level * level : experience, LV_ANIM_ON);
     
     // 动态颜色（示例：根据数值改变进度条颜色）
-    color = lv_color_hex(0x0099ff);
+    color = CUTE_PINK_PRIMARY;
     lv_obj_set_style_bg_color(bar, color, LV_PART_INDICATOR);
 
 
@@ -182,7 +194,7 @@ void LcdDisplay::UpdateStateGui() {
         
         // 动态颜色（示例：根据数值改变进度条颜色）
         color = pet->GetState(i - 2) > 30 ? 
-            lv_color_hex(0x0099ff) : lv_color_hex(0xff6699);
+            CUTE_PINK_PRIMARY : CUTE_PINK_DARK;
         lv_obj_set_style_bg_color(bar, color, LV_PART_INDICATOR);
     }
 

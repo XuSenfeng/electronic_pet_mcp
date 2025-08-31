@@ -4,13 +4,13 @@
  * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
+#include <string>
 #include "lcd_display.h"
 #include "display.h"
 #include "application.h"
 #include "electronic_pet.h"
 #define TAG "LcdDisplay"
 #include "board.h"
-#include <string>
 
 
 // static GameInfo games[] = {
@@ -56,26 +56,26 @@ void LcdDisplay::GameSelectUI() {
     ElectronicPet * pet = ElectronicPet::GetInstance();
     if(pet == nullptr) {
         ESP_LOGE(TAG, "ElectronicPet instance is null");
-        // 创建空游戏界面
+        // 创建可爱风格空游戏界面
         screen_game_ = lv_obj_create(lv_scr_act());
         lv_obj_set_size(screen_game_, LV_HOR_RES, LV_VER_RES);
-        lv_obj_set_style_bg_color(screen_game_, LIGHT_BACKGROUND_COLOR, 0);
+        lv_obj_set_style_bg_color(screen_game_, CUTE_WHITE, 0);
         lv_obj_set_flex_flow(screen_game_, LV_FLEX_FLOW_COLUMN);
         lv_obj_set_flex_align(screen_game_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
         lv_obj_add_flag(screen_game_, LV_OBJ_FLAG_HIDDEN);
 
-        // 显示"暂无游戏"的提示
+        // 显示"暂无游戏"的可爱提示
         lv_obj_t* empty_label = lv_label_create(screen_game_);
         lv_obj_set_style_text_font(empty_label, fonts_.text_font, 0);
         lv_label_set_text(empty_label, "暂无游戏");
-        lv_obj_set_style_text_color(empty_label, lv_color_hex(0x999999), 0);
+        lv_obj_set_style_text_color(empty_label, CUTE_PINK_DARK, 0);
         lv_obj_align(empty_label, LV_ALIGN_CENTER, 0, -20);
 
         // 显示提示信息
         lv_obj_t* hint_label = lv_label_create(screen_game_);
         lv_obj_set_style_text_font(hint_label, fonts_.text_font, 0);
         lv_label_set_text(hint_label, "请先添加游戏内容");
-        lv_obj_set_style_text_color(hint_label, lv_color_hex(0xCCCCCC), 0);
+        lv_obj_set_style_text_color(hint_label, CUTE_PINK_PRIMARY, 0);
         lv_obj_align(hint_label, LV_ALIGN_CENTER, 0, 20);
         return;
     }
@@ -84,26 +84,26 @@ void LcdDisplay::GameSelectUI() {
     if(pet->games_.empty()) {
         ESP_LOGW(TAG, "No games available, showing empty interface");
         
-        // 创建空游戏界面
+        // 创建可爱风格空游戏界面
         screen_game_ = lv_obj_create(lv_scr_act());
         lv_obj_set_size(screen_game_, LV_HOR_RES, LV_VER_RES);
-        lv_obj_set_style_bg_color(screen_game_, LIGHT_BACKGROUND_COLOR, 0);
+        lv_obj_set_style_bg_color(screen_game_, CUTE_WHITE, 0);
         lv_obj_set_flex_flow(screen_game_, LV_FLEX_FLOW_COLUMN);
         lv_obj_set_flex_align(screen_game_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
         lv_obj_add_flag(screen_game_, LV_OBJ_FLAG_HIDDEN);
 
-        // 显示"暂无游戏"的提示
+        // 显示"暂无游戏"的可爱提示
         lv_obj_t* empty_label = lv_label_create(screen_game_);
         lv_obj_set_style_text_font(empty_label, fonts_.text_font, 0);
         lv_label_set_text(empty_label, "暂无游戏");
-        lv_obj_set_style_text_color(empty_label, lv_color_hex(0x999999), 0);
+        lv_obj_set_style_text_color(empty_label, CUTE_PINK_DARK, 0);
         lv_obj_align(empty_label, LV_ALIGN_CENTER, 0, -20);
 
         // 显示提示信息
         lv_obj_t* hint_label = lv_label_create(screen_game_);
         lv_obj_set_style_text_font(hint_label, fonts_.text_font, 0);
         lv_label_set_text(hint_label, "请先添加游戏内容");
-        lv_obj_set_style_text_color(hint_label, lv_color_hex(0xCCCCCC), 0);
+        lv_obj_set_style_text_color(hint_label, CUTE_PINK_PRIMARY, 0);
         lv_obj_align(hint_label, LV_ALIGN_CENTER, 0, 20);
 
         return;
@@ -118,19 +118,19 @@ void LcdDisplay::GameSelectUI() {
         pet->SetCurrentGame(0);
     }
     
-    LV_IMAGE_DECLARE(game_sample);
-    // 创建主屏幕
+    // 创建可爱风格主屏幕
     screen_game_ = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen_game_, LV_HOR_RES, LV_VER_RES);
-    lv_obj_set_style_bg_color(screen_game_, LIGHT_BACKGROUND_COLOR, 0);
+    lv_obj_set_style_bg_color(screen_game_, CUTE_WHITE, 0);
     lv_obj_set_flex_flow(screen_game_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(screen_game_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_add_flag(screen_game_, LV_OBJ_FLAG_HIDDEN);
 
-    // 游戏名称
+    // 可爱风格游戏名称
     lv_obj_t* name_label = lv_label_create(screen_game_);
     lv_obj_set_style_text_font(name_label, fonts_.text_font, 0);
     lv_label_set_text(name_label, pet->games_[current_game].name.c_str());
+    lv_obj_set_style_text_color(name_label, CUTE_PINK_PRIMARY, 0);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：减少顶部边距
     lv_obj_align(name_label, LV_ALIGN_TOP_MID, 0, 5);
@@ -139,7 +139,7 @@ void LcdDisplay::GameSelectUI() {
     lv_obj_align(name_label, LV_ALIGN_TOP_MID, 0, 0);
 #endif
 
-    /* 主游戏按钮 */
+    /* 可爱风格主游戏按钮 */
     main_btn = lv_button_create(screen_game_);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：调整按钮尺寸
@@ -148,21 +148,53 @@ void LcdDisplay::GameSelectUI() {
     // 320x240 屏幕：保持原有尺寸
     lv_obj_set_size(main_btn, 90, 90);
 #endif
-    lv_obj_set_style_radius(main_btn, 15, 0);
-    lv_obj_set_style_bg_color(main_btn, lv_color_hex(0xFFF3F9), 0);
+    lv_obj_set_style_radius(main_btn, 25, 0);
     lv_obj_set_style_shadow_width(main_btn, 20, 0);
-    lv_obj_set_style_shadow_color(main_btn, lv_color_hex(0xCC8899), 0);
-    lv_obj_set_style_shadow_opa(main_btn, 255, 0);
-    lv_obj_set_style_border_width(main_btn, 1, 0);
-    lv_obj_set_style_border_color(main_btn, lv_color_hex(0xFFffff), 0);
-    lv_obj_add_event_cb(main_btn, game_button_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_style_shadow_opa(main_btn, 150, 0);
+    lv_obj_set_style_border_width(main_btn, 3, 0);
     
-    lv_obj_t *icon = lv_img_create(main_btn);
-    lv_img_set_src(icon, &game_sample);
-    lv_obj_align(icon, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_style_opa(icon, 255, 0);
+    // 为不同的游戏设置协调的渐变和边框配色方案
+    static const struct {
+        lv_color_t bg_start;      // 渐变起始色
+        lv_color_t bg_end;        // 渐变结束色
+        lv_color_t border_color;  // 边框颜色
+        lv_color_t shadow_color;  // 阴影颜色
+    } color_schemes[] = {
+        // 粉色系 - 温柔可爱
+        {CUTE_WHITE, CUTE_PINK_LIGHT, CUTE_PINK_DARK, CUTE_PINK_DARK},
+        // 绿色系 - 清新自然
+        {CUTE_WHITE, CUTE_GREEN, CUTE_GREEN, CUTE_GREEN},
+        // 蓝色系 - 梦幻天空
+        {CUTE_WHITE, CUTE_BLUE, CUTE_BLUE, CUTE_BLUE},
+        // 黄色系 - 温暖阳光
+        {CUTE_WHITE, CUTE_YELLOW, CUTE_ORANGE, CUTE_ORANGE},
+        // 紫色系 - 神秘浪漫
+        {CUTE_WHITE, CUTE_PURPLE, CUTE_PURPLE, CUTE_PURPLE},
+        // 橙绿系 - 活力四射
+        {CUTE_WHITE, CUTE_ORANGE, CUTE_ORANGE, CUTE_ORANGE},
+        // 粉黄系 - 甜美温馨
+        {CUTE_WHITE, CUTE_PINK_LIGHT, CUTE_PINK_DARK, CUTE_PINK_DARK},
+        // 蓝绿系 - 海洋清新
+        {CUTE_WHITE, CUTE_BLUE, CUTE_BLUE, CUTE_BLUE}
+    };
+    
+    int color_index = current_game % (sizeof(color_schemes)/sizeof(color_schemes[0]));
+    const auto& scheme = color_schemes[color_index];
+    
+    // 设置渐变背景
+    lv_obj_set_style_bg_color(main_btn, scheme.bg_start, 0);
+    lv_obj_set_style_bg_grad_color(main_btn, scheme.bg_end, 0);
+    lv_obj_set_style_bg_grad_dir(main_btn, LV_GRAD_DIR_VER, 0);
+    lv_obj_set_style_bg_main_stop(main_btn, 0, 0);
+    lv_obj_set_style_bg_grad_stop(main_btn, 255, 0);
+    
+    // 设置协调的边框和阴影颜色
+    lv_obj_set_style_border_color(main_btn, scheme.border_color, 0);
+    lv_obj_set_style_shadow_color(main_btn, scheme.shadow_color, 0);
+    
+    lv_obj_add_event_cb(main_btn, game_button_cb, LV_EVENT_CLICKED, NULL);    
 
-    /* 游戏描述区域 */
+    /* 可爱风格游戏描述区域 */
     desc_label = lv_label_create(screen_game_);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
     // 240x280 屏幕：调整描述区域尺寸
@@ -173,12 +205,16 @@ void LcdDisplay::GameSelectUI() {
 #endif
     lv_label_set_text(desc_label, pet->games_[current_game].desc.c_str());
     lv_obj_set_style_text_font(desc_label, fonts_.text_font, 0);
-    lv_obj_set_style_text_color(desc_label, lv_color_hex(0x666666), 0);
+    lv_obj_set_style_text_color(desc_label, CUTE_PINK_DARK, 0);
     lv_label_set_long_mode(desc_label, LV_LABEL_LONG_WRAP);
     lv_obj_set_style_text_align(desc_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_bg_opa(desc_label, LV_OPA_20, 0);
-    lv_obj_set_style_bg_color(desc_label, lv_color_hex(0xFF88A4), 0);
-    lv_obj_set_style_radius(desc_label, 15, 0);
+    lv_obj_set_style_bg_opa(desc_label, LV_OPA_30, 0);
+    lv_obj_set_style_bg_color(desc_label, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_radius(desc_label, 20, 0);
+    lv_obj_set_style_pad_all(desc_label, 15, 0);
+    lv_obj_set_style_shadow_width(desc_label, 10, 0);
+    lv_obj_set_style_shadow_color(desc_label, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_shadow_opa(desc_label, 100, 0);
 
 }
 
@@ -223,68 +259,77 @@ void LcdDisplay::AiStoryUI() {
     DisplayLockGuard lock(this);
     ElectronicPet * pet = ElectronicPet::GetInstance();
     pet->setGame(1);
-    /* 游戏面板 */
+    /* 可爱风格游戏面板 */
     history_cont = lv_obj_create(lv_scr_act());
     lv_obj_set_size(history_cont, LV_HOR_RES, LV_VER_RES);
     lv_obj_set_style_bg_opa(history_cont, LV_OPA_TRANSP, 0);
     lv_obj_align(history_cont, LV_ALIGN_CENTER, 0, 0);
     lv_obj_clear_flag(history_cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_remove_style(history_cont, NULL, LV_PART_SCROLLBAR);
-    lv_obj_set_style_bg_color(history_cont, current_theme_.background, 0);
+    lv_obj_set_style_bg_color(history_cont, CUTE_WHITE, 0);
     lv_obj_set_style_bg_opa(history_cont, 255, 0);
 
-    // 历史记录文本框
+    // 可爱风格历史记录文本框
     history_ta = lv_textarea_create(history_cont);
     lv_obj_set_size(history_ta, LV_HOR_RES - 130 - 30, (LV_VER_RES  - 42));
     lv_textarea_set_placeholder_text(history_ta, "故事即将开始...");
     lv_obj_set_style_text_font(history_ta, fonts_.text_font, 0);
-    lv_obj_set_style_text_color(history_ta, lv_color_hex(0x86B7FF), 0);
-    lv_obj_set_style_bg_color(history_ta, lv_color_hex(0xFFF5F5), 0);
+    lv_obj_set_style_text_color(history_ta, CUTE_PINK_DARK, 0);
+    lv_obj_set_style_bg_color(history_ta, CUTE_WHITE, 0);
+    lv_obj_set_style_radius(history_ta, 20, 0);
+    lv_obj_set_style_pad_all(history_ta, 15, 0);
+    lv_obj_set_style_shadow_width(history_ta, 10, 0);
+    lv_obj_set_style_shadow_color(history_ta, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_shadow_opa(history_ta, 100, 0);
     lv_obj_set_scrollbar_mode(history_ta, LV_SCROLLBAR_MODE_AUTO);
     lv_obj_align(history_ta, LV_ALIGN_LEFT_MID, 0, 12);
 
-    /* 右侧状态面板 */
+    /* 可爱风格右侧状态面板 */
     lv_obj_t* status_cont = lv_obj_create(history_cont);
     lv_obj_set_size(status_cont, 130, (LV_VER_RES  - 42));
     lv_obj_align(status_cont, LV_ALIGN_RIGHT_MID, 0, 12);
-    lv_obj_set_style_bg_color(status_cont, lv_color_hex(0xFFF5F5), 0);
+    lv_obj_set_style_bg_color(status_cont, CUTE_PINK_LIGHT, 0);
+    lv_obj_set_style_radius(status_cont, 20, 0);
     lv_obj_set_style_pad_all(status_cont, 20, 0);
     lv_obj_set_style_text_font(status_cont, fonts_.text_font, 0);
+    lv_obj_set_style_shadow_width(status_cont, 10, 0);
+    lv_obj_set_style_shadow_color(status_cont, CUTE_PINK_PRIMARY, 0);
+    lv_obj_set_style_shadow_opa(status_cont, 120, 0);
     lv_obj_remove_style(status_cont, NULL, LV_PART_SCROLLBAR);
     lv_obj_clear_flag(status_cont, LV_OBJ_FLAG_SCROLLABLE);
 
-    // 状态标题
+    // 可爱风格状态标题
     lv_obj_t* status_title = lv_label_create(status_cont);
     lv_label_set_text(status_title, "冒险者状态");
     lv_obj_set_style_text_font(status_title, fonts_.text_font, 0);
-    lv_obj_set_style_text_color(status_title, lv_color_hex(0xFFD700), 0);
+    lv_obj_set_style_text_color(status_title, CUTE_PINK_PRIMARY, 0);
     lv_obj_align(status_title, LV_ALIGN_TOP_MID, 0, -10);
 
 #ifndef CONFIG_BOARD_TYPE_GEZIPAI
     lv_obj_t* back_button = lv_btn_create(history_cont);
     lv_obj_set_size(back_button, 40, 25);
     lv_obj_set_style_radius(back_button, 12, 0);
-    lv_obj_set_style_bg_color(back_button, lv_color_hex(0xFFF5F5), 0);
+    lv_obj_set_style_bg_color(back_button, CUTE_WHITE, 0);
     lv_obj_align(back_button, LV_ALIGN_TOP_RIGHT, 5, -10);
     lv_obj_t * back_label = lv_label_create(back_button);
     lv_label_set_text(back_label, LV_SYMBOL_RIGHT);
-    lv_obj_set_style_text_color(back_label, lv_color_hex(0xFF88A4), 0);
+    lv_obj_set_style_text_color(back_label, CUTE_PINK_PRIMARY, 0);
     lv_obj_align(back_label, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_border_width(back_button, 1, 0); // 设置边框宽度为0
-    lv_obj_set_style_border_color(back_button, lv_color_hex(0xffffff), 0); // 设置边框颜色
+    lv_obj_set_style_border_color(back_button, CUTE_WHITE, 0); // 设置边框颜色
     lv_obj_add_event_cb(back_button, game_back_button_cb, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t* help_button = lv_btn_create(history_cont);
     lv_obj_set_size(help_button, 40, 25);
     lv_obj_set_style_radius(help_button, 12, 0);
-    lv_obj_set_style_bg_color(help_button, lv_color_hex(0xFFF5F5), 0);
+    lv_obj_set_style_bg_color(help_button, CUTE_WHITE, 0);
     lv_obj_align(help_button, LV_ALIGN_TOP_LEFT, -5, -10);
     lv_obj_t * help_label = lv_label_create(help_button);
     lv_label_set_text(help_label, LV_SYMBOL_FILE);
-    lv_obj_set_style_text_color(help_label, lv_color_hex(0xFF88A4), 0);
+    lv_obj_set_style_text_color(help_label, CUTE_PINK_PRIMARY, 0);
     lv_obj_align(help_label, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_border_width(help_button, 1, 0); // 设置边框宽度为0
-    lv_obj_set_style_border_color(help_button, lv_color_hex(0xffffff), 0); // 设置边框颜色
+    lv_obj_set_style_border_color(help_button, CUTE_WHITE, 0); // 设置边框颜色
 #endif
 
     pet->setGameState(E_PET_GAME_STATE_HP, 100);
@@ -299,7 +344,7 @@ void LcdDisplay::AiStoryUI() {
 
 }
 
-std::string names[] = {
+const char* names[] = {
     "生命值",
     "积分",
     "能量",
@@ -319,7 +364,7 @@ void LcdDisplay::CreateStatusItem(lv_obj_t* parent, const char* name, int value_
     // 名称标签
     status_items[num].lbl_name = lv_label_create(cont);
     lv_label_set_text_fmt(status_items[num].lbl_name, "%s %d", name, value_ptr);
-    lv_obj_set_style_text_color(status_items[num].lbl_name, lv_color_hex(0x86B7FF), 0);
+    lv_obj_set_style_text_color(status_items[num].lbl_name, CUTE_BLUE, 0);
     lv_obj_align(status_items[num].lbl_name, LV_ALIGN_LEFT_MID, 0, -3);
 
 
@@ -329,8 +374,8 @@ void LcdDisplay::CreateStatusItem(lv_obj_t* parent, const char* name, int value_
     lv_bar_set_value(status_items[num].bar, value_ptr, LV_ANIM_OFF);
     lv_obj_set_size(status_items[num].bar, 100, 5);
     lv_obj_align(status_items[num].bar, LV_ALIGN_BOTTOM_MID, 0, 10);
-    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xF2F2F2), LV_PART_MAIN);
-    lv_obj_set_style_bg_color(status_items[num].bar, lv_color_hex(0xEAB3C2), LV_PART_INDICATOR);
+    lv_obj_set_style_bg_color(status_items[num].bar, CUTE_GRAY, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(status_items[num].bar, CUTE_PINK_PRIMARY, LV_PART_INDICATOR);
 }
 
 void LcdDisplay::UpdateGameStateGui() {
@@ -338,7 +383,7 @@ void LcdDisplay::UpdateGameStateGui() {
     ElectronicPet * pet = ElectronicPet::GetInstance();
     // 更新状态显示
     for(int i = 0; i < E_PET_GAME_STATE_NUMBER; i++) {
-        lv_label_set_text_fmt(status_items[i].lbl_name, "%s %d", names[i].c_str(), pet->getGameState(i));
+        lv_label_set_text_fmt(status_items[i].lbl_name, "%s %d", names[i], pet->getGameState(i));
         lv_bar_set_value(status_items[i].bar, pet->getGameState(i), LV_ANIM_ON);
     }
 }

@@ -175,24 +175,36 @@ public:
 
 
 // Color definitions for dark theme
-#define DARK_BACKGROUND_COLOR       lv_color_hex(0x121212)     // Dark background
+#define DARK_BACKGROUND_COLOR       lv_color_hex(0x2D1B3D)     // 深紫色背景
 #define DARK_TEXT_COLOR             lv_color_white()           // White text
-#define DARK_CHAT_BACKGROUND_COLOR  lv_color_hex(0x1E1E1E)     // Slightly lighter than background
-#define DARK_USER_BUBBLE_COLOR      lv_color_hex(0x1A6C37)     // Dark green
-#define DARK_ASSISTANT_BUBBLE_COLOR lv_color_hex(0x333333)     // Dark gray
-#define DARK_SYSTEM_BUBBLE_COLOR    lv_color_hex(0x2A2A2A)     // Medium gray
-#define DARK_SYSTEM_TEXT_COLOR      lv_color_hex(0xAAAAAA)     // Light gray text
-#define DARK_BORDER_COLOR           lv_color_hex(0x333333)     // Dark gray border
-#define DARK_LOW_BATTERY_COLOR      lv_color_hex(0xFF0000)     // Red for dark mode
+#define DARK_CHAT_BACKGROUND_COLOR  lv_color_hex(0x3A2449)     // 稍亮的紫色背景
+#define DARK_USER_BUBBLE_COLOR      lv_color_hex(0x8B5CF6)     // 紫色气泡
+#define DARK_ASSISTANT_BUBBLE_COLOR lv_color_hex(0x4C1D95)     // 深紫色气泡
+#define DARK_SYSTEM_BUBBLE_COLOR    lv_color_hex(0x5B21B6)     // 中等紫色
+#define DARK_SYSTEM_TEXT_COLOR      lv_color_hex(0xE0E7FF)     // 浅紫色文字
+#define DARK_BORDER_COLOR           lv_color_hex(0x7C3AED)     // 紫色边框
+#define DARK_LOW_BATTERY_COLOR      lv_color_hex(0xFF6B6B)     // 红色警告
 
-// Color definitions for light theme
-#define LIGHT_BACKGROUND_COLOR       lv_color_hex(0xEAB4C3)           // White background
-#define LIGHT_TEXT_COLOR             lv_color_black()           // Black text
-#define LIGHT_CHAT_BACKGROUND_COLOR  lv_color_hex(0xF3DFE6)     // Light gray background
-#define LIGHT_USER_BUBBLE_COLOR      lv_color_hex(0x95EC69)     // WeChat green
-#define LIGHT_ASSISTANT_BUBBLE_COLOR lv_color_white()           // White
-#define LIGHT_SYSTEM_BUBBLE_COLOR    lv_color_hex(0xE0E0E0)     // Light gray
-#define LIGHT_SYSTEM_TEXT_COLOR      lv_color_hex(0x666666)     // Dark gray text
-#define LIGHT_BORDER_COLOR           lv_color_hex(0xE0E0E0)     // Light gray border
-#define LIGHT_LOW_BATTERY_COLOR      lv_color_black()           // Black for light mode
+// Color definitions for light theme - 可爱桌宠风格
+#define LIGHT_BACKGROUND_COLOR       lv_color_hex(0xFFF0F5)     // 浅粉色背景
+#define LIGHT_TEXT_COLOR             lv_color_hex(0x4A4A4A)     // 深灰色文字
+#define LIGHT_CHAT_BACKGROUND_COLOR  lv_color_hex(0xFFF8FA)     // 更浅的粉色背景
+#define LIGHT_USER_BUBBLE_COLOR      lv_color_hex(0xFFB6C1)     // 浅粉色气泡
+#define LIGHT_ASSISTANT_BUBBLE_COLOR lv_color_hex(0xFFFFFF)     // 白色气泡
+#define LIGHT_SYSTEM_BUBBLE_COLOR    lv_color_hex(0xFFE4E1)     // 浅珊瑚色
+#define LIGHT_SYSTEM_TEXT_COLOR      lv_color_hex(0x8B7D7B)     // 深灰色文字
+#define LIGHT_BORDER_COLOR           lv_color_hex(0xFFC0CB)     // 浅粉色边框
+#define LIGHT_LOW_BATTERY_COLOR      lv_color_hex(0xFF6B9D)     // 粉色警告
+
+// 可爱桌宠风格专用颜色
+#define CUTE_PINK_PRIMARY           lv_color_hex(0xFF88A4)      // 主粉色
+#define CUTE_PINK_LIGHT             lv_color_hex(0xFFB6C1)      // 浅粉色
+#define CUTE_PINK_DARK              lv_color_hex(0xFF69B4)      // 深粉色
+#define CUTE_PURPLE                 lv_color_hex(0xDDA0DD)      // 浅紫色
+#define CUTE_BLUE                   lv_color_hex(0x87CEEB)      // 天蓝色
+#define CUTE_GREEN                  lv_color_hex(0x98FB98)      // 浅绿色
+#define CUTE_YELLOW                 lv_color_hex(0xFFFACD)      // 浅黄色
+#define CUTE_ORANGE                 lv_color_hex(0xFFB347)      // 橙色
+#define CUTE_WHITE                  lv_color_hex(0xFFF8FA)      // 暖白色
+#define CUTE_GRAY                   lv_color_hex(0xF5F5F5)      // 浅灰色
 #endif // LCD_DISPLAY_H
