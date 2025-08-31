@@ -9,7 +9,34 @@
 static lv_obj_t* list_item_;
 void LcdDisplay::ItemUI() {
     DisplayLockGuard lock(this);
-    int num_of_things = ElectronicPet::GetInstance()->GetThingsNum();
+    ElectronicPet* pet = ElectronicPet::GetInstance();
+    if(pet == nullptr) {
+        // ElectronicPet 实例为 null，显示一个空界面
+        screen_things_ = lv_obj_create(lv_scr_act());
+        lv_obj_set_size(screen_things_, LV_HOR_RES, LV_VER_RES);
+        lv_obj_set_style_bg_color(screen_things_, current_theme_.background, 0);
+        lv_obj_add_flag(screen_things_, LV_OBJ_FLAG_HIDDEN);
+
+        // 标题栏
+        lv_obj_t* title = lv_label_create(screen_things_);
+        lv_obj_set_style_text_font(title, fonts_.text_font, 0);
+        lv_label_set_text(title, "宠物商店");
+    #ifdef CONFIG_BOARD_TYPE_GEZIPAI
+        lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 5);
+    #else
+        lv_obj_align(title, LV_ALIGN_TOP_MID, 0, TITLE_OFFSET_SMALL);
+    #endif
+        lv_obj_set_style_text_color(title, lv_color_hex(0xFF88A4), 0);
+
+        // 空内容提示
+        lv_obj_t* empty_label = lv_label_create(screen_things_);
+        lv_obj_set_style_text_font(empty_label, fonts_.text_font, 0);
+        lv_label_set_text(empty_label, "暂无物品");
+        lv_obj_align(empty_label, LV_ALIGN_CENTER, 0, 0);
+        return;
+    }
+    
+    int num_of_things = pet->GetThingsNum();
     if(num_of_things == 0) {
         ESP_LOGE(TAG, "No things available");
         // return;
@@ -64,7 +91,27 @@ void LcdDisplay::ItemUI() {
 
 
 void LcdDisplay::UpdataUILevel(int level){
-    int num_of_things = ElectronicPet::GetInstance()->GetThingsNum();
+    ElectronicPet* pet = ElectronicPet::GetInstance();
+    if(pet == nullptr) {
+        // 显示一个空界面
+        DisplayLockGuard lock(this);
+        lv_obj_del(list_item_); // 删除旧的物品列表容器
+        list_item_ = lv_obj_create(screen_things_);
+#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+        lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
+        lv_obj_set_style_pad_all(list_item_, 6, 0);
+#else
+        lv_obj_set_size(list_item_, LV_PCT(95), LV_PCT(85));
+        lv_obj_set_style_pad_all(list_item_, 10, 0);
+#endif
+        lv_obj_align(list_item_, LV_ALIGN_BOTTOM_MID, 0, LIST_OFFSET_SMALL);
+        lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
+        // 不添加任何物品项，界面为空
+        return;
+    }
+    
+    int num_of_things = pet->GetThingsNum();
     DisplayLockGuard lock(this);
     lv_obj_del(list_item_); // 删除旧的物品列表容器
     // 物品列表容器

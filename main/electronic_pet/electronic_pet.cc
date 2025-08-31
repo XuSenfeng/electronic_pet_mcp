@@ -302,7 +302,11 @@ std::string ElectronicPet::GetBoardID(void){
 
 
 ElectronicPet* ElectronicPet::GetInstance() {
-    return Application::GetInstance().GetMyPet();
+    ElectronicPet* pet = Application::GetInstance().GetMyPet();
+    if (pet == nullptr) {
+        return nullptr;
+    }
+    return pet;
 }
 
 

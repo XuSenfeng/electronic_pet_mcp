@@ -152,16 +152,201 @@ private:
             auto& app = Application::GetInstance();
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
-            } });
+            } 
+            app.ToggleChatState();
+        });
 
-        boot_button_.OnClick([this]()
+        button_key2_.OnClick([this]()
         {
-            ElectronicPet* pet = ElectronicPet::GetInstance();
-            if(pet->isGame()) {
-                void game_back_button_cb(lv_event_t * e);
-                game_back_button_cb(0);
-                ESP_LOGI(TAG, "游戏返回");
+            ESP_LOGI(TAG, "KEY2按钮点击 - 切换界面");
+            auto display = Board::GetInstance().GetDisplay();
+            auto backlight = Board::GetInstance().GetBacklight();
+            
+            if (!display) {
+                ESP_LOGE(TAG, "显示对象为空");
+                return;
             }
+            
+            DisplayLockGuard lock(display);
+            
+            // 根据当前界面切换到下一个界面
+            if (display->screen_now_ == display->screen_main_) {
+                // 主界面 -> 状态界面
+                ESP_LOGI(TAG, "切换到状态界面");
+                if (display->screen_state_ == nullptr) {
+                    display->StateUI();
+                }
+                display->UpdateStateGui();
+                lv_obj_add_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_state_;
+                if (backlight) backlight->DisplayBrightnessKeep();
+                
+            } else if (display->screen_now_ == display->screen_state_) {
+                // 状态界面 -> 物品界面
+                ESP_LOGI(TAG, "切换到物品界面");
+                if (display->screen_things_ == nullptr) {
+                    display->ItemUI();
+                }
+                lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_things_;
+                if (backlight) backlight->DisplayBrightnessKeep();
+                
+            } else if (display->screen_now_ == display->screen_things_) {
+                // 物品界面 -> 帮助界面
+                ESP_LOGI(TAG, "切换到帮助界面");
+                if (display->screen_description_ == nullptr) {
+                    display->HelpUI();
+                }
+                lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_description_;
+                if (backlight) backlight->DisplayBrightnessKeep();
+                
+            } else if (display->screen_now_ == display->screen_description_) {
+                // 帮助界面 -> 游戏界面
+                ESP_LOGI(TAG, "切换到游戏界面");
+                if (display->screen_game_ == nullptr) {
+                    display->GameSelectUI();
+                }
+                lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_game_;
+                if (backlight) backlight->DisplayBrightnessKeep();
+                
+            } else if (display->screen_now_ == display->screen_game_) {
+                // 游戏界面 -> 主界面
+                ESP_LOGI(TAG, "切换回主界面");
+                lv_obj_add_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_main_;
+                if (backlight) backlight->DisplayBrightnessReset();
+                
+                // 清理游戏界面
+                if (display->screen_game_) {
+                    lv_obj_del(display->screen_game_);
+                    display->screen_game_ = nullptr;
+                }
+            } else {
+                // 如果当前界面未知，回到主界面
+                ESP_LOGW(TAG, "未知界面，回到主界面");
+                if (display->screen_main_) {
+                    lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                    display->screen_now_ = display->screen_main_;
+                }
+                if (backlight) backlight->DisplayBrightnessReset();
+            }
+        });
+
+        // 添加KEY2长按功能，用于在游戏界面切换不同游戏
+        button_key2_.OnLongPress([this]()
+        {
+            ESP_LOGI(TAG, "KEY2按钮长按 - 切换游戏");
+            auto display = Board::GetInstance().GetDisplay();
+            
+            if (!display) {
+                ESP_LOGE(TAG, "显示对象为空");
+                return;
+            }
+            
+            // 只有在游戏界面时才执行游戏切换
+            if (display->screen_now_ == display->screen_game_) {
+                ElectronicPet* pet = ElectronicPet::GetInstance();
+                if (pet == nullptr) {
+                    ESP_LOGE(TAG, "ElectronicPet实例为空");
+                    return;
+                }
+                
+                // 检查是否有可用的游戏
+                if (pet->games_.empty()) {
+                    ESP_LOGW(TAG, "没有可用的游戏");
+                    return;
+                }
+                
+                // 获取当前游戏索引并切换到下一个游戏
+                int current_game = pet->GetCurrentGame();
+                int next_game = (current_game + 1) % pet->games_.size();
+                pet->SetCurrentGame(next_game);
+                
+                ESP_LOGI(TAG, "游戏切换: %d -> %d", current_game, next_game);
+                
+                // 重新创建游戏选择界面以显示新游戏
+                if (display->screen_game_) {
+                    lv_obj_del(display->screen_game_);
+                    display->screen_game_ = nullptr;
+                }
+                
+                display->GameSelectUI();
+                display->screen_now_ = display->screen_game_;
+                lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                
+                // 保持背光亮度
+                auto backlight = Board::GetInstance().GetBacklight();
+                if (backlight) backlight->DisplayBrightnessKeep();
+            }
+        });
+
+        boot_button_.OnClick([]()
+        {
+            ESP_LOGI(TAG, "BOOT按钮点击");
+            auto display = Board::GetInstance().GetDisplay();
+            auto backlight = Board::GetInstance().GetBacklight();
+            
+            if (!display) {
+                ESP_LOGE(TAG, "显示对象为空");
+                return;
+            }
+            
+            DisplayLockGuard lock(display);
+            
+            // 如果当前在游戏界面，检查是否在游戏中
+            if (display->screen_now_ == display->screen_game_) {
+                ElectronicPet* pet = ElectronicPet::GetInstance();
+                if(pet && pet->isGame()) {
+                    void game_back_button_cb(lv_event_t * e);
+                    game_back_button_cb(0);
+                    ESP_LOGI(TAG, "游戏返回");
+                    return;
+                }
+            }
+            
+            // 从其他界面返回主界面
+            ESP_LOGI(TAG, "返回主界面");
+            
+            // 隐藏当前界面
+            if (display->screen_now_ == display->screen_state_) {
+                lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+                if (display->screen_state_) {
+                    lv_obj_del(display->screen_state_);
+                    display->screen_state_ = nullptr;
+                }
+            } else if (display->screen_now_ == display->screen_things_) {
+                lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                if (display->screen_things_) {
+                    lv_obj_del(display->screen_things_);
+                    display->screen_things_ = nullptr;
+                }
+            } else if (display->screen_now_ == display->screen_description_) {
+                lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+                if (display->screen_description_) {
+                    lv_obj_del(display->screen_description_);
+                    display->screen_description_ = nullptr;
+                }
+            } else if (display->screen_now_ == display->screen_game_) {
+                lv_obj_add_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                if (display->screen_game_) {
+                    lv_obj_del(display->screen_game_);
+                    display->screen_game_ = nullptr;
+                }
+            }
+            
+            // 显示主界面
+            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+            display->screen_now_ = display->screen_main_;
+            
+            // 重置背光亮度
+            if (backlight) backlight->DisplayBrightnessReset();
         });
 
     }

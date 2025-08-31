@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 #include "lcd_display.h"
@@ -56,6 +56,27 @@ void LcdDisplay::GameSelectUI() {
     ElectronicPet * pet = ElectronicPet::GetInstance();
     if(pet == nullptr) {
         ESP_LOGE(TAG, "ElectronicPet instance is null");
+        // 创建空游戏界面
+        screen_game_ = lv_obj_create(lv_scr_act());
+        lv_obj_set_size(screen_game_, LV_HOR_RES, LV_VER_RES);
+        lv_obj_set_style_bg_color(screen_game_, LIGHT_BACKGROUND_COLOR, 0);
+        lv_obj_set_flex_flow(screen_game_, LV_FLEX_FLOW_COLUMN);
+        lv_obj_set_flex_align(screen_game_, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_add_flag(screen_game_, LV_OBJ_FLAG_HIDDEN);
+
+        // 显示"暂无游戏"的提示
+        lv_obj_t* empty_label = lv_label_create(screen_game_);
+        lv_obj_set_style_text_font(empty_label, fonts_.text_font, 0);
+        lv_label_set_text(empty_label, "暂无游戏");
+        lv_obj_set_style_text_color(empty_label, lv_color_hex(0x999999), 0);
+        lv_obj_align(empty_label, LV_ALIGN_CENTER, 0, -20);
+
+        // 显示提示信息
+        lv_obj_t* hint_label = lv_label_create(screen_game_);
+        lv_obj_set_style_text_font(hint_label, fonts_.text_font, 0);
+        lv_label_set_text(hint_label, "请先添加游戏内容");
+        lv_obj_set_style_text_color(hint_label, lv_color_hex(0xCCCCCC), 0);
+        lv_obj_align(hint_label, LV_ALIGN_CENTER, 0, 20);
         return;
     }
     

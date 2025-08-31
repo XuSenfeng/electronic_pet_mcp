@@ -101,18 +101,6 @@ menu "XvSenfeng Electronic Pet"
         default "mqtt.tenclass.net"
         help
             该服务器用于连接宠物设备的 MQTT 服务
-    
-    config  PET_MQTT_TOPIC
-        string "宠物MQTT主题"
-        default "远程的主题"
-        help
-            该主题用于接收宠物的状态信息和发送控制指令
-
-    config  PET_MQTT_LOCAL_TOPIC
-        string "宠物MQTT主题"
-        default "本地的主题"
-        help
-            该主题用于接收宠物的状态信息和发送控制指令
 
     config SERVER_BASE_SERVER_URL
         string "宠物服务器地址"

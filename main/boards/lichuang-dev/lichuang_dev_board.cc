@@ -120,7 +120,68 @@ private:
             if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
                 ResetWifiConfiguration();
             }
-            app.ToggleChatState();
+            
+            // 检查当前是否在游戏界面且正在游戏中
+            auto display = Board::GetInstance().GetDisplay();
+            if (display && display->screen_now_ == display->screen_game_) {
+                ElectronicPet* pet = ElectronicPet::GetInstance();
+                if (pet && pet->isGame()) {
+                    // 如果在游戏中，返回游戏选择界面
+                    ESP_LOGI(TAG, "BOOT按钮点击 - 游戏返回");
+                    void game_back_button_cb(lv_event_t * e);
+                    game_back_button_cb(0);
+                    return;
+                }
+            }
+            
+            // 从其他界面返回主界面
+            ESP_LOGI(TAG, "BOOT按钮点击 - 返回主界面");
+            
+            if (display) {
+                DisplayLockGuard lock(display);
+                if(display->screen_now_ == display->screen_main_){
+                    // 如果不在游戏中，切换聊天状态
+                    app.ToggleChatState();
+                    return;
+                }
+                
+                // 隐藏当前界面
+                if (display->screen_now_ == display->screen_state_) {
+                    lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+                    if (display->screen_state_) {
+                        lv_obj_del(display->screen_state_);
+                        display->screen_state_ = nullptr;
+                    }
+                } else if (display->screen_now_ == display->screen_things_) {
+                    lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                    if (display->screen_things_) {
+                        lv_obj_del(display->screen_things_);
+                        display->screen_things_ = nullptr;
+                    }
+                } else if (display->screen_now_ == display->screen_description_) {
+                    lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+                    if (display->screen_description_) {
+                        lv_obj_del(display->screen_description_);
+                        display->screen_description_ = nullptr;
+                    }
+                } else if (display->screen_now_ == display->screen_game_) {
+                    lv_obj_add_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                    if (display->screen_game_) {
+                        lv_obj_del(display->screen_game_);
+                        display->screen_game_ = nullptr;
+                    }
+                }
+                
+                // 显示主界面
+                if (display->screen_main_) {
+                    lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                    display->screen_now_ = display->screen_main_;
+                }
+                
+                // 重置背光亮度
+                auto backlight = Board::GetInstance().GetBacklight();
+                if (backlight) backlight->DisplayBrightnessReset();
+            }
         });
 
 #if CONFIG_USE_DEVICE_AEC

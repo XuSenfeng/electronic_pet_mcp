@@ -34,7 +34,7 @@ struct ThemeColors {
     #define ITEM_HEIGHT_SMALL      70
     #define ITEM_WIDTH_SMALL       (LV_HOR_RES - 2*10)
     #define ICON_SIZE_SMALL        40
-    #define PROGRESS_WIDTH_SMALL   120
+    #define PROGRESS_WIDTH_SMALL   100
     #define BUTTON_HEIGHT_SMALL    35
     #define TITLE_OFFSET_SMALL     -2
     #define LIST_OFFSET_SMALL      -8
@@ -83,7 +83,7 @@ protected:
     lv_obj_t* action_label_ = nullptr;
     lv_obj_t* main_btn;
     lv_obj_t* desc_label;
-    HelpCard cards[8]; // 根据实际版块数量调整
+    HelpCard cards[9]; // 根据实际版块数量调整
 
     
     DisplayFonts fonts_;

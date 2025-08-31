@@ -162,8 +162,8 @@ public:
         if(pet != nullptr && pet->isGame()){
             return;
         }
-        auto& app = Application::GetInstance();
-        auto display = Board::GetInstance().GetDisplay();
+        
+        
 
         // if(app.device_state_ == kDeviceStateSpeaking || app.device_state_ == kDeviceStateListening){
         float X_tmp = 0, Y_tmp = 0;
@@ -178,7 +178,10 @@ public:
         X_tmp /= 5;
         Y_tmp /= 5;
 
-        
+#ifdef CONFIG_BOARD_TYPE_LICHUANG_DEV
+        auto& app = Application::GetInstance();
+        auto display = Board::GetInstance().GetDisplay();
+        // 立创开发板使用QMI8658作为不同界面的切换
         auto backlight = Board::GetInstance().GetBacklight();
 
         DisplayLockGuard lock(display);
@@ -309,7 +312,7 @@ public:
             app.position_f = false;
             app.position_b = false;
         }
-        
+#endif
     }
 };
 #endif

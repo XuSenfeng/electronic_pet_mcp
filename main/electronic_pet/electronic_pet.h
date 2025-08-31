@@ -83,8 +83,13 @@ public:
     void ReadCsvThings();
     void ReadCsvFood(int *i);
     void ReadCsvGames();
-    int GetThingsNum() { return things_.size(); }
-    BaseThing *GetThing(int i) { return things_[i]; }
+    int GetThingsNum() { 
+        return things_.size();
+    }
+    BaseThing *GetThing(int i) { 
+        if (i < 0 || i >= things_.size()) return nullptr;
+        return things_[i]; 
+    }
     int GetCurrentGame() { return current_game; }
     void SetCurrentGame(int game) { current_game = game; }
     void ReturnLastAction();
