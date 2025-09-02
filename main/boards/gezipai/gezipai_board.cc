@@ -245,11 +245,12 @@ private:
             ESP_LOGI(TAG, "KEY2按钮长按 - 切换游戏");
             auto display = Board::GetInstance().GetDisplay();
             
+
             if (!display) {
                 ESP_LOGE(TAG, "显示对象为空");
                 return;
             }
-            
+            DisplayLockGuard lock(display);
             // 只有在游戏界面时才执行游戏切换
             if (display->screen_now_ == display->screen_game_) {
                 ElectronicPet* pet = ElectronicPet::GetInstance();
@@ -277,7 +278,7 @@ private:
                     display->screen_game_ = nullptr;
                 }
                 
-                display->GameSelectUI();
+                display->AIPlayGameUI();
                 display->screen_now_ = display->screen_game_;
                 lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
                 

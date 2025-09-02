@@ -246,12 +246,8 @@ void Display::SetChatMessage(const char* role, const char* content) {
         return;
     }
     lv_obj_clear_flag(chat_message_label_, LV_OBJ_FLAG_HIDDEN);
-    // Create a message bubble
-    char *temp_buf;
-    temp_buf = (char*)malloc(strlen(content) + 4); // 额外的4个字节用于换行符和终止符
-    sprintf(temp_buf, "\n%s", content);
-    lv_label_set_text(chat_message_label_, temp_buf);
-    free(temp_buf);
+
+    lv_label_set_text(chat_message_label_, content);
 }
 
 void Display::SetTheme(const std::string& theme_name) {
@@ -268,10 +264,11 @@ void Display::UpdateStateGui(){};
 void Display::ItemUI(){};
 void Display::UpdateItemUI(){};
 void Display::HelpUI(){};
-void Display::GameSelectUI(){};
+void Display::AIPlayGameUI(){};
 void Display::CreateStatusItem(lv_obj_t* parent, const char* name, int value_ptr, 
     int min, int max, int y_pos, int num){};
 void Display::AiStoryUI(){}; 
 void Display::UpdateStoryHistory(const char* new_text){};
 void Display::UpdateGameStateGui(){};
 void Display::UpdataUILevel(int level){};
+void Display::GameSelectUI(){};

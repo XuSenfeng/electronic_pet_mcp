@@ -111,6 +111,7 @@ public:
     void StateUI() override;
     void ItemUI() override;
     void HelpUI() override;
+    void AIPlayGameUI() override;
     void GameSelectUI() override;
 
     void UpdateStateGui() override;
@@ -126,6 +127,7 @@ public:
     void UpdateGameStateGui() override;
     void StateItemCreate(lv_obj_t *parent, int i);
     void UpdataUILevel(int level) override;
+
 };
 
 // RGB LCD显示器

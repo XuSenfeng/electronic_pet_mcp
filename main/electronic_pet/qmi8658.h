@@ -263,7 +263,7 @@ public:
                     game = 0;
                 }
                 pet->SetCurrentGame(game);
-                display->GameSelectUI();
+                display->AIPlayGameUI();
                 display->screen_now_ = display->screen_game_;
                 lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
             }
@@ -299,7 +299,7 @@ public:
                     game = pet->games_.size()-1;
                 }
                 pet->SetCurrentGame(game);
-                display->GameSelectUI();
+                display->AIPlayGameUI();
                 display->screen_now_ = display->screen_game_;
                 lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
             }

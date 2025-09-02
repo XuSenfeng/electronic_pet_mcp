@@ -34,7 +34,7 @@ public:
     virtual void SetupUI();
     virtual void ItemUI();
     virtual void HelpUI();
-    virtual void GameSelectUI();
+    virtual void AIPlayGameUI();
     virtual void CleanSetupUI();
     virtual void UpdateStateGui();
     virtual void UpdateItemUI();
@@ -44,6 +44,7 @@ public:
     virtual void AiStoryUI(); 
     virtual void UpdateStoryHistory(const char* new_text);
     virtual void UpdateGameStateGui();
+    virtual void GameSelectUI();
 
     inline int width() const { return width_; }
     inline int height() const { return height_; }
