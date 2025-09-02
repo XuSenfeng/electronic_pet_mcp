@@ -163,6 +163,7 @@ void Application::CheckNewVersion() {
         if (!ota_.HasActivationCode() && !ota_.HasActivationChallenge()) {
             xEventGroupSetBits(event_group_, CHECK_NEW_VERSION_DONE_EVENT);
             // Exit the loop if done checking new version
+            display->SetStatus("初始化宠物中...");
             my_pet = new ElectronicPet();
             break;
         }

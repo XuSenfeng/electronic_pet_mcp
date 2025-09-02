@@ -261,16 +261,20 @@ void ElectronicPetTimer::deal_one_csv_message(timer_info_t *csv_info, long *delt
         csv_info->tm_sec, csv_info->tm_min, csv_info->tm_hour,
         csv_info->re_mday, csv_info->re_mon, csv_info->re_year,
         csv_info->re_wday, delta_sec, interval_sec);
-        if(csv_info->random_l){
-            *delta_sec *= (rand() % (csv_info->random_h - csv_info->random_l + 1)) + csv_info->random_l;
-        }
-    
+    if(csv_info->random_l){
+        *delta_sec *= (rand() % (csv_info->random_h - csv_info->random_l + 1)) + csv_info->random_l;
+    }
+    ESP_LOGI(TAG, "Delta sec: %ld, Interval sec: %ld", *delta_sec, *interval_sec);
 }
 
 bool ElectronicPetTimer::deal_timer_info(timer_info_t *timer_info){
     long delta_sec = 0;
     long interval_sec = 0;
     deal_one_csv_message(timer_info, &delta_sec, &interval_sec);
+    if(delta_sec <= 0){
+        ESP_LOGE(TAG, "Delta sec is less than 0");
+        return false;
+    }
     char *message = (char*)malloc(strlen(timer_info->message) + 1);
     if (message == NULL) {
         ESP_LOGE(TAG, "Failed to allocate memory for message");
