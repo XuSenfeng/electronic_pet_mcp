@@ -135,18 +135,6 @@ void McpServer::AddCommonTools() {
             });
     }
 
-    auto display = board.GetDisplay();
-    if (display && !display->GetTheme().empty()) {
-        AddTool("self.screen.set_theme",
-            "Set the theme of the screen. The theme can be `light` or `dark`.",
-            PropertyList({
-                Property("theme", kPropertyTypeString)
-            }),
-            [display](const PropertyList& properties) -> ReturnValue {
-                display->SetTheme(properties["theme"].value<std::string>().c_str());
-                return true;
-            });
-    }
 #ifndef CONFIG_BOARD_TYPE_GEZIPAI
     AddTool("self.camera.take_photo",
         "Take a photo and explain it. Use this tool after the user asks you to see something.\n"
@@ -208,7 +196,7 @@ void McpServer::AddCommonTools() {
         PropertyList({
             Property("ActionNum", kPropertyTypeInteger, 0, E_PET_ACTION_NUMBER - 1)
         }),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             int action = static_cast<uint8_t>(properties["ActionNum"].value<int>());
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
@@ -223,14 +211,15 @@ void McpServer::AddCommonTools() {
             ESP_LOGI(TAG, "Set action to %d", action);
             return true;
         });
-
+    
     AddTool("self.pet.SetGameHP",
         "During the game mode, use this function for updating the health value display. This function must be called every time for updating, with the attribute being an integer from 0 to 100.\n"
         "Every time change HP, you must use this tool to update the HP value.\n",
         PropertyList({
             Property("HP", kPropertyTypeInteger, 0, 100)
         }),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
+            auto display = Board::GetInstance().GetDisplay();
             int hp = static_cast<uint8_t>(properties["HP"].value<int>());
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
@@ -242,7 +231,6 @@ void McpServer::AddCommonTools() {
                 return "{\"success\": false, \"message\": \"Not in game mode\"}";
             }
             pet->setGameState(E_PET_GAME_STATE_HP, hp);
-            auto display = Board::GetInstance().GetDisplay();
             display->UpdateGameStateGui();
             return "{\"success\": true, \"message\": \"HP updated successfully\"}";
         });
@@ -253,7 +241,7 @@ void McpServer::AddCommonTools() {
         PropertyList({
             Property("Energy", kPropertyTypeInteger, 0, 100)
         }),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             int energy = static_cast<uint8_t>(properties["Energy"].value<int>());
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
@@ -276,7 +264,7 @@ void McpServer::AddCommonTools() {
         PropertyList({
             Property("Score", kPropertyTypeInteger, 0, 9999)
         }),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             int score = static_cast<uint8_t>(properties["Score"].value<int>());
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
@@ -299,7 +287,7 @@ void McpServer::AddCommonTools() {
         PropertyList({
             Property("Fame", kPropertyTypeInteger, 0, 999)
         }),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             int fame = static_cast<uint8_t>(properties["Fame"].value<int>());
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
@@ -320,7 +308,7 @@ void McpServer::AddCommonTools() {
         "Upgrade task, call this function to trigger the upgrade event when an upgrade is currently available.\n"
         "This function will return a string that describes the upgrade task, such as \"You need to answer 3 questions correctly to upgrade\".\n",
         PropertyList(),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             ElectronicPet* pet = ElectronicPet::GetInstance();
             std::string task = pet->GetUpdateTask();
             return "{\"success\": true, \"task\": \"" + task + "\"}";
@@ -330,7 +318,7 @@ void McpServer::AddCommonTools() {
         "Upgrade task, call this function to trigger the upgrade event when an upgrade is currently available.\n"
         "This function will return a string that describes the upgrade task, such as \"You need to answer 3 questions correctly to upgrade\".\n",
         PropertyList(),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             ElectronicPet* pet = ElectronicPet::GetInstance();
             std::string task = pet->GetUpdateTask();
             return "{\"success\": true, \"task\": \"" + task + "\"}";
@@ -340,7 +328,7 @@ void McpServer::AddCommonTools() {
         "After the user completes the upgrade task, call this function to trigger the upgrade event.\n"
         "This function will return the describes of the upgrade result\n",
         PropertyList(),
-        [display](const PropertyList& properties) -> ReturnValue {
+        [](const PropertyList& properties) -> ReturnValue {
             ElectronicPet* pet = ElectronicPet::GetInstance();
             if (pet == nullptr) {
                 ESP_LOGE(TAG, "ElectronicPet instance is null");

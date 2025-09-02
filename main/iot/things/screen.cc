@@ -1,3 +1,10 @@
+/*
+ * @Author: XvSenfeng
+ * @Email: helloworldjiao@163.com
+ * @Date: 2025-09-02 13:33:17
+ * @LastEditTime: 2025-09-02 13:45:19
+ * @FilePath: /xiaozhi-esp32/main/iot/things/screen.cc
+ */
 #include "iot/thing.h"
 #include "board.h"
 #include "display/lcd_display.h"
@@ -26,16 +33,6 @@ public:
             return backlight ? backlight->brightness() : 100;
         });
 
-        // 定义设备可以被远程执行的指令
-        methods_.AddMethod("set_theme", "Set the screen theme", ParameterList({
-            Parameter("theme_name", "Valid string values are 'light' and 'dark'", kValueTypeString, true)
-        }), [this](const ParameterList& parameters) {
-            std::string theme_name = static_cast<std::string>(parameters["theme_name"].string());
-            auto display = Board::GetInstance().GetDisplay();
-            if (display) {
-                display->SetTheme(theme_name);
-            }
-        });
         
         methods_.AddMethod("set_brightness", "Set the brightness", ParameterList({
             Parameter("brightness", "An integer between 0 and 100", kValueTypeNumber, true)

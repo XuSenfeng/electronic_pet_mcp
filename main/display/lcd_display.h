@@ -103,8 +103,6 @@ public:
     virtual void SetIcon(const char* icon) override;
     virtual void SetPreviewImage(const lv_img_dsc_t* img_dsc) override; 
 
-    // Add theme switching function
-    virtual void SetTheme(const std::string& theme_name) override;
 
 
     void SetupUI() override;
@@ -176,16 +174,6 @@ public:
 };
 
 
-// Color definitions for dark theme
-#define DARK_BACKGROUND_COLOR       lv_color_hex(0x2D1B3D)     // 深紫色背景
-#define DARK_TEXT_COLOR             lv_color_white()           // White text
-#define DARK_CHAT_BACKGROUND_COLOR  lv_color_hex(0x3A2449)     // 稍亮的紫色背景
-#define DARK_USER_BUBBLE_COLOR      lv_color_hex(0x8B5CF6)     // 紫色气泡
-#define DARK_ASSISTANT_BUBBLE_COLOR lv_color_hex(0x4C1D95)     // 深紫色气泡
-#define DARK_SYSTEM_BUBBLE_COLOR    lv_color_hex(0x5B21B6)     // 中等紫色
-#define DARK_SYSTEM_TEXT_COLOR      lv_color_hex(0xE0E7FF)     // 浅紫色文字
-#define DARK_BORDER_COLOR           lv_color_hex(0x7C3AED)     // 紫色边框
-#define DARK_LOW_BATTERY_COLOR      lv_color_hex(0xFF6B6B)     // 红色警告
 
 // Color definitions for light theme - 可爱桌宠风格
 #define LIGHT_BACKGROUND_COLOR       lv_color_hex(0xFFF0F5)     // 浅粉色背景

@@ -17,18 +17,6 @@
 
 
 
-// Define dark theme colors
-const ThemeColors DARK_THEME = {
-    .background = DARK_BACKGROUND_COLOR,
-    .text = DARK_TEXT_COLOR,
-    .chat_background = DARK_CHAT_BACKGROUND_COLOR,
-    .user_bubble = DARK_USER_BUBBLE_COLOR,
-    .assistant_bubble = DARK_ASSISTANT_BUBBLE_COLOR,
-    .system_bubble = DARK_SYSTEM_BUBBLE_COLOR,
-    .system_text = DARK_SYSTEM_TEXT_COLOR,
-    .border = DARK_BORDER_COLOR,
-    .low_battery = DARK_LOW_BATTERY_COLOR
-};
 
 // Define light theme colors
 const ThemeColors LIGHT_THEME = {
@@ -51,16 +39,8 @@ LcdDisplay::LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_
     width_ = width;
     height_ = height;
 
-    // Load theme from settings
-    Settings settings("display", false);
-    current_theme_name_ = settings.GetString("theme", "light");
-
-    // Update the theme
-    if (current_theme_name_ == "dark") {
-        current_theme_ = DARK_THEME;
-    } else if (current_theme_name_ == "light") {
-        current_theme_ = LIGHT_THEME;
-    }
+    // 直接使用亮色主题
+    current_theme_ = LIGHT_THEME;
 }
 
 SpiLcdDisplay::SpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
@@ -522,79 +502,3 @@ void LcdDisplay::SetPreviewImage(const lv_img_dsc_t* img_dsc) {
     }
 }
 
-void LcdDisplay::SetTheme(const std::string& theme_name) {
-    DisplayLockGuard lock(this);
-    
-    if (theme_name == "dark" || theme_name == "DARK") {
-        current_theme_ = DARK_THEME;
-    } else if (theme_name == "light" || theme_name == "LIGHT") {
-        current_theme_ = LIGHT_THEME;
-    } else {
-        // Invalid theme name, return false
-        ESP_LOGE(TAG, "Invalid theme name: %s", theme_name.c_str());
-        return;
-    }
-    
-    // Get the active screen
-    lv_obj_t* screen = lv_screen_active();
-    
-    // Update the screen colors
-    lv_obj_set_style_bg_color(screen, current_theme_.background, 0);
-    lv_obj_set_style_text_color(screen, current_theme_.text, 0);
-    
-    // Update container colors
-    if (container_ != nullptr) {
-        lv_obj_set_style_bg_color(container_, current_theme_.background, 0);
-        lv_obj_set_style_border_color(container_, current_theme_.border, 0);
-    }
-    
-    // Update status bar colors
-    if (status_bar_ != nullptr) {
-        lv_obj_set_style_bg_color(status_bar_, current_theme_.background, 0);
-        lv_obj_set_style_text_color(status_bar_, current_theme_.text, 0);
-        
-        // Update status bar elements
-        if (network_label_ != nullptr) {
-            lv_obj_set_style_text_color(network_label_, current_theme_.text, 0);
-        }
-        if (status_label_ != nullptr) {
-            lv_obj_set_style_text_color(status_label_, current_theme_.text, 0);
-        }
-        if (notification_label_ != nullptr) {
-            lv_obj_set_style_text_color(notification_label_, current_theme_.text, 0);
-        }
-        if (mute_label_ != nullptr) {
-            lv_obj_set_style_text_color(mute_label_, current_theme_.text, 0);
-        }
-        if (battery_label_ != nullptr) {
-            lv_obj_set_style_text_color(battery_label_, current_theme_.text, 0);
-        }
-        if (emotion_label_ != nullptr) {
-            lv_obj_set_style_text_color(emotion_label_, current_theme_.text, 0);
-        }
-    }
-    
-    // Update content area colors
-    if (content_ != nullptr) {
-        lv_obj_set_style_bg_color(content_, current_theme_.chat_background, 0);
-        lv_obj_set_style_border_color(content_, current_theme_.border, 0);
-        
-        // If we have the chat message style, update all message bubbles
-        // Simple UI mode - just update the main chat message
-        if (chat_message_label_ != nullptr) {
-            lv_obj_set_style_text_color(chat_message_label_, current_theme_.text, 0);
-        }
-        
-        if (emotion_label_ != nullptr) {
-            lv_obj_set_style_text_color(emotion_label_, current_theme_.text, 0);
-        }
-    }
-    
-    // Update low battery popup
-    if (low_battery_popup_ != nullptr) {
-        lv_obj_set_style_bg_color(low_battery_popup_, current_theme_.low_battery, 0);
-    }
-
-    // No errors occurred. Save theme to settings
-    Display::SetTheme(theme_name);
-}
