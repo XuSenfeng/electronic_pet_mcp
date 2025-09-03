@@ -123,6 +123,7 @@ bool PMQTT_Clinet::Message_Deal_Follow(cJSON* root, const std::string& payload) 
     if(name.empty()){
         name = from_str;
     }
+    message_list_.push_back(name + ":" + message_str);
     
     // 发送提示信息
     auto& app = Application::GetInstance();
@@ -155,11 +156,14 @@ bool PMQTT_Clinet::Message_Deal_Phone(cJSON* root, const std::string& payload) {
     }
     std::string message_str = message->valuestring;
     ESP_LOGI(TAG, "Received message: %s", message_str.c_str());
+    // 将消息添加到消息列表中
+    message_list_.push_back("手机消息:" + message_str);
     // 发送提示信息
     auto& app = Application::GetInstance();
     // 让小智直接使用复读模式
     message_str = "你现在是一个复读机器,请直接念出来冒号之后的所有句子,不要增加任何的信息, 消息如下:我获取到手机消息," +  message_str;
     app.SendMessage(message_str);
+
     return true;
 }
 
@@ -175,3 +179,6 @@ bool PMQTT_Clinet::Publish_Message(std::string type, std::string payload) {
     return mqtt_->Publish(topic, payload, 2);
 }
 
+void PMQTT_Clinet::ClearMessageList() {
+    message_list_.clear();
+}

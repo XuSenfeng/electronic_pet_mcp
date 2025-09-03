@@ -17,7 +17,11 @@ public:
     bool Message_Deal_Phone(cJSON* root, const std::string& payload);
     bool Message_Deal_Follow(cJSON* root, const std::string& payload);
     bool Publish_Message(std::string type, std::string payload);
+    std::vector<std::string> message_list_;
+    void ClearMessageList();
+
 private:
+    
     Mqtt* mqtt_;
     std::string client_id_;
     std::string publish_topic_;

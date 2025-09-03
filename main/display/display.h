@@ -34,6 +34,7 @@ public:
     virtual void ItemUI();
     virtual void HelpUI();
     virtual void AIPlayGameUI();
+    virtual void MessageUI();
     virtual void CleanSetupUI();
     virtual void UpdateStateGui();
     virtual void UpdateItemUI();

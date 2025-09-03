@@ -267,3 +267,4 @@ void Display::UpdateStoryHistory(const char* new_text){};
 void Display::UpdateGameStateGui(){};
 void Display::UpdataUILevel(int level){};
 void Display::GameSelectUI(){};
+void Display::MessageUI(){};

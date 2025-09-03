@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-09-02 12:17:41
- * @LastEditTime: 2025-09-02 12:23:13
+ * @LastEditTime: 2025-09-03 10:18:57
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_catalogue.cc
  */
  #include "lcd_display.h"
@@ -34,6 +34,12 @@
             display->screen_now_ = display->screen_game_;
             break;
         case 1:
+            display->MessageUI();
+            // 显示新创建的游戏界面
+            if (display->screen_game_ != nullptr) {
+                lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+            }
+            display->screen_now_ = display->screen_game_;
             break;
         case 2:
             break;
@@ -88,13 +94,10 @@
     // 创建示例游戏卡片（演示用）
     const char* demo_games[][3] = {
         {"AI角色扮演"},
-        {"爱心挑战"},
-        {"智力问答"},
-        {"音乐游戏"},
-        {"拼图挑战"},
+        {"消息界面"},
     };
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < sizeof(demo_games) / sizeof(demo_games[0]); i++) {
         // 创建游戏卡片容器
         lv_obj_t* game_card = lv_obj_create(scroll_cont);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI

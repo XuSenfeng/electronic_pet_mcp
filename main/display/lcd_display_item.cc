@@ -1,3 +1,10 @@
+/*
+ * @Author: XvSenfeng
+ * @Email: helloworldjiao@163.com
+ * @Date: 2025-08-19 19:33:14
+ * @LastEditTime: 2025-09-02 20:39:26
+ * @FilePath: /xiaozhi-esp32/main/display/lcd_display_item.cc
+ */
 #include "lvgl.h"
 #include "display.h"
 #include "lcd_display.h"
@@ -81,6 +88,7 @@ void LcdDisplay::ItemUI() {
     lv_obj_set_flex_flow(list_item_, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(list_item_, ITEM_SPACING_SMALL, 0);
     lv_obj_set_style_bg_opa(list_item_, LV_OPA_70, LV_PART_MAIN);
+    lv_obj_set_scrollbar_mode(list_item_, LV_SCROLLBAR_MODE_OFF);
     // lv_obj_clear_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     
     ESP_LOGI(TAG, "商店 list: %d", num_of_things);

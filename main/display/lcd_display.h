@@ -111,6 +111,7 @@ public:
     void HelpUI() override;
     void AIPlayGameUI() override;
     void GameSelectUI() override;
+    void MessageUI() override;
 
     void UpdateStateGui() override;
     void UpdateItemUI() override;
