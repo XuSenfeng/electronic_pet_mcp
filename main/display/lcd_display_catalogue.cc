@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-09-02 12:17:41
- * @LastEditTime: 2025-09-03 10:18:57
+ * @LastEditTime: 2025-09-03 11:22:37
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_catalogue.cc
  */
  #include "lcd_display.h"
@@ -92,7 +92,7 @@
     lv_obj_set_scrollbar_mode(scroll_cont, LV_SCROLLBAR_MODE_OFF);
 
     // 创建示例游戏卡片（演示用）
-    const char* demo_games[][3] = {
+    const char* demo_games[][1] = {
         {"AI角色扮演"},
         {"消息界面"},
     };

@@ -9,7 +9,6 @@
 #include "settings.h"
 #define TAG "PMQTT_Client"
 #include "esp_mac.h"
-#include "iot/thing_manager.h"
 #include "application.h"
 /*
 

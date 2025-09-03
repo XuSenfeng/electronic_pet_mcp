@@ -82,8 +82,6 @@ choice IOT_PROTOCOL
         IoT 协议，用于获取设备状态与发送控制指令
     config IOT_PROTOCOL_MCP
         bool "MCP协议 2024-11-05"
-    config IOT_PROTOCOL_XIAOZHI
-        bool "小智IoT协议 1.0"
 endchoice
 
 endmenu

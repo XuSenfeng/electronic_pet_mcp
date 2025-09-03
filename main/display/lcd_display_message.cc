@@ -24,8 +24,6 @@ static void clear_messages_cb(lv_event_t* e) {
                 if (mqtt_client != nullptr) {
                     mqtt_client->ClearMessageList();
                     // 刷新消息界面
-                    lv_obj_del(display->screen_game_);
-                    display->screen_game_ = nullptr;
                     display->MessageUI();
                     // 显示新创建的消息界面
                     if (display->screen_game_ != nullptr) {
