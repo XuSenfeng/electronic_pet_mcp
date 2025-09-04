@@ -120,4 +120,6 @@ public:
     void ReadWebFocus(void);
     std::string GetFocusListJson(void);
     std::vector<FocueInfo> GetFocusList(void){return focus_list_;};
+
+    void UploadState(void);
 };

@@ -71,7 +71,7 @@ ElectronicPet::ElectronicPet(){
     } else {
         ReadCsvThings();
     }
-    
+    UploadState();
     
     client_ = new PMQTT_Clinet(boardID);
     client_->Publish_Message("log", "ElectronicPet initialized");
@@ -650,4 +650,35 @@ bool ElectronicPet::Upgrade(void){
 
 
     return false; // 升级失败
+}
+
+void ElectronicPet::UploadState(void){
+    ESP_LOGI(TAG, "Upload state");
+    // 上传状态
+    auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
+    std::string url = CONFIG_SERVER_BASE_SERVER_URL "/pets/pet/state/?boardID=" + boardID;
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "boardID", boardID.c_str());
+    cJSON_AddNumberToObject(root, "level", level_);
+    cJSON_AddNumberToObject(root, "exp", experience_);
+    cJSON_AddNumberToObject(root, "satiety", state_[E_PET_STATE_SATITY].value);
+    cJSON_AddNumberToObject(root, "happiness", state_[E_PET_STATE_HAPPINESS].value);
+    cJSON_AddNumberToObject(root, "vigor", state_[E_PET_STATE_VIGIR].value);
+    cJSON_AddNumberToObject(root, "iq", state_[E_PET_STATE_IQ].value);
+    cJSON_AddNumberToObject(root, "money", state_[E_PET_STATE_MONEY].value);
+    std::string data = cJSON_Print(root);
+    ESP_LOGI(TAG, "Upload state data: %s", data.c_str());
+    http->SetContent(std::move(data));
+    http->SetHeader("Client-Id", Board::GetInstance().GetUuid().c_str());
+    http->SetHeader("Content-Type", "application/json");
+    if (!http->Open("POST", url)) {
+        ESP_LOGE(TAG, "无法打开HTTP连接上传状态");
+        return;
+    }
+    ESP_LOGI(TAG, "Upload state data: %s", data.c_str());
+    auto status_code = http->GetStatusCode();
+    if (status_code != 200) {
+        ESP_LOGE(TAG, "上传状态失败, 状态码: %d", status_code);
+    }
+    http->Close();
 }

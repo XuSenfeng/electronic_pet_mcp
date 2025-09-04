@@ -410,7 +410,7 @@ ElectronicPetTimer::~ElectronicPetTimer() {
 void ElectronicPetTimer::OnClockTimer() {
     std::lock_guard<std::mutex> lock(mutex_);
     timer_event_process();
-
+    clock_ticks_++;
     ElectronicPet* pet = ElectronicPet::GetInstance();
     if(pet == nullptr || pet->isGame()){
         return;
@@ -424,13 +424,17 @@ void ElectronicPetTimer::OnClockTimer() {
         }
         state[E_PET_STATE_MONEY] *= (state[E_PET_STATE_IQ] / 20); // 智商越高，钱越多
         pet->change_statue(ElectronicPet::state_time_change_[pet->GetAction()]);
-        clock_ticks_++;
+        
         if(pet->isGame()){
             return;
         }
 
         pet->StateEventDeal();
+        if(clock_ticks_ % 1000 == 0){
+            pet->UploadState();
+        }
     }
+    // ESP_LOGI(TAG, "Clock ticks: %d", clock_ticks_);
 }
 
 
