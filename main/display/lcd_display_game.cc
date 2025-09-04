@@ -57,6 +57,12 @@ void game_button_cb(lv_event_t * e) {
 
 void LcdDisplay::AIPlayGameUI() {
     DisplayLockGuard lock(this);
+
+    if(screen_game_ != nullptr) {
+        lv_obj_del(screen_game_);
+        screen_game_ = nullptr;
+    }
+
     ElectronicPet * pet = ElectronicPet::GetInstance();
     if(pet == nullptr) {
         ESP_LOGE(TAG, "ElectronicPet instance is null");

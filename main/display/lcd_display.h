@@ -6,7 +6,8 @@
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
 #include <font_emoji.h>
-
+#include <string>
+#include <vector>
 #include <atomic>
 
 // Theme color structure
@@ -21,6 +22,15 @@ struct ThemeColors {
     lv_color_t border;
     lv_color_t low_battery;
 };
+
+// 游戏界面结构体
+class LcdDisplay;
+typedef struct {
+    std::string title;
+    void (LcdDisplay::*UIFunc)();
+} GameScreen;
+typedef std::vector<GameScreen> GameScreenList;
+
 #define ITEM_SPACING        15
 #define ITEM_HEIGHT         80
 #define ITEM_WIDTH          (LV_HOR_RES - 2*20)
@@ -69,6 +79,8 @@ typedef struct {
     lv_obj_t* title;
     lv_obj_t* content;
 } HelpCard;
+
+
 class LcdDisplay : public Display {
 protected:
     esp_lcd_panel_io_handle_t panel_io_ = nullptr;
@@ -127,25 +139,10 @@ public:
     void StateItemCreate(lv_obj_t *parent, int i);
     void UpdataUILevel(int level) override;
 
+    GameScreenList game_screens_;
+
 };
 
-// RGB LCD显示器
-class RgbLcdDisplay : public LcdDisplay {
-public:
-    RgbLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                  int width, int height, int offset_x, int offset_y,
-                  bool mirror_x, bool mirror_y, bool swap_xy,
-                  DisplayFonts fonts);
-};
-
-// MIPI LCD显示器
-class MipiLcdDisplay : public LcdDisplay {
-public:
-    MipiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                   int width, int height, int offset_x, int offset_y,
-                   bool mirror_x, bool mirror_y, bool swap_xy,
-                   DisplayFonts fonts);
-};
 
 // // SPI LCD显示器
 class SpiLcdDisplay : public LcdDisplay {
@@ -154,24 +151,6 @@ public:
                   int width, int height, int offset_x, int offset_y,
                   bool mirror_x, bool mirror_y, bool swap_xy,
                   DisplayFonts fonts);
-};
-
-// QSPI LCD显示器
-class QspiLcdDisplay : public LcdDisplay {
-public:
-    QspiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                   int width, int height, int offset_x, int offset_y,
-                   bool mirror_x, bool mirror_y, bool swap_xy,
-                   DisplayFonts fonts);
-};
-
-// MCU8080 LCD显示器
-class Mcu8080LcdDisplay : public LcdDisplay {
-public:
-    Mcu8080LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel,
-                      int width, int height, int offset_x, int offset_y,
-                      bool mirror_x, bool mirror_y, bool swap_xy,
-                      DisplayFonts fonts);
 };
 
 

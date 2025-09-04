@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-09-02 12:17:41
- * @LastEditTime: 2025-09-03 11:22:37
+ * @LastEditTime: 2025-09-04 11:07:34
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_catalogue.cc
  */
  #include "lcd_display.h"
@@ -23,33 +23,43 @@
     int index = (int)lv_event_get_user_data(e);
     auto display = Board::GetInstance().GetDisplay();
     DisplayLockGuard lock(display);
-    switch (index) {
-        case 0:
-            lv_obj_del(display->screen_game_);
-            display->AIPlayGameUI();
-            // 显示新创建的游戏界面
-            if (display->screen_game_ != nullptr) {
-                lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
-            }
-            display->screen_now_ = display->screen_game_;
-            break;
-        case 1:
-            display->MessageUI();
-            // 显示新创建的游戏界面
-            if (display->screen_game_ != nullptr) {
-                lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
-            }
-            display->screen_now_ = display->screen_game_;
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
-        default:
-            break;
+    
+    // 将 Display 指针转换为 LcdDisplay 指针
+    LcdDisplay* lcd_display = static_cast<LcdDisplay*>(display);
+    if (lcd_display && index < lcd_display->game_screens_.size()) {
+        (lcd_display->*(lcd_display->game_screens_[index].UIFunc))();
     }
+    
+    if (display->screen_game_ != nullptr) {
+        lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+    }
+    display->screen_now_ = display->screen_game_;
+    // switch (index) {
+    //     case 0:
+    //         display->AIPlayGameUI();
+    //         // 显示新创建的游戏界面
+    //         if (display->screen_game_ != nullptr) {
+    //             lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+    //         }
+    //         display->screen_now_ = display->screen_game_;
+    //         break;
+    //     case 1:
+    //         display->MessageUI();
+    //         // 显示新创建的游戏界面
+    //         if (display->screen_game_ != nullptr) {
+    //             lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+    //         }
+    //         display->screen_now_ = display->screen_game_;
+    //         break;
+    //     case 2:
+    //         break;
+    //     case 3:
+    //         break;
+    //     case 4:
+    //         break;
+    //     default:
+    //         break;
+    // }
 }
 
  void LcdDisplay::GameSelectUI() {
@@ -91,13 +101,7 @@
     // 不显示滚动条
     lv_obj_set_scrollbar_mode(scroll_cont, LV_SCROLLBAR_MODE_OFF);
 
-    // 创建示例游戏卡片（演示用）
-    const char* demo_games[][1] = {
-        {"AI角色扮演"},
-        {"消息界面"},
-    };
-
-    for (int i = 0; i < sizeof(demo_games) / sizeof(demo_games[0]); i++) {
+    for (int i = 0; i < game_screens_.size(); i++) {
         // 创建游戏卡片容器
         lv_obj_t* game_card = lv_obj_create(scroll_cont);
 #ifdef CONFIG_BOARD_TYPE_GEZIPAI
@@ -133,7 +137,7 @@
 
         lv_obj_t * game_name = lv_label_create(game_card);
         lv_obj_set_style_text_font(game_name, fonts_.text_font, 0);
-        lv_label_set_text(game_name, demo_games[i][0]);
+        lv_label_set_text(game_name, game_screens_[i].title.c_str());
         lv_obj_set_style_text_color(game_name, CUTE_PINK_DARK, 0);
         lv_obj_align(game_name, LV_ALIGN_LEFT_MID, 0, 0);
 

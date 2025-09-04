@@ -29,6 +29,19 @@ const ThemeColors LIGHT_THEME = {
 };
 
 
+GameScreen game_screen_list[] = {
+    {
+        .title = "游戏1",
+        .UIFunc = &LcdDisplay::AIPlayGameUI
+    },
+    
+    {
+        .title = "游戏2",
+        .UIFunc = &LcdDisplay::MessageUI
+    }
+};
+
+
 LV_FONT_DECLARE(font_awesome_30_4);
 
 LcdDisplay::LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel, DisplayFonts fonts, int width, int height)
@@ -99,6 +112,11 @@ SpiLcdDisplay::SpiLcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_h
 
     if (offset_x != 0 || offset_y != 0) {
         lv_display_set_offset(display_, offset_x, offset_y);
+    }
+
+
+    for (const auto& screen : game_screen_list) {
+        game_screens_.push_back(screen);
     }
 
     SetupUI();

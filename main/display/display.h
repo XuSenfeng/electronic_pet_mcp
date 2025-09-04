@@ -14,6 +14,7 @@ struct DisplayFonts {
     const lv_font_t* emoji_font = nullptr;
 };
 
+
 class Display {
 public:
     Display();

@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-08-19 19:33:14
- * @LastEditTime: 2025-09-02 20:39:26
+ * @LastEditTime: 2025-09-04 10:50:11
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_item.cc
  */
 #include "lvgl.h"
