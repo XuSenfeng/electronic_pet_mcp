@@ -69,7 +69,7 @@ ElectronicPet::ElectronicPet(){
         ESP_LOGI(TAG, "Using web server for things");
         ReadWebThings();
     } else {
-        ReadCsvThings();
+        ReadCsv();
     }
     UploadState();
     
@@ -83,7 +83,7 @@ ElectronicPet::~ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet destructor");
 }
 
-void ElectronicPet::ReadCsvThings(){
+void ElectronicPet::ReadCsv(){
     //---------------------
     // food
     //---------------------
@@ -338,19 +338,6 @@ void ElectronicPet::SetState(int state, int value){
     settings.SetInt("state_" + std::to_string(state), value);
 }
 
-std::string ElectronicPet::GetStateDescriptor(){
-    // 遍历state_数组，合成描述符串
-    std::string descriptor = "状态: ";
-    for(int i = 0; i < E_PET_STATE_NUMBER; i++){
-        descriptor += state_[i].name;
-        descriptor += ": ";
-        descriptor += std::to_string(state_[i].value);
-        if(i != E_PET_STATE_NUMBER - 1){
-            descriptor += ", ";
-        }
-    }
-    return descriptor;
-}
 
 
 void ElectronicPet::SetAction(int action){

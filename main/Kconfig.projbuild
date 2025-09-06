@@ -34,18 +34,6 @@ choice BOARD_TYPE
         bool "Gezipai"
 endchoice
 
-choice ESP_S3_LCD_EV_Board_Version_TYPE
-    depends on BOARD_TYPE_ESP_S3_LCD_EV_Board
-    prompt "EV_BOARD Type"
-    default ESP_S3_LCD_EV_Board_1p4
-    help
-        开发板硬件版本型号选择
-    config ESP_S3_LCD_EV_Board_1p4
-        bool "乐鑫ESP32_S3_LCD_EV_Board-MB_V1.4"
-    config ESP_S3_LCD_EV_Board_1p5
-        bool "乐鑫ESP32_S3_LCD_EV_Board-MB_V1.5"
-endchoice
-
 
 config USE_WAKE_WORD_DETECT
     bool "Enable Wake Word Detection"

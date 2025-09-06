@@ -41,30 +41,64 @@ Ota::~Ota() {
 }
 
 bool Ota::HasNewVersion(){
-    // 从http://192.168.2.70:8000/usr/upgrade/ 获取json数据
-    // 解析json数据，获取firmware_version_
-    // 比较firmware_version_和current_version_
-    // 如果firmware_version_大于current_version_，则返回true
-    // 否则返回false
-    // 如果获取失败，则返回false
-    // std::string url = "http://192.168.2.70:8000/usr/upgrade/";
+    // 从服务器获取JSON数据，解析多板型版本信息
+    // 服务器返回格式示例：
+    // {"code": 200, "msg": "success", "data": {"lichuang": {"file": "/uploads/version/xiaozhi_65LqSLx.bin", "version": "0.0.2"}, "XvsenfengAI": {"file": "/uploads/version/xiaozhi_atM1GnO.bin", "version": "0.0.2"}}}
     std::string url = CONFIG_SERVER_BASE_SERVER_URL "/wechatapp/version/";
     auto http = std::unique_ptr<Http>(Board::GetInstance().CreateHttp());
     if (!http->Open("GET", url)) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection");
+        ESP_LOGE(TAG, "无法打开HTTP连接");
         return false;
     }
     std::string data = http->ReadAll();
     http->Close();
+
     cJSON *root = cJSON_Parse(data.c_str());
-    if (root == NULL) {
-        ESP_LOGE(TAG, "Failed to parse JSON response %s", data.c_str());
+    if (root == nullptr) {
+        ESP_LOGE(TAG, "解析JSON失败: %s", data.c_str());
         return false;
     }
-    cJSON *firmware = cJSON_GetObjectItem(root, "version");
-    if (cJSON_IsString(firmware)) {
-        firmware_version_ = firmware->valuestring;
+
+    cJSON *code = cJSON_GetObjectItem(root, "code");
+    if (!cJSON_IsNumber(code) || code->valueint != 200) {
+        ESP_LOGE(TAG, "服务器返回错误code");
+        cJSON_Delete(root);
+        return false;
     }
+
+    cJSON *data_obj = cJSON_GetObjectItem(root, "data");
+    if (!cJSON_IsObject(data_obj)) {
+        ESP_LOGE(TAG, "data字段不存在或不是对象");
+        cJSON_Delete(root);
+        return false;
+    }
+
+    // 根据开发板类型选择对应的版本信息
+    std::string board_type;
+#ifdef CONFIG_BOARD_TYPE_LICHUANG_DEV
+    board_type = "lichuang";
+#elif defined(CONFIG_BOARD_TYPE_GEZIPAI)
+    board_type = "XvsenfengAI";
+#else
+    board_type = "XvsenfengAI"; // 默认
+#endif
+
+    cJSON *board_info = cJSON_GetObjectItem(data_obj, board_type.c_str());
+    if (!cJSON_IsObject(board_info)) {
+        ESP_LOGE(TAG, "未找到对应板型(%s)的版本信息", board_type.c_str());
+        cJSON_Delete(root);
+        return false;
+    }
+
+    cJSON *version_item = cJSON_GetObjectItem(board_info, "version");
+    if (cJSON_IsString(version_item)) {
+        firmware_version_ = version_item->valuestring;
+    } else {
+        ESP_LOGE(TAG, "未找到version字段");
+        cJSON_Delete(root);
+        return false;
+    }
+
     cJSON_Delete(root);
     return IsNewVersionAvailable(current_version_, firmware_version_);
 }
@@ -312,7 +346,7 @@ std::vector<int> Ota::ParseVersion(const std::string& version) {
 bool Ota::IsNewVersionAvailable(const std::string& currentVersion, const std::string& newVersion) {
     std::vector<int> current = ParseVersion(currentVersion);
     std::vector<int> newer = ParseVersion(newVersion);
-    
+    ESP_LOGI(TAG, "Current version: %s, New version: %s", currentVersion.c_str(), newVersion.c_str());
     for (size_t i = 0; i < std::min(current.size(), newer.size()); ++i) {
         if (newer[i] > current[i]) {
             return true;

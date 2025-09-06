@@ -935,7 +935,6 @@ void Application::SetDeviceState(DeviceState state) {
             }
             ResetDecoder();
             backlight->DisplayBrightnessKeep();
-            // ESP_LOGI(TAG, "SetDeviceState: kDeviceStateSpeaking, pet->isGame()=%d", pet->isGame());
             break;
         default:
             // Do nothing
@@ -1049,6 +1048,7 @@ void Application::SendMessage(std::string& message) {
     ESP_LOGI(TAG, "Send message: %s", message.c_str());
     message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
     message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+    message.erase(std::remove(message.begin(), message.end(), '\"'), message.end());
     if (device_state_ == kDeviceStateIdle) {
         ToggleChatState(true);
         Schedule([this, message]() {

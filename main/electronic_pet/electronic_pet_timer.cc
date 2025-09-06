@@ -412,7 +412,7 @@ void ElectronicPetTimer::OnClockTimer() {
     timer_event_process();
     clock_ticks_++;
     ElectronicPet* pet = ElectronicPet::GetInstance();
-    if(pet == nullptr || pet->isGame()){
+    if(pet == nullptr){
         return;
     }
     if(clock_ticks_ % (1000 / CONFIG_FREQUENCE_OF_PET) == 0){
@@ -425,13 +425,13 @@ void ElectronicPetTimer::OnClockTimer() {
         state[E_PET_STATE_MONEY] *= (state[E_PET_STATE_IQ] / 20); // 智商越高，钱越多
         pet->change_statue(ElectronicPet::state_time_change_[pet->GetAction()]);
         
-        if(pet->isGame()){
-            return;
-        }
 
-        pet->StateEventDeal();
         if(clock_ticks_ % 1000 == 0){
             pet->UploadState();
+        }
+
+        if(pet->isGame() == false){
+            pet->StateEventDeal();
         }
     }
     // ESP_LOGI(TAG, "Clock ticks: %d", clock_ticks_);
