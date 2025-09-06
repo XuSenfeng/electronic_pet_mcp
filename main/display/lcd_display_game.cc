@@ -249,7 +249,6 @@ void game_back_button_cb(lv_event_t * e) {
         lv_obj_del(display->history_cont);
     }
     ElectronicPet * pet = ElectronicPet::GetInstance();
-    pet->setGame(0);
 
     display->history_cont = nullptr;
     lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
@@ -269,7 +268,6 @@ StatusItemLv_obj_t status_items[E_PET_GAME_STATE_NUMBER];
 void LcdDisplay::AiStoryUI() {
     DisplayLockGuard lock(this);
     ElectronicPet * pet = ElectronicPet::GetInstance();
-    pet->setGame(1);
     /* 可爱风格游戏面板 */
     history_cont = lv_obj_create(lv_scr_act());
     lv_obj_set_size(history_cont, LV_HOR_RES, LV_VER_RES);
