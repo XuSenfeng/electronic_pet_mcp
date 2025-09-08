@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-09-02 12:17:41
- * @LastEditTime: 2025-09-04 11:07:34
+ * @LastEditTime: 2025-09-07 19:41:51
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_catalogue.cc
  */
  #include "lcd_display.h"
@@ -34,32 +34,6 @@
         lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
     }
     display->screen_now_ = display->screen_game_;
-    // switch (index) {
-    //     case 0:
-    //         display->AIPlayGameUI();
-    //         // 显示新创建的游戏界面
-    //         if (display->screen_game_ != nullptr) {
-    //             lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
-    //         }
-    //         display->screen_now_ = display->screen_game_;
-    //         break;
-    //     case 1:
-    //         display->MessageUI();
-    //         // 显示新创建的游戏界面
-    //         if (display->screen_game_ != nullptr) {
-    //             lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
-    //         }
-    //         display->screen_now_ = display->screen_game_;
-    //         break;
-    //     case 2:
-    //         break;
-    //     case 3:
-    //         break;
-    //     case 4:
-    //         break;
-    //     default:
-    //         break;
-    // }
 }
 
  void LcdDisplay::GameSelectUI() {
@@ -78,7 +52,7 @@
     lv_obj_set_style_text_font(title_label, fonts_.text_font, 0);
     lv_label_set_text(title_label, "游戏选择");
     lv_obj_set_style_text_color(title_label, CUTE_PINK_PRIMARY, 0);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 8);
 #else
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 15);
@@ -86,7 +60,7 @@
 
     // 创建滚动容器来容纳游戏列表
     lv_obj_t* scroll_cont = lv_obj_create(screen_game_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     lv_obj_set_size(scroll_cont, LV_HOR_RES - 18, LV_VER_RES - 80);
     lv_obj_align(scroll_cont, LV_ALIGN_TOP_MID, 0, 50);
 #else
@@ -104,7 +78,7 @@
     for (int i = 0; i < game_screens_.size(); i++) {
         // 创建游戏卡片容器
         lv_obj_t* game_card = lv_obj_create(scroll_cont);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
         lv_obj_set_size(game_card, LV_HOR_RES - 44, 70);
 #else
         lv_obj_set_size(game_card, LV_HOR_RES - 50, 80);
@@ -123,7 +97,7 @@
 
         // 左侧选择按钮
         lv_obj_t* select_btn = lv_btn_create(game_card);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
         lv_obj_set_size(select_btn, 35, 35);
 #else
         lv_obj_set_size(select_btn, 40, 40);
@@ -149,7 +123,7 @@
     lv_label_set_text(hint_label, "点击游戏卡片开始冒险吧！");
     lv_obj_set_style_text_color(hint_label, CUTE_PINK_LIGHT, 0);
     lv_obj_set_style_text_font(hint_label, fonts_.text_font, 0);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     lv_obj_align(hint_label, LV_ALIGN_BOTTOM_MID, 0, -15);
 #else
     lv_obj_align(hint_label, LV_ALIGN_BOTTOM_MID, 0, -20);

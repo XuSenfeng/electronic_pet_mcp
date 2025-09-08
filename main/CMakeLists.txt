@@ -50,7 +50,7 @@ list(APPEND SOURCES ${PET_SOURCES})
 
 
 # 根据 BOARD_TYPE 配置添加对应的板级文件
-if(CONFIG_BOARD_TYPE_GEZIPAI)
+if(CONFIG_BOARD_TYPE_XVSENFAI)
     set(BOARD_TYPE "gezipai")
 elseif(CONFIG_BOARD_TYPE_LICHUANG_DEV)
     set(BOARD_TYPE "lichuang-dev")

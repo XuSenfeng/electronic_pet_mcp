@@ -31,12 +31,12 @@ const ThemeColors LIGHT_THEME = {
 
 GameScreen game_screen_list[] = {
     {
-        .title = "游戏1",
+        .title = "角色扮演",
         .UIFunc = &LcdDisplay::AIPlayGameUI
     },
     
     {
-        .title = "游戏2",
+        .title = "对话记录",
         .UIFunc = &LcdDisplay::MessageUI
     }
 };

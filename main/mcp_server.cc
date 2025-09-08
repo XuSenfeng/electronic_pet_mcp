@@ -135,7 +135,7 @@ void McpServer::AddCommonTools() {
             });
     }
 
-#ifndef CONFIG_BOARD_TYPE_GEZIPAI
+#ifndef CONFIG_BOARD_TYPE_XVSENFAI
     AddTool("self.camera.take_photo",
         "Take a photo and explain it. Use this tool after the user asks you to see something.\n"
         "Args:\n"
@@ -314,15 +314,6 @@ void McpServer::AddCommonTools() {
             return "{\"success\": true, \"task\": \"" + task + "\"}";
         });
 
-    AddTool("self.pet.GetUpdateTask",
-        "Upgrade task, call this function to trigger the upgrade event when an upgrade is currently available.\n"
-        "This function will return a string that describes the upgrade task, such as \"You need to answer 3 questions correctly to upgrade\".\n",
-        PropertyList(),
-        [](const PropertyList& properties) -> ReturnValue {
-            ElectronicPet* pet = ElectronicPet::GetInstance();
-            std::string task = pet->GetUpdateTask();
-            return "{\"success\": true, \"task\": \"" + task + "\"}";
-        });
 
     AddTool("self.pet.Upgrade",
         "After the user completes the upgrade task, call this function to trigger the upgrade event.\n"

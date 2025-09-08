@@ -25,13 +25,13 @@ endchoice
 
 choice BOARD_TYPE
     prompt "Board Type"
-    default BOARD_TYPE_GEZIPAI
+    default BOARD_TYPE_XVSENFAI
     help
         Board type. 开发板类型
     config BOARD_TYPE_LICHUANG_DEV
         bool "立创·实战派ESP32-S3开发板"
-    config BOARD_TYPE_GEZIPAI
-        bool "Gezipai"
+    config BOARD_TYPE_XVSENFAI
+        bool "XvSenfengAI"
 endchoice
 
 

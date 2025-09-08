@@ -95,9 +95,9 @@ ElectronicPetTimer::ElectronicPetTimer(bool from_web, const char* boardID) : fro
     esp_timer_create(&clock_timer_args, &electromic_prt_timer_);
     esp_timer_start_periodic(electromic_prt_timer_, 1000000); // 1 second
     if(from_web_){
-        timer_read_web_timer();
+        TimerReadWebTimer();
     }else{
-        timer_read_csv_timer();
+        TimerReadCsvTimer();
     }
 }
 
@@ -126,6 +126,7 @@ int get_month_days(int year, int month) {
     return days[month];
 }
 
+// 计算下一个触发时间以及重复时间
 void calculate_next_trigger(
     int tm_sec, int tm_min, int tm_hour,
     int re_mday, int re_mon, int re_year,
@@ -133,15 +134,15 @@ void calculate_next_trigger(
     
     time_t now;
     time(&now);
-    struct tm* current = localtime(&now);
+    struct tm* current = localtime(&now); // 当前时间
 
-    struct tm next = *current;
+    struct tm next = *current; // 下一个时间
 
     // 初始化周期参数
-    long interval = 1;
-    int has_periodic = 0;
+    long interval = 1; // 周期时间
+    int has_periodic = 0; // 是否周期
 
-    // 修正后的宏定义：增加参数分离字段名和变量名
+    // 处理时间字段
     #define PROCESS_FIELD(field_suffix, var, max, unit_sec) \
         if (!has_periodic &&  var < 0) { \
             interval = lcm(interval, labs(var) * (unit_sec)); \
@@ -213,7 +214,7 @@ void calculate_next_trigger(
 
     if (!has_periodic &&  re_year < 0) { // 年周期处理
         int year = next.tm_year + 1900;
-        interval = lcm(interval, labs(re_year) * (is_leap_year(year) ? 366 : 365) * 86400L); // 365.25天
+        interval = lcm(interval, labs(re_year) * (is_leap_year(year) ? 366 : 365) * 86400L);
         if(mktime(&next) < now) {
             next.tm_year += labs(re_year);
         }
@@ -256,21 +257,18 @@ void calculate_next_trigger(
 /// @param csv_info 获取的数据
 /// @param delta_sec 返回参数, 第一个触发时间
 /// @param interval_sec 返回参数, 周期时间
-void ElectronicPetTimer::deal_one_csv_message(timer_info_t *csv_info, long *delta_sec, long *interval_sec){
+void ElectronicPetTimer::CalculationNextAndRepeat(timer_info_t *csv_info, long *delta_sec, long *interval_sec){
     calculate_next_trigger(
         csv_info->tm_sec, csv_info->tm_min, csv_info->tm_hour,
         csv_info->re_mday, csv_info->re_mon, csv_info->re_year,
         csv_info->re_wday, delta_sec, interval_sec);
-    if(csv_info->random_l){
-        *delta_sec *= (rand() % (csv_info->random_h - csv_info->random_l + 1)) + csv_info->random_l;
-    }
     ESP_LOGI(TAG, "Delta sec: %ld, Interval sec: %ld", *delta_sec, *interval_sec);
 }
 
-bool ElectronicPetTimer::deal_timer_info(timer_info_t *timer_info){
+bool ElectronicPetTimer::DealTimerInfo(timer_info_t *timer_info){
     long delta_sec = 0;
     long interval_sec = 0;
-    deal_one_csv_message(timer_info, &delta_sec, &interval_sec);
+    CalculationNextAndRepeat(timer_info, &delta_sec, &interval_sec);
     if(delta_sec <= 0){
         ESP_LOGE(TAG, "Delta sec is less than 0");
         return false;
@@ -283,17 +281,17 @@ bool ElectronicPetTimer::deal_timer_info(timer_info_t *timer_info){
     strcpy(message, timer_info->message);
     if(timer_info->function_id == 0){
         // 设置定时器事件
-        timer_add_timer_event_repeat(
+        TimerAddTimerEventRepeat(
             time(nullptr) + delta_sec, E_PET_TIMER_MESSAGE, 
             NULL, 
-            (void*)message, interval_sec);
+            (void*)message, interval_sec, timer_info->random_l, timer_info->random_h);
     }else{
         // 设置定时器事件
         ESP_LOGI(TAG, "Function ID: %d", timer_info->function_id);
-        timer_add_timer_event_repeat(
+        TimerAddTimerEventRepeat(
             time(nullptr) + delta_sec, E_PET_TIMER_FUNCTION, 
             (callback_f)callback_catalogue[timer_info->function_id - 1].callback, 
-            (void*)callback_catalogue[timer_info->function_id - 1].arg, interval_sec);
+            (void*)callback_catalogue[timer_info->function_id - 1].arg, interval_sec, timer_info->random_l, timer_info->random_h);
     }
     ESP_LOGI(TAG, "Timer event added: %s, delta_sec: %ld, interval_sec: %ld", 
              timer_info->message, delta_sec, interval_sec);
@@ -302,7 +300,7 @@ bool ElectronicPetTimer::deal_timer_info(timer_info_t *timer_info){
 
 
 /// @brief 读取定时器配置文件
-void ElectronicPetTimer::timer_read_csv_timer(){
+void ElectronicPetTimer::TimerReadCsvTimer(){
     const char *file_hello = MOUNT_POINT"/electronic_pet.csv";
     ESP_LOGI(TAG, "Reading file: %s", file_hello);
     // 打开文件
@@ -321,14 +319,14 @@ void ElectronicPetTimer::timer_read_csv_timer(){
             &csv_info.re_wday, &csv_info.random_l, &csv_info.random_h,
             &csv_info.function_id, csv_info.message);
         if (ret == 11) {
-            deal_timer_info(&csv_info);
+            DealTimerInfo(&csv_info);
         } else {
             ESP_LOGE(TAG, "Failed to parse line: %s", line);
         }
     }
 }
 
-void ElectronicPetTimer::timer_read_web_timer(){
+void ElectronicPetTimer::TimerReadWebTimer(){
     // 读取web定时器
     // 读取web定时器
         // 使用GET请求获取游戏列表信息
@@ -357,40 +355,40 @@ void ElectronicPetTimer::timer_read_web_timer(){
         int item_count = cJSON_GetArraySize(prompts_data);
         ESP_LOGI(TAG, "Found %d timers in JSON", item_count);
         for (int i = 0; i < item_count; i++) {
-        // 解析每一项日程数据，并转为timer_info_t结构体，调用deal_timer_info
-        cJSON *item = cJSON_GetArrayItem(prompts_data, i);
-        if (!cJSON_IsObject(item)) continue;
-        timer_info_t csv_info;
-        memset(&csv_info, 0, sizeof(timer_info_t));
-        cJSON *tm_sec = cJSON_GetObjectItem(item, "tm_sec");
-        cJSON *tm_min = cJSON_GetObjectItem(item, "tm_min");
-        cJSON *tm_hour = cJSON_GetObjectItem(item, "tm_hour");
-        cJSON *re_mday = cJSON_GetObjectItem(item, "re_mday");
-        cJSON *re_mon = cJSON_GetObjectItem(item, "re_mon");
-        cJSON *re_year = cJSON_GetObjectItem(item, "re_year");
-        cJSON *re_wday = cJSON_GetObjectItem(item, "re_wday");
-        cJSON *random_l = cJSON_GetObjectItem(item, "random_l");
-        cJSON *random_h = cJSON_GetObjectItem(item, "random_h");
-        cJSON *function_id = cJSON_GetObjectItem(item, "function_id");
-        cJSON *message = cJSON_GetObjectItem(item, "message");
+            // 解析每一项日程数据，并转为timer_info_t结构体，调用deal_timer_info
+            cJSON *item = cJSON_GetArrayItem(prompts_data, i);
+            if (!cJSON_IsObject(item)) continue;
+            timer_info_t csv_info;
+            memset(&csv_info, 0, sizeof(timer_info_t));
+            cJSON *tm_sec = cJSON_GetObjectItem(item, "tm_sec");
+            cJSON *tm_min = cJSON_GetObjectItem(item, "tm_min");
+            cJSON *tm_hour = cJSON_GetObjectItem(item, "tm_hour");
+            cJSON *re_mday = cJSON_GetObjectItem(item, "re_mday");
+            cJSON *re_mon = cJSON_GetObjectItem(item, "re_mon");
+            cJSON *re_year = cJSON_GetObjectItem(item, "re_year");
+            cJSON *re_wday = cJSON_GetObjectItem(item, "re_wday");
+            cJSON *random_l = cJSON_GetObjectItem(item, "random_l");
+            cJSON *random_h = cJSON_GetObjectItem(item, "random_h");
+            cJSON *function_id = cJSON_GetObjectItem(item, "function_id");
+            cJSON *message = cJSON_GetObjectItem(item, "message");
 
-        if (tm_sec && cJSON_IsNumber(tm_sec)) csv_info.tm_sec = tm_sec->valueint;
-        if (tm_min && cJSON_IsNumber(tm_min)) csv_info.tm_min = tm_min->valueint;
-        if (tm_hour && cJSON_IsNumber(tm_hour)) csv_info.tm_hour = tm_hour->valueint;
-        if (re_mday && cJSON_IsNumber(re_mday)) csv_info.re_mday = re_mday->valueint;
-        if (re_mon && cJSON_IsNumber(re_mon)) csv_info.re_mon = re_mon->valueint;
-        if (re_year && cJSON_IsNumber(re_year)) csv_info.re_year = re_year->valueint;
-        if (re_wday && cJSON_IsNumber(re_wday)) csv_info.re_wday = re_wday->valueint;
-        if (random_l && cJSON_IsNumber(random_l)) csv_info.random_l = random_l->valueint;
-        if (random_h && cJSON_IsNumber(random_h)) csv_info.random_h = random_h->valueint;
-        if (function_id && cJSON_IsNumber(function_id)) csv_info.function_id = function_id->valueint;
-        if (message && cJSON_IsString(message)) {
-            strncpy(csv_info.message, message->valuestring, sizeof(csv_info.message) - 1);
-            csv_info.message[sizeof(csv_info.message) - 1] = '\0';
-        } else {
-            csv_info.message[0] = '\0';
-        }
-        deal_timer_info(&csv_info);
+            if (tm_sec && cJSON_IsNumber(tm_sec)) csv_info.tm_sec = tm_sec->valueint;
+            if (tm_min && cJSON_IsNumber(tm_min)) csv_info.tm_min = tm_min->valueint;
+            if (tm_hour && cJSON_IsNumber(tm_hour)) csv_info.tm_hour = tm_hour->valueint;
+            if (re_mday && cJSON_IsNumber(re_mday)) csv_info.re_mday = re_mday->valueint;
+            if (re_mon && cJSON_IsNumber(re_mon)) csv_info.re_mon = re_mon->valueint;
+            if (re_year && cJSON_IsNumber(re_year)) csv_info.re_year = re_year->valueint;
+            if (re_wday && cJSON_IsNumber(re_wday)) csv_info.re_wday = re_wday->valueint;
+            if (random_l && cJSON_IsNumber(random_l)) csv_info.random_l = random_l->valueint;
+            if (random_h && cJSON_IsNumber(random_h)) csv_info.random_h = random_h->valueint;
+            if (function_id && cJSON_IsNumber(function_id)) csv_info.function_id = function_id->valueint;
+            if (message && cJSON_IsString(message)) {
+                strncpy(csv_info.message, message->valuestring, sizeof(csv_info.message) - 1);
+                csv_info.message[sizeof(csv_info.message) - 1] = '\0';
+            } else {
+                csv_info.message[0] = '\0';
+            }
+            DealTimerInfo(&csv_info);
         }
         
         // 清理资源
@@ -409,7 +407,7 @@ ElectronicPetTimer::~ElectronicPetTimer() {
 
 void ElectronicPetTimer::OnClockTimer() {
     std::lock_guard<std::mutex> lock(mutex_);
-    timer_event_process();
+    TimerEventProcess();
     clock_ticks_++;
     ElectronicPet* pet = ElectronicPet::GetInstance();
     if(pet == nullptr){
@@ -439,7 +437,7 @@ void ElectronicPetTimer::OnClockTimer() {
 
 
 
-void ElectronicPetTimer::timer_event_sort(){
+void ElectronicPetTimer::TimerEventSort(){
     std::sort(e_pet_timer_events.begin(), e_pet_timer_events.end(), [](const e_pet_timer_event_t& a, const e_pet_timer_event_t& b) {
         return a.trigger_time < b.trigger_time;
     });
@@ -449,7 +447,7 @@ void ElectronicPetTimer::timer_event_sort(){
 /// @param type 设置的事件类型
 /// @param callback 回调函数
 /// @param arg 参数(MESAGEE类型时，传入消息字符串的地址, FUNCTION类型时，传入函数的参数)
-void ElectronicPetTimer::timer_add_timer_event_relative(
+void ElectronicPetTimer::TimerAddTimerEventRelative(
     int seconds, 
     e_pet_timer_type_e type, 
     void (*callback)(void*), 
@@ -473,7 +471,7 @@ void ElectronicPetTimer::timer_add_timer_event_relative(
         event.repeat_time = 0;
     }
     e_pet_timer_events.push_back(event);
-    timer_event_sort();
+    TimerEventSort();
     ESP_LOGI(TAG, "Added timer event: %lld, type: %d", event.trigger_time, type);
 }
 
@@ -482,7 +480,7 @@ void ElectronicPetTimer::timer_add_timer_event_relative(
 /// @param type 
 /// @param callback 
 /// @param arg 
-void ElectronicPetTimer::timer_add_timer_event_absolute(
+void ElectronicPetTimer::TimerAddTimerEventAbsolute(
     time_t trigger_time, 
     e_pet_timer_type_e type, 
     void (*callback)(void*), 
@@ -506,15 +504,17 @@ void ElectronicPetTimer::timer_add_timer_event_absolute(
         event.repeat_time = 0;
     }
     e_pet_timer_events.push_back(event);
-    timer_event_sort();
+    TimerEventSort();
 }
 
-void ElectronicPetTimer::timer_add_timer_event_repeat(
+void ElectronicPetTimer::TimerAddTimerEventRepeat(
     time_t trigger_time, 
     e_pet_timer_type_e type, 
     void (*callback)(void*), 
     void* arg,
-    int repeat_time
+    int repeat_time,
+    int random_l,
+    int random_h
 ){
     std::lock_guard<std::mutex> lock(mutex_);
     e_pet_timer_event_t event;
@@ -527,11 +527,13 @@ void ElectronicPetTimer::timer_add_timer_event_repeat(
         event.message = (char*)arg;
     }
     event.repeat_time = repeat_time;
+    event.random_l = random_l;
+    event.random_h = random_h;
     e_pet_timer_events.push_back(event);
-    timer_event_sort();
+    TimerEventSort();
 }
 
-void ElectronicPetTimer::timer_event_process(){
+void ElectronicPetTimer::TimerEventProcess(){
     time_t current_time = time(nullptr);
     for (auto it = e_pet_timer_events.begin(); it != e_pet_timer_events.end();) {
         if (it->trigger_time <= current_time) {
@@ -546,7 +548,11 @@ void ElectronicPetTimer::timer_event_process(){
             }
             
             if(it->repeat_time > 0){
-                it->trigger_time += it->repeat_time;
+                if(it->random_l){
+                    it->trigger_time += ((rand() % (it->random_h - it->random_l + 1)) + it->random_l) * it->repeat_time;
+                }else{
+                    it->trigger_time += it->repeat_time;
+                }
             }else{
                 if(it->type == E_PET_TIMER_FUNCTION){
                     // free(it->function.arg); // 释放函数参数
@@ -560,7 +566,7 @@ void ElectronicPetTimer::timer_event_process(){
             break;
         }
     }
-    timer_event_sort();
+    TimerEventSort();
 }
 
 

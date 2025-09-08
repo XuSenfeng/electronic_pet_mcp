@@ -73,7 +73,7 @@ void LcdDisplay::MessageUI()
     lv_obj_t* main_cont = lv_obj_create(screen_game_);
     lv_obj_set_size(main_cont, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(main_cont, LV_FLEX_FLOW_COLUMN);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：减少边框，最大化内容区域
     lv_obj_set_style_pad_all(main_cont, CONTAINER_PADDING_SMALL, 0);
 #else
@@ -140,7 +140,7 @@ void LcdDisplay::MessageUI()
 
     // 创建消息列表滚动容器
     lv_obj_t* scroll_cont = lv_obj_create(main_cont);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整滚动容器大小
     lv_obj_set_size(scroll_cont, LV_PCT(100), LV_PCT(85));
 #else
@@ -179,7 +179,7 @@ void LcdDisplay::MessageUI()
                 
                 // 创建消息卡片容器
                 lv_obj_t* message_card = lv_obj_create(scroll_cont);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
                 lv_obj_set_size(message_card, LV_HOR_RES - 30, 50);
 #else
                 lv_obj_set_size(message_card, LV_HOR_RES - 30, 60);

@@ -557,7 +557,7 @@ void ElectronicPet::StateEventDeal(){
         ESP_LOGI(TAG, "Hunger event triggered");
         // 发送消息给小智
         auto &app = Application::GetInstance();
-        std::string message = "[你当前状态: 喵喵肚肚, 饿了要吃东西]";
+        std::string message = "[系统提示: 你当前状态, 肚子饿了, 需要吃东西]";
         app.SendMessage(message);
     }else if(GetState(E_PET_STATE_HAPPINESS) < 30 && 
             !(GetAction() == E_PET_ACTION_PLAY || GetAction() == E_PET_ACTION_PLAY_MUSIC ||
@@ -567,14 +567,14 @@ void ElectronicPet::StateEventDeal(){
         ESP_LOGI(TAG, "Happiness event triggered");
         // 发送消息给小智
         auto &app = Application::GetInstance();
-        std::string message = "[你当前状态: 喵喵不开心, 希望主人陪我玩耍]";
+        std::string message = "[系统提示: 你当前状态, 不开心, 希望主人陪我玩耍]";
         app.SendMessage(message);
     }else if(GetState(E_PET_STATE_VIGIR) == 0 && GetAction() != E_PET_ACTION_SLEEP){
         // 触发精力事件
         ESP_LOGI(TAG, "Vigour event triggered");
         // 发送消息给小智
         auto &app = Application::GetInstance();
-        std::string message = "[你当前状态: 喵喵累晕倒了...]";
+        std::string message = "[系统提示: 你当前状态, 累晕倒了...]";
         app.SendMessage(message);
         SetAction(E_PET_ACTION_SLEEP);
     }else if(GetState(E_PET_STATE_VIGIR) < 30 && !(GetAction() == E_PET_ACTION_SLEEP)){
@@ -582,7 +582,7 @@ void ElectronicPet::StateEventDeal(){
         ESP_LOGI(TAG, "Vigour event triggered");
         // 发送消息给小智
         auto &app = Application::GetInstance();
-        std::string message = "[你当前状态: 喵喵要累死了, 呜呜呜]";
+        std::string message = "[系统提示: 你当前状态, 要累死了, 呜呜呜]";
         app.SendMessage(message);
     }
 }

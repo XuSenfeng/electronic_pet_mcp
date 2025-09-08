@@ -38,7 +38,7 @@ typedef std::vector<GameScreen> GameScreenList;
 #define PROGRESS_WIDTH      150
 
 // 屏幕尺寸相关的布局常量
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕的布局参数
     #define ITEM_SPACING_SMALL     12
     #define ITEM_HEIGHT_SMALL      70
@@ -95,7 +95,7 @@ protected:
     lv_obj_t* action_label_ = nullptr;
     lv_obj_t* main_btn;
     lv_obj_t* desc_label;
-    HelpCard cards[9]; // 根据实际版块数量调整
+    HelpCard *cards = nullptr; // 根据实际版块数量调整
 
     
     DisplayFonts fonts_;

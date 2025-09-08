@@ -12,21 +12,27 @@
 #include <vector>
 #include <mutex>
 #include "electronic_config.h"
+
+// 定时器事件类型
 typedef enum {
     E_PET_TIMER_MESSAGE = 0, // 消息
     E_PET_TIMER_FUNCTION, // 函数
 }e_pet_timer_type_e;
 
 
+// 定时器事件回调函数
 typedef struct {  
     void (*callback)(void*);  
     void* arg;  
 }e_pet_timer_function;
 
+// 定时器事件
 typedef struct{
-    time_t trigger_time;
-    e_pet_timer_type_e type;
-    int repeat_time;
+    time_t trigger_time; // 触发时间
+    e_pet_timer_type_e type; // 事件类型
+    int repeat_time; // 重复时间
+    int random_l; // 随机时间
+    int random_h; // 随机时间
     union {
         e_pet_timer_function function;
         char *message;
@@ -48,28 +54,32 @@ typedef struct{
 }timer_info_t;
 
 
-
+// 定时器类
 class ElectronicPetTimer {
 private:
     int clock_ticks_;  // 时钟
-    std::mutex mutex_;
-    esp_timer_handle_t electromic_prt_timer_ = nullptr;
+    std::mutex mutex_; // 互斥锁
+    esp_timer_handle_t electromic_prt_timer_ = nullptr; // 定时器句柄
     std::vector<e_pet_timer_event_t> e_pet_timer_events; // 处理事件列表
-    bool from_web_ = false;
-    std::string boardID;
+    bool from_web_ = false; // 是否从web读取
+    std::string boardID; // 板子ID
 public:
     ElectronicPetTimer(bool from_web = false, const char* boardID = "");
     ~ElectronicPetTimer();
-    void timer_read_csv_timer();
-    void OnClockTimer();
-    void timer_event_sort();
-    void timer_add_timer_event_relative(int seconds, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat);
-    void timer_add_timer_event_absolute(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat);
-    void timer_add_timer_event_repeat(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, int repeat_time);
-    void deal_one_csv_message(timer_info_t *csv_info, long *delta_sec, long *interval_sec);
-    void timer_event_process();
-    bool deal_timer_info(timer_info_t *timer_info);
-    void timer_read_web_timer();
+    
+    void OnClockTimer(); // 时钟定时器
+    void TimerEventSort(); // 定时器事件排序
+    
+    void TimerAddTimerEventRelative(int seconds, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat);
+    void TimerAddTimerEventAbsolute(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, bool repeat); // 添加定时器事件绝对时间
+    void TimerAddTimerEventRepeat(time_t trigger_time, e_pet_timer_type_e type, void (*callback)(void*), void* arg, int repeat_time, int random_l, int random_h); // 添加定时器事件重复时间
+
+    void TimerEventProcess();  // 定时器事件处理
+
+    void TimerReadWebTimer(); // 读取web定时器
+    void TimerReadCsvTimer(); // 读取csv定时器
+    bool DealTimerInfo(timer_info_t *timer_info); // 添加一个定时器事件
+    void CalculationNextAndRepeat(timer_info_t *csv_info, long *delta_sec, long *interval_sec); // 计算下一个触发时间以及重复时间
 };
 
 

@@ -19,7 +19,7 @@ void LcdDisplay::StateUI(){
     lv_obj_t* main_cont = lv_obj_create(screen_state_);
     lv_obj_set_size(main_cont, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_flow(main_cont, LV_FLEX_FLOW_COLUMN);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：进一步减少边框，最大化内容区域
     lv_obj_set_style_pad_all(main_cont, CONTAINER_PADDING_SMALL, 0);
 #else
@@ -32,7 +32,7 @@ void LcdDisplay::StateUI(){
 
     // 设置可爱风格状态栏
     lv_obj_t * action_bar_ = lv_obj_create(main_cont);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整状态栏高度
     lv_obj_set_size(action_bar_, LV_PCT(100), 40);
 #else
@@ -65,7 +65,7 @@ void LcdDisplay::StateUI(){
 void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     // 可爱风格状态项容器
     lv_obj_t* item = lv_obj_create(parent);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：使用较小的状态项高度
     lv_obj_set_size(item, LV_PCT(100), ITEM_HEIGHT_SMALL);
 #else
@@ -89,7 +89,7 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     lv_obj_set_style_text_color(icon, CUTE_PINK_PRIMARY, 0);
     // 增大图标大小 - 使用字体大小设置
     // lv_obj_set_text_font(icon, ICON_FONT, 0);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整图标位置
     lv_obj_align(icon, LV_ALIGN_LEFT_MID, 15, 0);
 #else
@@ -102,7 +102,7 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     // lv_label_set_text_fmt(name, "%s: %d%%", pet->GetStateName(i), pet->GetState(i));
     lv_obj_set_style_text_font(name, fonts_.text_font, 0);
     lv_obj_set_style_text_color(name, CUTE_PINK_DARK, 0);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整文字位置
     lv_obj_align(name, LV_ALIGN_LEFT_MID, 50, -12);
 #else
@@ -117,7 +117,7 @@ void LcdDisplay::StateItemCreate(lv_obj_t *parent, int i){
     else
         lv_bar_set_range(bar, 0, 5000);
     // lv_bar_set_value(bar, pet->GetState(i), LV_ANIM_ON);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：使用较小的进度条宽度
     lv_obj_set_size(bar, PROGRESS_WIDTH_SMALL, 18);
     lv_obj_align(bar, LV_ALIGN_LEFT_MID, 50, 15);

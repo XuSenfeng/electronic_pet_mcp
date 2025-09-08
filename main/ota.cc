@@ -77,7 +77,7 @@ bool Ota::HasNewVersion(){
     std::string board_type;
 #ifdef CONFIG_BOARD_TYPE_LICHUANG_DEV
     board_type = "lichuang";
-#elif defined(CONFIG_BOARD_TYPE_GEZIPAI)
+#elif defined(CONFIG_BOARD_TYPE_XVSENFAI)
     board_type = "XvsenfengAI";
 #else
     board_type = "XvsenfengAI"; // 默认

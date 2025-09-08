@@ -142,7 +142,7 @@ void LcdDisplay::AIPlayGameUI() {
     lv_obj_set_style_text_font(name_label, fonts_.text_font, 0);
     lv_label_set_text(name_label, pet->games_[current_game].name.c_str());
     lv_obj_set_style_text_color(name_label, CUTE_PINK_PRIMARY, 0);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：减少顶部边距
     lv_obj_align(name_label, LV_ALIGN_TOP_MID, 0, 5);
 #else
@@ -152,7 +152,7 @@ void LcdDisplay::AIPlayGameUI() {
 
     /* 可爱风格主游戏按钮 */
     main_btn = lv_button_create(screen_game_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整按钮尺寸
     lv_obj_set_size(main_btn, 80, 80);
 #else
@@ -207,7 +207,7 @@ void LcdDisplay::AIPlayGameUI() {
 
     /* 可爱风格游戏描述区域 */
     desc_label = lv_label_create(screen_game_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整描述区域尺寸
     lv_obj_set_size(desc_label, LV_PCT(85), 70);
 #else
@@ -314,7 +314,7 @@ void LcdDisplay::AiStoryUI() {
     lv_obj_set_style_text_color(status_title, CUTE_PINK_PRIMARY, 0);
     lv_obj_align(status_title, LV_ALIGN_TOP_MID, 0, -10);
 
-#ifndef CONFIG_BOARD_TYPE_GEZIPAI
+#ifndef CONFIG_BOARD_TYPE_XVSENFAI
     lv_obj_t* back_button = lv_btn_create(history_cont);
     lv_obj_set_size(back_button, 40, 25);
     lv_obj_set_style_radius(back_button, 12, 0);

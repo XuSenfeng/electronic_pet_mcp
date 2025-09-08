@@ -28,7 +28,7 @@ void LcdDisplay::ItemUI() {
         lv_obj_t* title = lv_label_create(screen_things_);
         lv_obj_set_style_text_font(title, fonts_.text_font, 0);
         lv_label_set_text(title, "宠物商店");
-    #ifdef CONFIG_BOARD_TYPE_GEZIPAI
+    #ifdef CONFIG_BOARD_TYPE_XVSENFAI
         lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 5);
     #else
         lv_obj_align(title, LV_ALIGN_TOP_MID, 0, TITLE_OFFSET_SMALL);
@@ -64,7 +64,7 @@ void LcdDisplay::ItemUI() {
     lv_obj_t* title = lv_label_create(screen_things_);
     lv_obj_set_style_text_font(title, fonts_.text_font, 0);
     lv_label_set_text(title, "宠物商店");
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：调整标题位置，确保完全可见
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 5);
 #else
@@ -75,7 +75,7 @@ void LcdDisplay::ItemUI() {
     
     // 可爱风格物品列表容器
     list_item_ = lv_obj_create(screen_things_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：减少边框，最大化内容区域
     lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
     lv_obj_set_style_pad_all(list_item_, 8, 0);
@@ -106,7 +106,7 @@ void LcdDisplay::UpdataUILevel(int level){
         DisplayLockGuard lock(this);
         lv_obj_del(list_item_); // 删除旧的物品列表容器
         list_item_ = lv_obj_create(screen_things_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
         lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
         lv_obj_set_style_pad_all(list_item_, 6, 0);
 #else
@@ -125,7 +125,7 @@ void LcdDisplay::UpdataUILevel(int level){
     lv_obj_del(list_item_); // 删除旧的物品列表容器
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：减少边框，最大化内容区域
     lv_obj_set_size(list_item_, LV_PCT(98), LV_PCT(88));
     lv_obj_set_style_pad_all(list_item_, 6, 0);
@@ -363,7 +363,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_shadow_color(buy_btn, CUTE_GREEN, 0);
     lv_obj_set_style_shadow_opa(buy_btn, 120, 0);
     lv_obj_t* buy_label = lv_label_create(buy_btn);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：使用较小的字体，确保按钮文字完整显示
     lv_obj_set_style_text_font(buy_label, fonts_.text_font, 0);
     // lv_obj_set_style_text_font_size(buy_label, 12, 0); // 设置较小的字体大小
@@ -383,7 +383,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_shadow_color(sell_btn, CUTE_ORANGE, 0);
     lv_obj_set_style_shadow_opa(sell_btn, 120, 0);
     lv_obj_t* sell_label = lv_label_create(sell_btn);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：使用较小的字体
     lv_obj_set_style_text_font(sell_label, fonts_.text_font, 0);
     // lv_obj_set_style_text_font_size(sell_label, 12, 0);
@@ -403,7 +403,7 @@ void LcdDisplay::CreateItem(lv_obj_t* parent, int index) {
     lv_obj_set_style_shadow_color(use_btn, CUTE_BLUE, 0);
     lv_obj_set_style_shadow_opa(use_btn, 120, 0);
     lv_obj_t* use_label = lv_label_create(use_btn);
-#ifdef CONFIG_BOARD_TYPE_GEZIPAI
+#ifdef CONFIG_BOARD_TYPE_XVSENFAI
     // 240x280 屏幕：使用较小的字体
     lv_obj_set_style_text_font(use_label, fonts_.text_font, 0);
     // lv_obj_set_style_text_font_size(use_label, 12, 0);
