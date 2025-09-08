@@ -537,7 +537,7 @@ void ElectronicPetTimer::TimerEventProcess(){
     time_t current_time = time(nullptr);
     for (auto it = e_pet_timer_events.begin(); it != e_pet_timer_events.end();) {
         if (it->trigger_time <= current_time) {
-            if (it->type == E_PET_TIMER_FUNCTION) {
+            if (it->type == E_PET_TIMER_FUNCTION && it->function.callback != nullptr) {
                 it->function.callback(it->function.arg);
             } else {
                 ESP_LOGI(TAG, "Message: %s", it->message);
