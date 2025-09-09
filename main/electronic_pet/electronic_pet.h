@@ -38,6 +38,7 @@ typedef struct {
 } FocueInfo;
 
 #define MESSAGE_SEND_EVENT (1 << 0)
+#define HTTP_EVENT (1 << 1)
 
 class ElectronicPet {
 private:

@@ -13,8 +13,79 @@
 #include "board.h"
 #include "display/display.h"
 #include <esp_mac.h>
+#include <esp_http_client.h>
+#include <esp_crt_bundle.h>
+#include <esp_tls.h>
 // #include <base64.h>
 #define TAG "ElectronicPet"
+
+
+#define WIFI_BUFFER_LENGTH          (1 * 1024)
+
+#define MAX_HTTP_OUTPUT_BUFFER WIFI_BUFFER_LENGTH
+char wifi_read_buf[WIFI_BUFFER_LENGTH];
+int read_pos = 0, cannot_read = 0;
+
+int buf_type = 0;
+
+//事件回调
+static esp_err_t _http_event_handle(esp_http_client_event_t *evt)
+{
+    ElectronicPet* pet = ElectronicPet::GetInstance();
+    if(pet == nullptr){
+        ESP_LOGE(TAG, "ElectronicPet instance is null");
+        return ESP_FAIL;
+    }
+    switch(evt->event_id) {
+        case HTTP_EVENT_ERROR://错误事件
+            ESP_LOGI(TAG, "HTTP_EVENT_ERROR");
+            break;
+        case HTTP_EVENT_ON_CONNECTED://连接成功事件
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_CONNECTED");
+            break;
+        case HTTP_EVENT_HEADER_SENT://发送头事件
+            ESP_LOGI(TAG, "HTTP_EVENT_HEADER_SENT");
+            break;
+        case HTTP_EVENT_ON_HEADER://接收头事件
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_HEADER");
+            printf("%.*s", evt->data_len, (char*)evt->data);
+            break;
+        case HTTP_EVENT_ON_DATA://接收数据事件
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            if(read_pos + evt->data_len > WIFI_BUFFER_LENGTH){
+                ESP_LOGE(TAG, "buffer overflow");
+                cannot_read = 1;
+                break;
+            }
+            memcpy(wifi_read_buf + read_pos, evt->data, evt->data_len);
+            ESP_LOGI(TAG, "wifi_read_buf: %s", wifi_read_buf);
+            read_pos += evt->data_len;
+            break;
+        case HTTP_EVENT_ON_FINISH://会话完成事件
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
+            xEventGroupSetBits(pet->message_send_event_, HTTP_EVENT);
+            break;
+        case HTTP_EVENT_REDIRECT://重定向事件
+            ESP_LOGI(TAG, "HTTP_EVENT_REDIRECT");
+            break;
+        case HTTP_EVENT_DISCONNECTED://断开事件
+            {
+                ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+                int mbedtls_err = 0;
+                esp_err_t err = esp_tls_get_and_clear_last_error((esp_tls_error_handle_t)evt->data, &mbedtls_err, NULL);
+                if (err != 0) {
+                    ESP_LOGI(TAG, "Last esp error code: 0x%x", err);
+                    ESP_LOGI(TAG, "Last mbedtls failure: 0x%x", mbedtls_err);
+                }
+            }
+            break;
+        default:
+            break;
+        
+    }
+    return ESP_OK;
+}
+
 
 ElectronicPet::ElectronicPet(){
     ESP_LOGI(TAG, "ElectronicPet constructor");
@@ -72,11 +143,10 @@ ElectronicPet::ElectronicPet(){
         ReadCsv();
     }
     UploadState();
-    
+
     client_ = new PMQTT_Clinet(boardID);
     client_->Publish_Message("log", "ElectronicPet initialized");
     timer = new ElectronicPetTimer(use_web_server_, boardID.c_str());
-
 }
 
 ElectronicPet::~ElectronicPet(){
@@ -591,13 +661,35 @@ std::string ElectronicPet::GetUpdateTask(void){
     ESP_LOGI(TAG, "Upgrade task");
     // 升级
     if(isUpGraded()){
-        // 获取升级任务描述
-        std::string description = ReadUpgradeTaskCsv(level_);
-        if(description.empty()){
-            description = "暂时没有升级任务描述, 你可以随机给出一个问题考考用户";
-            return description;
-        }
-        return description;
+        // // 获取升级任务描述
+        // std::string description = ReadUpgradeTaskCsv(level_);
+        // if(description.empty()){
+        //     description = "暂时没有升级任务描述, 你可以随机给出一个问题考考用户";
+        //     return description;
+        // }
+        memset(wifi_read_buf, 0, sizeof(wifi_read_buf));
+        read_pos = 0;
+        cannot_read = 0;
+    
+        esp_http_client_config_t config = {
+            .url = "https://apis.tianapi.com/naowan/index?key=bf966cb5e47fca5b8dc0427db8678f6d&num=1",
+            .method = HTTP_METHOD_GET,
+            .event_handler = _http_event_handle,
+            .crt_bundle_attach = esp_crt_bundle_attach,
+        };
+        ESP_LOGI(TAG, "start get data");
+        esp_http_client_handle_t client = esp_http_client_init(&config);//初始化配置
+        ESP_LOGD(TAG, "esp_http_client_init");
+        esp_err_t err = esp_http_client_perform(client);//执行请求
+
+
+        xEventGroupClearBits(message_send_event_, HTTP_EVENT);
+        xEventGroupWaitBits(message_send_event_, HTTP_EVENT, pdFALSE, pdTRUE, 1000);
+        ESP_LOGI(TAG, "HTTP event triggered, wifi_read_buf: %s", wifi_read_buf);
+        esp_http_client_cleanup(client);//断开并释放资源
+
+
+        return wifi_read_buf;
     }
     ESP_LOGI(TAG, "No upgrade task available");
     // 没有升级任务

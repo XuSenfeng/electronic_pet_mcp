@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-08-19 19:33:14
- * @LastEditTime: 2025-09-04 10:50:11
+ * @LastEditTime: 2025-09-08 18:34:43
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_item.cc
  */
 #include "lvgl.h"
@@ -122,6 +122,10 @@ void LcdDisplay::UpdataUILevel(int level){
     
     int num_of_things = pet->GetThingsNum();
     DisplayLockGuard lock(this);
+    if(list_item_ == nullptr) {
+        ESP_LOGE(TAG, "list_item_ is null");
+        return;
+    }
     lv_obj_del(list_item_); // 删除旧的物品列表容器
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);

@@ -515,7 +515,7 @@ private:
         };
 
         ESP_ERROR_CHECK(esp_timer_create(&timer_args, &battery_timer_));
-        ESP_ERROR_CHECK(esp_timer_start_periodic(battery_timer_, 1000 * 1000)); // 微秒为单位
+        ESP_ERROR_CHECK(esp_timer_start_periodic(battery_timer_, 10000 * 1000)); // 微秒为单位
     }
 
     // 读取电池电压(mV)

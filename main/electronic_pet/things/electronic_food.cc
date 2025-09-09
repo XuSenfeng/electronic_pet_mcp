@@ -1,7 +1,7 @@
 /*
  * @Descripttion: 
  * @Author: Xvsenfeng helloworldjiao@163.com
- * @LastEditors: Xvsenfeng helloworldjiao@163.com
+ * @LastEditors: Please set LastEditors
  * Copyright (c) 2025 by helloworldjiao@163.com, All Rights Reserved. 
  */
 
@@ -17,6 +17,7 @@ void Food::Use() {
     int state[E_PET_STATE_NUMBER] = {0};
     state[E_PET_STATE_SATITY] = satiety_; // 饱食度
     state[E_PET_STATE_VIGIR] = vigor_; // 精神状态
+    state[E_PET_STATE_HAPPINESS] = happiness_; // 快乐度
     state[E_PET_STATE_MONEY] = money_; // 金钱
     pet->change_statue(state); // 改变宠物的状态
     // 发送消息给小智
