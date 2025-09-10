@@ -395,6 +395,7 @@ void ElectronicPet::change_statue(int *change_state){
     for(int i = 0; i < E_PET_STATE_NUMBER; i++){
         settings.SetInt("state_" + std::to_string(i), state_[i].value);
     }
+    settings.SetInt("experience", experience_);
 }
 
 void ElectronicPet::SetState(int state, int value){
@@ -670,7 +671,7 @@ std::string ElectronicPet::GetUpdateTask(void){
         memset(wifi_read_buf, 0, sizeof(wifi_read_buf));
         read_pos = 0;
         cannot_read = 0;
-    
+        xEventGroupClearBits(message_send_event_, HTTP_EVENT);
         esp_http_client_config_t config = {
             .url = "https://apis.tianapi.com/naowan/index?key=bf966cb5e47fca5b8dc0427db8678f6d&num=1",
             .method = HTTP_METHOD_GET,
@@ -683,7 +684,7 @@ std::string ElectronicPet::GetUpdateTask(void){
         esp_err_t err = esp_http_client_perform(client);//执行请求
 
 
-        xEventGroupClearBits(message_send_event_, HTTP_EVENT);
+        
         xEventGroupWaitBits(message_send_event_, HTTP_EVENT, pdFALSE, pdTRUE, 1000);
         ESP_LOGI(TAG, "HTTP event triggered, wifi_read_buf: %s", wifi_read_buf);
         esp_http_client_cleanup(client);//断开并释放资源

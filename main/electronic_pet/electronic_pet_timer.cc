@@ -413,7 +413,7 @@ void ElectronicPetTimer::OnClockTimer() {
     if(pet == nullptr){
         return;
     }
-    ESP_LOGI(TAG, "Clock ticks: %d %d", clock_ticks_, 1000 / CONFIG_FREQUENCE_OF_PET);
+    // ESP_LOGI(TAG, "Clock ticks: %d %d", clock_ticks_, 1000 / CONFIG_FREQUENCE_OF_PET);
     if(clock_ticks_ % (1000 / CONFIG_FREQUENCE_OF_PET) == 0){
         ESP_LOGI(TAG, "Clock ticks: %d", clock_ticks_);
         // 更新一下状态

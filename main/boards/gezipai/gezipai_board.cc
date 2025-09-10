@@ -200,6 +200,8 @@ private:
                     display->HelpUI();
                 }
                 lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_del(display->screen_things_);
+                display->screen_things_ = nullptr;
                 lv_obj_clear_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
                 display->screen_now_ = display->screen_description_;
                 if (backlight) backlight->DisplayBrightnessKeep();
@@ -211,6 +213,8 @@ private:
                     display->GameSelectUI();
                 }
                 lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_del(display->screen_description_);
+                display->screen_description_ = nullptr;
                 lv_obj_clear_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
                 display->screen_now_ = display->screen_game_;
                 if (backlight) backlight->DisplayBrightnessKeep();
@@ -219,15 +223,13 @@ private:
                 // 游戏界面 -> 主界面
                 ESP_LOGI(TAG, "切换回主界面");
                 lv_obj_add_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_del(display->screen_game_);
+                display->screen_game_ = nullptr;
                 lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
                 display->screen_now_ = display->screen_main_;
                 if (backlight) backlight->DisplayBrightnessReset();
+
                 
-                // 清理游戏界面
-                if (display->screen_game_) {
-                    lv_obj_del(display->screen_game_);
-                    display->screen_game_ = nullptr;
-                }
             } else {
                 // 如果当前界面未知，回到主界面
                 ESP_LOGW(TAG, "未知界面，回到主界面");

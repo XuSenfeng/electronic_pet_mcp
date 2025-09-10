@@ -115,7 +115,7 @@ void Application::CheckNewVersion() {
         }
         retry_count = 0;
         retry_delay = 10; // 重置重试延迟时间
-
+#if CONFIG_USE_OTA_UPGRADE
         if (ota_.HasNewVersion()) {
             Alert(Lang::Strings::OTA_UPGRADE, Lang::Strings::UPGRADING, "happy", Lang::Sounds::P3_UPGRADE);
 
@@ -156,6 +156,7 @@ void Application::CheckNewVersion() {
             Reboot();
             return;
         }
+#endif
 
         // No new version, mark the current version as valid
         // ota_.MarkCurrentVersionValid();
@@ -890,7 +891,7 @@ void Application::SetDeviceState(DeviceState state) {
 #if CONFIG_USE_WAKE_WORD_DETECT
             wake_word_detect_.StartDetection();
 #endif
-            if(display->screen_now_ == display->screen_game_){
+            if(display->screen_now_ == display->screen_main_){
                 backlight->DisplayBrightnessReset();
             }
             

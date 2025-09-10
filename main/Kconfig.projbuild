@@ -93,5 +93,11 @@ menu "XvSenfeng Electronic Pet"
         default "https://www.xvsenfeng.top"
         help
             该服务器用于连接宠物设备的 HTTP 服务
+    
+    config USE_OTA_UPGRADE
+        bool "Enable OTA Upgrade"
+        default y
+        help
+            启用 OTA 升级, 使用的时候需要配合ota升级项目
         
 endmenu

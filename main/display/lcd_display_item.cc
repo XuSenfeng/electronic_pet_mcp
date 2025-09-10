@@ -2,7 +2,7 @@
  * @Author: XvSenfeng
  * @Email: helloworldjiao@163.com
  * @Date: 2025-08-19 19:33:14
- * @LastEditTime: 2025-09-08 18:34:43
+ * @LastEditTime: 2025-09-09 12:49:19
  * @FilePath: /xiaozhi-esp32/main/display/lcd_display_item.cc
  */
 #include "lvgl.h"
@@ -13,7 +13,7 @@
 #define TAG "LCDDisplay"
 /* 物品界面创建函数 */
 
-static lv_obj_t* list_item_;
+static lv_obj_t* list_item_ = nullptr;
 void LcdDisplay::ItemUI() {
     DisplayLockGuard lock(this);
     ElectronicPet* pet = ElectronicPet::GetInstance();
@@ -122,11 +122,9 @@ void LcdDisplay::UpdataUILevel(int level){
     
     int num_of_things = pet->GetThingsNum();
     DisplayLockGuard lock(this);
-    if(list_item_ == nullptr) {
-        ESP_LOGE(TAG, "list_item_ is null");
-        return;
+    if(list_item_ != nullptr) {
+        lv_obj_del(list_item_); // 删除旧的物品列表容器
     }
-    lv_obj_del(list_item_); // 删除旧的物品列表容器
     // 物品列表容器
     list_item_ = lv_obj_create(screen_things_);
 #ifdef CONFIG_BOARD_TYPE_XVSENFAI

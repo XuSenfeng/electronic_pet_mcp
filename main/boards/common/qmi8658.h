@@ -200,10 +200,10 @@ public:
                 backlight->DisplayBrightnessKeep();
             }else if(display->screen_now_ == display->screen_game_){
                 lv_obj_add_flag(display->screen_game_, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
-                display->screen_now_ = display->screen_main_;
                 lv_obj_del(display->screen_game_);
                 display->screen_game_ = nullptr;
+                lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_main_;
                 backlight->DisplayBrightnessReset();
             }
 
@@ -216,10 +216,10 @@ public:
             // display->SetChatMessage("", "gesture event top\n");
             if(display->screen_now_ == display->screen_description_){
                 lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
-                display->screen_now_ = display->screen_main_;
                 lv_obj_del(display->screen_description_);
                 display->screen_description_ = nullptr;
+                lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
+                display->screen_now_ = display->screen_main_;
                 backlight->DisplayBrightnessReset();
             }else if(display->screen_now_ == display->screen_main_){
                 lv_obj_add_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
@@ -253,6 +253,7 @@ public:
                 backlight->DisplayBrightnessKeep();
             }else if(display->screen_now_ == display->screen_game_){
                 lv_obj_del(display->screen_game_);
+                display->screen_game_ = nullptr;
                 if(pet == nullptr) {
                     ESP_LOGE("qmi8658", "ElectronicPet instance is null");
                     return;
@@ -283,12 +284,14 @@ public:
                 backlight->DisplayBrightnessKeep();
             }else if (display->screen_now_ == display->screen_things_) {
                 lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_del(display->screen_things_);
+                display->screen_things_ = nullptr;
                 lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
                 display->screen_now_ = display->screen_main_;
                 backlight->DisplayBrightnessReset();
             }else if (display->screen_now_ == display->screen_game_) {
                 lv_obj_del(display->screen_game_);
-                
+                display->screen_game_ = nullptr;
                 if(pet == nullptr) {
                     ESP_LOGE("qmi8658", "ElectronicPet instance is null");
                     return;

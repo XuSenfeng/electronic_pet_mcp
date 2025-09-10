@@ -20,3 +20,7 @@
 
 1. 下载的时候需要先下载小智的程序, 从而刷写模型分区的功能
 2. 两份代码的ota1分区是实际代码直接运行的部分, 所以可以根据实际的需求进行设置
+
+/home/jiao/esp/v5.4.1/esp-idf/components/bootloader_support/src/esp_image_format.c
+
+![image-20250910122652772](https://picture-01-1316374204.cos.ap-beijing.myqcloud.com/lenovo-picture/202509101226869.png)
