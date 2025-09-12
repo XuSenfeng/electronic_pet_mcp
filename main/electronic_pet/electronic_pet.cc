@@ -18,7 +18,28 @@
 #include <esp_tls.h>
 // #include <base64.h>
 #define TAG "ElectronicPet"
+// 精力, 饱食度, 快乐度
+int ElectronicPet::state_time_change_[E_PET_ACTION_NUMBER][E_PET_STATE_NUMBER] = {
+    /* E_PET_ACTION_IDLE 空闲*/      {-1, -1, -1, 0, 0},
+    /* E_PET_ACTION_PLAY 玩耍*/       {-3, -3, 5, 0, 0},
+    /* E_PET_ACTION_SLEEP 睡觉*/      {2, -1, 0, 0, 0},
+    /* E_PET_ACTION_WALK 走路*/       {-2, -2, 1, 0, 0},
+    /* E_PET_ACTION_BATH 洗澡*/       {-1, -1, 1, 0, 0},
+    /* E_PET_ACTION_WORK 工作*/       {-4, -2, -4, 0, 1},
+    /* E_PET_ACTION_STUDY 学习*/      {-4, -2, -3, 1, 0},
+    /* E_PET_ACTION_PLAY_MUSIC 听歌*/ {-1, -1, 2, 0, 0}
+};
 
+std::string ElectronicPet::action_name_[E_PET_ACTION_NUMBER] = {
+    "空闲",
+    "玩耍",
+    "睡觉",
+    "走路",
+    "洗澡",
+    "工作",
+    "学习",
+    "听歌"
+};
 
 #define WIFI_BUFFER_LENGTH          (1 * 1024)
 
@@ -673,7 +694,7 @@ std::string ElectronicPet::GetUpdateTask(void){
         cannot_read = 0;
         xEventGroupClearBits(message_send_event_, HTTP_EVENT);
         esp_http_client_config_t config = {
-            .url = "https://apis.tianapi.com/naowan/index?key=bf966cb5e47fca5b8dc0427db8678f6d&num=1",
+            .url = "https://apis.tianapi.com/naowan/index?key="  CONFIG_UPDATE_API_KEY "&num=1",
             .method = HTTP_METHOD_GET,
             .event_handler = _http_event_handle,
             .crt_bundle_attach = esp_crt_bundle_attach,
@@ -681,8 +702,7 @@ std::string ElectronicPet::GetUpdateTask(void){
         ESP_LOGI(TAG, "start get data");
         esp_http_client_handle_t client = esp_http_client_init(&config);//初始化配置
         ESP_LOGD(TAG, "esp_http_client_init");
-        esp_err_t err = esp_http_client_perform(client);//执行请求
-
+        esp_http_client_perform(client);//执行请求
 
         
         xEventGroupWaitBits(message_send_event_, HTTP_EVENT, pdFALSE, pdTRUE, 1000);

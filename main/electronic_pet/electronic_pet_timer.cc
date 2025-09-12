@@ -18,11 +18,6 @@
 #define TAG "ElectronicPetTimer"
 
 
-typedef void (*callback_f)(void*);
-typedef struct{
-    callback_f callback;
-    void *arg;
-}callback_t;
 
 void test_callback(void* arg){
     // 发送消息给小智
@@ -53,28 +48,6 @@ callback_t callback_catalogue[20] = {
     {NULL, NULL},
 };
 
-// 精力, 饱食度, 快乐度
-int ElectronicPet::state_time_change_[E_PET_ACTION_NUMBER][E_PET_STATE_NUMBER] = {
-    /* E_PET_ACTION_IDLE 空闲*/      {-1, -1, -1, 0, 0},
-    /* E_PET_ACTION_PLAY 玩耍*/       {-3, -3, 5, 0, 0},
-    /* E_PET_ACTION_SLEEP 睡觉*/      {2, -1, 0, 0, 0},
-    /* E_PET_ACTION_WALK 走路*/       {-2, -2, 1, 0, 0},
-    /* E_PET_ACTION_BATH 洗澡*/       {-1, -1, 1, 0, 0},
-    /* E_PET_ACTION_WORK 工作*/       {-4, -2, -4, 0, 1},
-    /* E_PET_ACTION_STUDY 学习*/      {-4, -2, -3, 1, 0},
-    /* E_PET_ACTION_PLAY_MUSIC 听歌*/ {-1, -1, 2, 0, 0}
-};
-
-std::string ElectronicPet::action_name_[E_PET_ACTION_NUMBER] = {
-    "空闲",
-    "玩耍",
-    "睡觉",
-    "走路",
-    "洗澡",
-    "工作",
-    "学习",
-    "听歌"
-};
 
 ElectronicPetTimer::ElectronicPetTimer(bool from_web, const char* boardID) : from_web_(from_web), boardID(boardID) {
 

@@ -39,6 +39,12 @@ typedef struct{
     };
 }e_pet_timer_event_t;
 
+typedef void (*callback_f)(void*);
+typedef struct{
+    callback_f callback;
+    void *arg;
+}callback_t;
+
 typedef struct{
     int tm_sec; // 秒
     int tm_min; // 分
@@ -50,7 +56,7 @@ typedef struct{
     int random_l;
     int random_h;
     int function_id;
-    char message[100];
+    char message[1024];
 }timer_info_t;
 
 

@@ -93,7 +93,13 @@ menu "XvSenfeng Electronic Pet"
         default "https://www.xvsenfeng.top"
         help
             该服务器用于连接宠物设备的 HTTP 服务
-    
+
+    config UPDATE_API_KEY
+        string "更新API密钥"
+        default "你的API秘钥, 在https://www.tianapi.com/获取"
+        help
+                该服务器用于连接宠物设备的 HTTP 服务
+        
     config USE_OTA_UPGRADE
         bool "Enable OTA Upgrade"
         default y

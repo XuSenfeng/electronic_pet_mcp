@@ -189,6 +189,8 @@ private:
                     display->ItemUI();
                 }
                 lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_del(display->screen_state_);
+                display->screen_state_ = nullptr;
                 lv_obj_clear_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
                 display->screen_now_ = display->screen_things_;
                 if (backlight) backlight->DisplayBrightnessKeep();

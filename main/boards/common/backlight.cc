@@ -25,32 +25,6 @@ void DisplayBrightnessTask(void *arg){
         // 时间到关灯
         ESP_LOGI(TAG, "Turn off the backlight");
         backlight->SetBrightness(0, true, true);
-        // extern lv_obj_t * screen_main_;
-        // extern lv_obj_t * screen_state_;
-        // extern lv_obj_t * screen_things_;
-        // extern lv_obj_t * screen_description_;
-        // extern lv_obj_t * screen_now_;
-        auto display = Board::GetInstance().GetDisplay();
-        DisplayLockGuard lock(display);
-        if(display->screen_now_ == display->screen_state_) {
-            lv_obj_add_flag(display->screen_state_, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
-            display->screen_now_ = display->screen_main_;
-            lv_obj_del(display->screen_state_);
-            display->screen_state_ = nullptr;
-        }
-        if(display->screen_now_ == display->screen_description_){
-            lv_obj_add_flag(display->screen_description_, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
-            display->screen_now_ = display->screen_main_;
-            lv_obj_del(display->screen_description_);
-            display->screen_description_ = nullptr;
-        }
-        if (display->screen_now_ == display->screen_things_) {
-            lv_obj_add_flag(display->screen_things_, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(display->screen_main_, LV_OBJ_FLAG_HIDDEN);
-            display->screen_now_ = display->screen_main_;
-        }
     }
     backlight->brightness_time--;
 }
