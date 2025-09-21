@@ -199,8 +199,6 @@ void LcdDisplay::MessageUI()
                 lv_obj_set_width(message_card, LV_PCT(95));
                            
 
-
-
                 // 消息内容容器
                 lv_obj_t* content_cont = lv_obj_create(message_card);
                 lv_obj_set_flex_grow(content_cont, 1);

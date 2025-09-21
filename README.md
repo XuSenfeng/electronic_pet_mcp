@@ -132,8 +132,6 @@ SD卡使用的用户, 需要配置一下可以使用长文件名. 否则会出�
 
 右侧按键是返回键, 返回上一级界面或者主界面
 
-
-
 ### 配置使用
 1. 连接 Wi-Fi 网络
 2. 注册 [小智官方](xiaozhi.me) 账号
@@ -167,4 +165,11 @@ SD卡使用的用户, 需要配置一下可以使用长文件名. 否则会出�
 
 ## 🎥 相关视频教程
 
-- 
+- [【原创~2025微信小程序~完整项目】最新版微信小程序-零基础到企业级收费项目速成版【本人原创-高清纯享版-其它均为盗录低清版-支持正版-从我做起】_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1WgQdYNERe/?spm_id_from=333.1387.homepage.video_card.click)
+
+- https://www.bilibili.com/video/BV1nNr7YZESq/?spm_id_from=333.1387.homepage.video_card.click
+
+- [Python + MySQL 0基础从入门到精通 MySQL数据库实战精讲教程（2021精华版）_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1B34y1R7in/?spm_id_from=333.1387.search.video_card.click)
+
+    
+
