@@ -144,7 +144,7 @@ private:
 
 
     }
-
+    // Change
     void InitializeButtons()
     {
         button_key1_.OnClick([this]()
@@ -355,7 +355,7 @@ private:
         });
 
     }
-
+    // Change
     void SDCardInit(){
         esp_vfs_fat_sdmmc_mount_config_t mount_config = {
             .format_if_mount_failed = true,   // 如果挂载不成功是否需要格式化SD卡
@@ -390,7 +390,7 @@ private:
         ESP_LOGI(TAG, "Filesystem mounted"); // 提示挂载成功
         sdmmc_card_print_info(stdout, card); // 终端打印SD卡的一些信息
     }
-
+    // Change
     void InitializeTouchDisplay() {
         ESP_LOGI(TAG, "开始初始化触摸显示...");
         esp_lcd_panel_io_handle_t panel_io = nullptr;
