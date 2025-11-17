@@ -1,6 +1,6 @@
 # XvSenfengAI桌宠
 
-开源不易, 给个0B533B9D吧
+开源不易, 给个![0B533B9D](https://github.com/user-attachments/assets/83214bfa-0ffd-49ad-b87f-9b5c4d3ca938)吧
 
 ## 🎯 项目简介
 
