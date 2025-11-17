@@ -1,5 +1,7 @@
 # XvSenfengAI桌宠
 
+开源不易, 给个0B533B9D吧
+
 ## 🎯 项目简介
 
 XvSenfengAI桌宠是一个基于ESP32-S3的开源智能硬件项目，结合了人工智能、语音识别、自然语言处理等先进技术，通过MCP（Model Context Protocol）协议实现AI与硬件的深度整合，打造了一个具有情感交互能力的智能电子宠物。
