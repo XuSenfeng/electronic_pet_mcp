@@ -88,6 +88,7 @@ public:
 
     bool position_f = false, position_b = false, position_l = false, position_r = false;
     BackgroundTask* background_task_ = nullptr;
+    std::string TapeRecorderMessage;
 private:
     Application();
     ~Application();

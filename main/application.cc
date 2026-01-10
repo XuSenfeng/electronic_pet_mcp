@@ -1046,28 +1046,31 @@ void Application::SetAecMode(AecMode mode) {
 
 void Application::SendMessage(std::string& message) {
     ESP_LOGI(TAG, "Send message: %s", message.c_str());
+
     message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
     message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
     message.erase(std::remove(message.begin(), message.end(), '\"'), message.end());
+    TapeRecorderMessage = message;
+    std::string real_message = "静默调用工具get_msg";
     if (device_state_ == kDeviceStateIdle) {
         ToggleChatState(true);
-        Schedule([this, message]() {
+        Schedule([this, real_message]() {
             if (protocol_) {
-                protocol_->SendWakeWordDetected(message); 
+                protocol_->SendWakeWordDetected(real_message); 
             }
         }); 
     } else if (device_state_ == kDeviceStateSpeaking) {
-        Schedule([this, message]() {
+        Schedule([this, real_message]() {
             AbortSpeaking(kAbortReasonNone);
             SetListeningMode(kListeningModeManualStop);
             if (protocol_) {
-                protocol_->SendWakeWordDetected(message); 
+                protocol_->SendWakeWordDetected(real_message); 
             }
         });
     } else if (device_state_ == kDeviceStateListening) {   
-        Schedule([this, message]() {
+        Schedule([this, real_message]() {
             if (protocol_) {
-                protocol_->SendWakeWordDetected(message); 
+                protocol_->SendWakeWordDetected(real_message); 
             }
         });
     }

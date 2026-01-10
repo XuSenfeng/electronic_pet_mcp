@@ -331,6 +331,13 @@ void McpServer::AddCommonTools() {
                 return "{\"success\": false, \"message\": \"Upgrade failed\"}";
             }
         });
+    AddTool("get_msg",
+    "获取一条用户的对话消息,根据消息进一步对话",
+    PropertyList(),
+    [](const PropertyList& properties) -> ReturnValue {
+        auto& app = Application::GetInstance();
+        return app.TapeRecorderMessage;
+    });
     // Restore the original tools list to the end of the tools list
     tools_.insert(tools_.end(), original_tools.begin(), original_tools.end());
 }
